@@ -6,7 +6,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: August 1st, 2023
+# Last Updated: August 2st, 2023
 # ============================================ #
 
 # Changelog:
@@ -124,6 +124,8 @@
      # 0.01V and 0.5V buttons are temporary (will be replaced with checkboxes or radio buttons)
      # Added displays for connection and device serial number
     # Fixed grid positions for CPT and VST
+ 
+   # Add: connection verifiers for each component
     
 #endregion
 
@@ -280,6 +282,7 @@ r_count = 1
 
 lc_running = False
 ts_running = False
+dsp_running = False
 
 dsp_connected = False
 
@@ -485,8 +488,16 @@ def connect_dsp():
 # Start the scan operation using the selected preset method
 # TEMPORARY: currently statically set to 0.01V method
 def scan_op():
-    print(Core.IV_readmethod(dsp_methods))
-    print(Core.IV_startmethod(dsp_methods))
+    global dsp_running
+    
+    Core.IV_readmethod(dsp_methods)
+    
+    dsp_running = True
+    switch_true(dsp_runstatus)
+    Core.IV_startmethod(dsp_methods)
+    dsp_running = False
+    
+    switch_false(dsp_runstatus)
 
 # After the scanning finishes, user can save the data to the output folder
 def save_idf():
@@ -624,7 +635,7 @@ def get_torque_csv():
         writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches]", "Torque [Raw Reading]"])
         file.close()
 
-# Get Torque CSV log name
+# Get DSP IDF log name
 def get_dsp_idf():
     global dsp_idf
     input = dsp_entry.get()
@@ -745,6 +756,8 @@ dsp_test.grid(row=0,column=0, padx=5, pady=6)
 dsp_connection = ttk.Label(dsp_frame, text="Connected to Ivium: ", font=("Arial Bold", 10)).grid(row=1, column=0, pady=2)
 dsp_status = ttk.Label(dsp_frame, text=str(dsp_connected), font=("Arial", 14), background='#f05666', relief='groove')
 dsp_status.grid(row=1, column=1, sticky=W, pady=2)
+dsp_connect = ttk.Button(dsp_frame, text="Connect to DSP", command=connect_dsp)
+dsp_connect.grid(row=1, column=2, padx=5, pady=5)
 
 dsp_device_status = ttk.Label(dsp_frame, text="Device Serial: ", font=("Arial Bold", 10)).grid(row=2, column=0, pady=2)
 dsp_device = ttk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
@@ -755,22 +768,25 @@ dsp_entry = ttk.Entry(dsp_frame)
 dsp_entry.grid(row=3, column=1, pady=5, sticky=W)
 
 dsp_torque_button = ttk.Button(dsp_frame, text="Set Name", command=get_dsp_idf)
-dsp_torque_button.grid(row=3, column=2, padx=3, pady=3, sticky=W)
+dsp_torque_button.grid(row=3, column=2, padx=5, pady=5)
 
 log3 = ttk.Label(dsp_frame, text="Logging to: ", font=("Arial", 10)).grid(row=4, column=0)
 curr_log3 = ttk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log3.grid(row=4, column=1, sticky=W, pady=2)
-
-dsp_connect = ttk.Button(dsp_frame, text="Connect to DSP", command=connect_dsp)
-dsp_connect.grid(row=5, column=0, padx=5, pady=5, sticky=N)
 dsp_scan = ttk.Button(dsp_frame, text="Run 0.01V Scan", command=scan_op)
-dsp_scan.grid(row=6, column=0, padx=5, pady=5, sticky=N)
-dsp_scan2 = ttk.Button(dsp_frame, text="Save .idf File", command=save_idf)
-dsp_scan2.grid(row=7, column=0, padx=5, pady=5, sticky=N)
+dsp_scan.grid(row=4, column=2, padx=5, pady=5, sticky=N)
 
 
-csv_torque_button = ttk.Button(vst_frame, text="Set Name", command=get_torque_csv)
-csv_torque_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
+dsp_runtstat = ttk.Label(dsp_frame, text='Currently running:', font=("Arial Bold", 10)).grid(row=6, column=0, pady=2)
+dsp_runstatus = ttk.Label(dsp_frame, text=str(dsp_running), font=("Arial", 14), background='#f05666', relief='groove')
+dsp_runstatus.grid(row=6, column=1, sticky=W, pady=2)
+
+dsp_readysave = ttk.Label(dsp_frame, text='Ready to save:', font=("Arial Bold", 10)).grid(row=7, column=0, pady=2)
+dsp_savestat = ttk.Label(dsp_frame, text='False', font=("Arial", 14), background='#f05666', relief='groove')
+dsp_savestat.grid(row=7, column=1, sticky=W, pady=2)
+dsp_saveidf = ttk.Button(dsp_frame, text="Save .idf File", command=save_idf)
+dsp_saveidf.grid(row=7, column=2, padx=5, pady=5, sticky=N)
+
 #endregion
 
 # =======================
