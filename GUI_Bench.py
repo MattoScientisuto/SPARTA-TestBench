@@ -121,7 +121,8 @@
     # Added individual output folders for CPT and DSP
      # Also includes the current date for more organization purposes
     # Added some new components to DSP page
-     # 
+     # 0.01V and 0.5V buttons are temporary (will be replaced with checkboxes or radio buttons)
+     # Added displays for connection and device serial number
     # Fixed grid positions for CPT and VST
     
 #endregion
@@ -144,6 +145,7 @@ import nidaqmx
 from nidaqmx.constants import BridgePhysicalUnits
 
 from pyvium import Core
+from pyvium import Tools
 
 import os
 import sys
@@ -258,6 +260,7 @@ frame.grid_propagate(False)
 
 csv_list = []
 torque_csv = []
+dsp_idf = []
 
 # Directory adjusts to any PC
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -266,6 +269,7 @@ todays_date = date.today().strftime("%m-%d-%Y")
 # Data output directories for each component
 cpt_dir = f'.\\data_output\\cpt\\{todays_date}'
 vst_dir = f'.\\data_output\\vst\\{todays_date}'
+dsp_dir = f'.\\data_output\\dsp\\{todays_date}'
 
 strain_data = []
 strain_orig = []
@@ -296,6 +300,8 @@ def log_update(device):
         device.config(text=csv_list[0], background='#15eb80')
     elif device is curr_log2:
         device.config(text=torque_csv[0], background='#15eb80')
+    elif device is curr_log3:
+        device.config(text=dsp_idf[0], background='#15eb80')
     
 def depth_update(i):
     curr_depth.config(text='{:.3f}'.format(entry_nums[i]))
@@ -450,8 +456,9 @@ dsp_001method = 'EIS230724140245.imf'
 dsp_05method = 'EIS230724135821.imf'
 
 # Merge ivium.py directory + dsp_settings folder + chosen settings
-dsp_dir = os.path.join(current_directory, 'dsp_settings', dsp_001method)
+dsp_methods = os.path.join(current_directory, 'dsp_settings', dsp_001method)
 
+# Connect to DSP
 def connect_dsp():
     global dsp_connected
     
@@ -464,18 +471,30 @@ def connect_dsp():
     # '1'  == Connected to IviumSoft, idle
     # '2'  == Connected to IviumSoft, busy
     status = Core.IV_getdevicestatus()
-
+    print(Core.IV_getdevicestatus())
     if status == -1:
-        print('Please open IviumSoft if you wish to connect!')
+        ttk.messagebox.showinfo("Error", 'Please open IviumSoft if you want to connect to a device!')
     elif status == 1:
         dsp_connected = True
         switch_true(dsp_status)
         device_serial = (Core.IV_readSN())
         device_update(dsp_device, device_serial[1])
+    elif status == 3:
+        ttk.messagebox.showinfo("Error", 'No device detected!')
 
+# Start the scan operation using the selected preset method
+# TEMPORARY: currently statically set to 0.01V method
 def scan_op():
-    print(Core.IV_readmethod(dsp_dir))
-    print(Core.IV_startmethod(dsp_dir))
+    print(Core.IV_readmethod(dsp_methods))
+    print(Core.IV_startmethod(dsp_methods))
+
+# After the scanning finishes, user can save the data to the output folder
+def save_idf():
+    if len(dsp_idf) == 0:
+        tk.messagebox.showinfo("Error", 'No name has been set for the log file!')
+    else:
+        dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
+        print(Core.IV_savedata(dsp_output))
 
 #endregion
 
@@ -605,6 +624,25 @@ def get_torque_csv():
         writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches]", "Torque [Raw Reading]"])
         file.close()
 
+# Get Torque CSV log name
+def get_dsp_idf():
+    global dsp_idf
+    input = dsp_entry.get()
+    
+    # If the list of idfs is empty, append
+    # Otherwise, replace the current stored idf
+    if len(dsp_idf) == 0:
+        dsp_idf.append(input)
+    else:
+        dsp_idf[0] = input
+    log_update(curr_log3)
+    print("IDF log set to:", input)
+    
+    # If today's date doesn't have an output folder yet, make one
+    # Otherwise, continue
+    if not os.path.exists(dsp_dir):
+        os.makedirs(dsp_dir)
+        
 # =========================================
 # Load Cell + Torque Sensor Run Operations
 # =========================================
@@ -644,7 +682,7 @@ restart_button.grid(row=2, column=0, padx=5, pady=5, sticky=NW)  # Update column
 cpt_test = ttk.Label(cpt_frame, text='Cone Penetrator', font=("Arial", 18)) 
 cpt_test.grid(row=0,column=0, padx=5, pady=6)
 
-set_csv = ttk.Label(cpt_frame, text="Set load CSV log file name: ", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+set_csv = ttk.Label(cpt_frame, text="Set load log name (include .csv): ", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
 entry = ttk.Entry(cpt_frame)
 entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
@@ -678,7 +716,7 @@ curr_newt.grid(row=6, column=1, sticky=W, pady=2)
 vst_test = ttk.Label(vst_frame, text='Vane Shear Tester', font=("Arial", 18)) 
 vst_test.grid(row=0,column=0, padx=5, pady=6)
 
-set_tcsv = ttk.Label(vst_frame, text="Set torque CSV file name:", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+set_tcsv = ttk.Label(vst_frame, text="Set torque log name (include .csv):", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
 torque_entry = ttk.Entry(vst_frame)
 torque_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
@@ -700,6 +738,7 @@ torque_running.grid(row=4, column=1, sticky=W, pady=2)
 
 # DSP page
 #region
+
 dsp_test = ttk.Label(dsp_frame, text='Dielectric Spectrometer', font=("Arial", 18)) 
 dsp_test.grid(row=0,column=0, padx=5, pady=6)
 
@@ -707,16 +746,31 @@ dsp_connection = ttk.Label(dsp_frame, text="Connected to Ivium: ", font=("Arial 
 dsp_status = ttk.Label(dsp_frame, text=str(dsp_connected), font=("Arial", 14), background='#f05666', relief='groove')
 dsp_status.grid(row=1, column=1, sticky=W, pady=2)
 
-dsp_device_status = ttk.Label(dsp_frame, text="Device connected: ", font=("Arial Bold", 10)).grid(row=2, column=0, pady=2)
+dsp_device_status = ttk.Label(dsp_frame, text="Device Serial: ", font=("Arial Bold", 10)).grid(row=2, column=0, pady=2)
 dsp_device = ttk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 dsp_device.grid(row=2, column=1, sticky=W, pady=2)
 
+set_dcsv = ttk.Label(dsp_frame, text="Set DSP log name (include .idf):", font=("Arial", 10)).grid(row=3, column=0, padx=3, pady=10)
+dsp_entry = ttk.Entry(dsp_frame)
+dsp_entry.grid(row=3, column=1, pady=5, sticky=W)
+
+dsp_torque_button = ttk.Button(dsp_frame, text="Set Name", command=get_dsp_idf)
+dsp_torque_button.grid(row=3, column=2, padx=3, pady=3, sticky=W)
+
+log3 = ttk.Label(dsp_frame, text="Logging to: ", font=("Arial", 10)).grid(row=4, column=0)
+curr_log3 = ttk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
+curr_log3.grid(row=4, column=1, sticky=W, pady=2)
+
 dsp_connect = ttk.Button(dsp_frame, text="Connect to DSP", command=connect_dsp)
-dsp_connect.grid(row=3, column=0, padx=5, pady=5, sticky=N)
+dsp_connect.grid(row=5, column=0, padx=5, pady=5, sticky=N)
 dsp_scan = ttk.Button(dsp_frame, text="Run 0.01V Scan", command=scan_op)
-dsp_scan.grid(row=4, column=0, padx=5, pady=5, sticky=N)
-dsp_scan2 = ttk.Button(dsp_frame, text="Run 0.5V Scan", command=scan_op)
-dsp_scan2.grid(row=5, column=0, padx=5, pady=5, sticky=N)
+dsp_scan.grid(row=6, column=0, padx=5, pady=5, sticky=N)
+dsp_scan2 = ttk.Button(dsp_frame, text="Save .idf File", command=save_idf)
+dsp_scan2.grid(row=7, column=0, padx=5, pady=5, sticky=N)
+
+
+csv_torque_button = ttk.Button(vst_frame, text="Set Name", command=get_torque_csv)
+csv_torque_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
 #endregion
 
 # =======================
@@ -725,9 +779,11 @@ dsp_scan2.grid(row=5, column=0, padx=5, pady=5, sticky=N)
 #region
 canvas = FigureCanvasTkAgg(fig1, master=cpt_frame)
 canvas.get_tk_widget().grid(row=7, column=0, columnspan=3, padx=30, pady=15)
+canvas.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 
 canvas2 = FigureCanvasTkAgg(fig2, master=vst_frame)
 canvas2.get_tk_widget().grid(row=5, column=0, columnspan=3, padx=30, pady=15)
+canvas2.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 #endregion
 
 
