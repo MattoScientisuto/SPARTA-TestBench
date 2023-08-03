@@ -1,5 +1,6 @@
 # SPARTA Test Bench
-Interface software for SPARTA test bench
+Python interface software for the SPARTA test bench. Currently automates the reading, logging, and real-time visualization of data from a load cell, torque sensor, and dielectric spectrometer.
+This interface is being developed for my current internship at NASA Jet Propulsion Laboratory.
 
 Dependencies / Imports:
  - Matplotlib
