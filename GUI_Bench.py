@@ -133,9 +133,11 @@ from tkinter import *
 import tkinter as tk
 import tkinter as ttk
 from PIL import Image, ImageTk
+import webbrowser
 
-from datetime import date
+from datetime import date, datetime
 import datetime as dt
+import time
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -153,7 +155,10 @@ import os
 import sys
 import csv
 
+import serial
+
 from threading import Thread
+import threading
 
 root = Tk()
 root.title('SPARTA Test Bench')
@@ -162,6 +167,9 @@ root.geometry('650x720')
 def restart_program():
     python = sys.executable
     os.execl(python, 'python ', *sys.argv)
+
+def open_url(url):
+    webbrowser.open_new_tab(url)
 
 # Home frame is set as the start up page
 home_frame = Frame(root, width=200, height=root.winfo_height())
@@ -259,6 +267,11 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
+# ser = serial.Serial('COM8', baudrate=9600, timeout=1)
+
+def digitalWrite(command):
+    # ser.write(command.encode())
+    print('Command sent:', command)
 
 csv_list = []
 torque_csv = []
@@ -317,6 +330,8 @@ def read_load_cell():
     global lc_running
     global r_count
     
+    lc_running = True
+    
     with nidaqmx.Task() as ai_task:
          
         # Setup the NI cDAQ-9174 + DAQ 9237 module
@@ -335,8 +350,9 @@ def read_load_cell():
         strain_orig.clear()
         entry_nums.clear()
         
+        
+        digitalWrite('W')
         ai_task.start()
-        lc_running = True
         switch_true(load_running)
         start_time = dt.datetime.now()
         
@@ -378,7 +394,9 @@ def read_load_cell():
         lc_running = False
         switch_false(load_running)
         newton_update()
+        digitalWrite('s')
         print('Run Completed!')
+        
 thread_load_cell = Thread(target=read_load_cell)
 
 # Torque Sensor Read
@@ -508,6 +526,165 @@ def save_idf():
         print(Core.IV_savedata(dsp_output))
 
 #endregion
+
+
+
+
+
+#region
+
+def full_op():
+    global total_time
+    global lc_running
+    global r_count
+    
+    curr_time = datetime.now().strftime("%H-%M-%S")
+    cpt_var.set(f'CPT_{todays_date}_{curr_time}.csv')
+    get_csv()
+    
+    with nidaqmx.Task() as ai_task:
+         
+        # Setup the NI cDAQ-9174 + DAQ 9237 module
+        # Specify the DAQ port (find using NI-MAX)
+        # Then choose the units + sample rate + acquisition type
+        ai_task.ai_channels.add_ai_bridge_chan("cDAQ1Mod1/ai0")
+        ai_task.ai_channels.ai_bridge_units = BridgePhysicalUnits.NEWTONS
+        ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS)
+        ai_task.in_stream.input_buf_size = 2000
+
+        # Start the task
+        
+        # CLEAR OLD DATA EVERY NEW RUN TO PREVENT INTERFERANCE!
+        timestamps.clear()
+        strain_data.clear()
+        strain_orig.clear()
+        entry_nums.clear()
+        
+        ai_task.start()
+        switch_true(load_running)
+        start_time = dt.datetime.now()
+        
+        with open(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'a', newline='') as file:
+            writer = csv.writer(file)
+            
+            for i in range(num_of_samples):
+                strain = ai_task.read()     # Read current value
+                true_strain = strain * -1   # Inversion (raw readings come negative for some)
+                newton = (strain * (-96960)) - 1.12 # -96960 gain, 1.12 zero offset
+
+                # print(f"Newtons: {newton}")
+                now = dt.datetime.now()
+                
+                # Calculate current time, starting from 0 seconds
+                # Then store in global timestamps list for plotting
+                elapsed_time = now - start_time
+                seconds = elapsed_time.total_seconds()
+                rounded_seconds = round(seconds, 3)
+                timestamps.append(rounded_seconds)
+                
+                # Store newton readings
+                strain_data.append(newton)
+                # Also storing raw values just in case
+                strain_orig.append(true_strain)
+                # Store current depth
+                entry_nums.append(r_count / 7500)
+                depth_update(i)
+                r_count+=1
+                
+                # Write current value to CSV
+                # Real-time so that the GUI plot can keep up
+                writer.writerow([timestamps[i], entry_nums[i], strain_data[i], strain_orig[i]])
+            file.close()
+                
+        end_time = dt.datetime.now() 
+        total_time = (end_time - start_time).total_seconds()
+        print("Total time elapsed: {:.3f} seconds".format(total_time))
+        lc_running = False
+        switch_false(load_running)
+        newton_update()
+        print('Run Completed!')
+        
+    # ============================================
+        
+    global ts_running
+    
+    curr_time = datetime.now().strftime("%H-%M-%S")
+    vst_var.set(f'VST_{todays_date}_{curr_time}.csv')
+    get_torque_csv()
+    
+    with nidaqmx.Task() as ai_task:
+         
+        # Setup the NI cDAQ-9174 + DAQ 9237 module
+        # Specify the DAQ port (find using NI-MAX)
+        # Then choose the units + sample rate + acquisition type
+        ai_task.ai_channels.add_ai_bridge_chan("cDAQ1Mod1/ai1")
+        ai_task.ai_channels.ai_bridge_units = BridgePhysicalUnits.INCH_POUNDS
+        ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS)
+        ai_task.in_stream.input_buf_size = 5000
+        
+        # CLEAR OLD DATA EVERY NEW RUN TO PREVENT INTERFERANCE!
+        torque_timestamps.clear()
+        lbs_inches.clear()
+        raw_torque.clear()
+        
+        ai_task.start()
+        ts_running = True
+        switch_true(torque_running)
+        start_time = dt.datetime.now()
+        
+        with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
+            writer = csv.writer(file)
+            print(ts_running)
+            for i in range(num_of_samples):
+                torque = ai_task.read()     # Read current value
+                true_torque = torque * -1   # Inversion (raw readings come negative for some reason)
+                lb_inch = (torque * (-42960)) - 11.0     # (raw readings * gain) minus offset
+
+                # print(f"Pound-inches: {lb_inch}")
+                now = dt.datetime.now()
+                
+                # Calculate current time, starting from 0 seconds
+                # Then store in global timestamps list for plotting
+                elapsed_time = now - start_time
+                seconds = elapsed_time.total_seconds()
+                rounded_seconds = round(seconds, 3)
+                torque_timestamps.append(rounded_seconds)
+                
+                # Store newton readings
+                lbs_inches.append(lb_inch)
+                # Also storing raw values just in case
+                raw_torque.append(true_torque)
+                
+                # Write current value to CSV
+                # Real-time so that the GUI plot can keep up
+                writer.writerow([torque_timestamps[i], lbs_inches[i], raw_torque[i]])
+            file.close()
+                
+        end_time = dt.datetime.now() 
+        total_time = (end_time - start_time).total_seconds()
+        print("Total time elapsed: {:.3f} seconds".format(total_time))
+        ts_running = False
+        switch_false(torque_running)
+        print('Run Completed!')
+
+    # ============================================
+    
+    curr_time = datetime.now().strftime("%H-%M-%S")
+    dsp_var.set(f'DSP_{todays_date}_{curr_time}.idf')
+    get_dsp_idf()
+    
+    connect_dsp()
+    scan_op()
+    save_idf()
+    
+#endregion
+
+
+
+
+
+
+
 
 # =================
 # LIVE PLOTS SETUP
@@ -679,12 +856,20 @@ label1.image = jpl_img
 label1.grid(row=0, column=0, padx=5, pady=5, sticky=NW)
 
 # Title
-main_title = ttk.Label(home_frame, text="SPARTA Test Bench Home Page", font=("Arial", 18))
+main_title = tk.Label(home_frame, text="SPARTA Test Bench Home Page", font=("Arial", 18))
 main_title.grid(row=1, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
+
+cpt_var = tk.StringVar()
+vst_var = tk.StringVar()
+dsp_var = tk.StringVar()
+    
+# Operation Button
+op_button = ttk.Button(home_frame, text="Run full operation", command=full_op)
+op_button.grid(row=2, column=0, padx=5, pady=5, sticky=NW)
 
 # Restart Button
 restart_button = ttk.Button(home_frame, text="Restart", command=restart_program)
-restart_button.grid(row=2, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
+restart_button.grid(row=3, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
 
 #endregion
 
@@ -694,7 +879,7 @@ cpt_test = ttk.Label(cpt_frame, text='Cone Penetrator', font=("Arial", 18))
 cpt_test.grid(row=0,column=0, padx=5, pady=6)
 
 set_csv = ttk.Label(cpt_frame, text="Set load log name (include .csv): ", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
-entry = ttk.Entry(cpt_frame)
+entry = ttk.Entry(cpt_frame, textvariable=cpt_var)
 entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
 csv_button = ttk.Button(cpt_frame, text="Set Name", command=get_csv)
@@ -728,7 +913,7 @@ vst_test = ttk.Label(vst_frame, text='Vane Shear Tester', font=("Arial", 18))
 vst_test.grid(row=0,column=0, padx=5, pady=6)
 
 set_tcsv = ttk.Label(vst_frame, text="Set torque log name (include .csv):", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
-torque_entry = ttk.Entry(vst_frame)
+torque_entry = ttk.Entry(vst_frame, textvariable=vst_var)
 torque_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
 csv_torque_button = ttk.Button(vst_frame, text="Set Name", command=get_torque_csv)
@@ -763,8 +948,8 @@ dsp_device_status = ttk.Label(dsp_frame, text="Device Serial: ", font=("Arial Bo
 dsp_device = ttk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 dsp_device.grid(row=2, column=1, sticky=W, pady=2)
 
-set_dcsv = ttk.Label(dsp_frame, text="Set DSP log name (include .idf):", font=("Arial", 10)).grid(row=3, column=0, padx=3, pady=10)
-dsp_entry = ttk.Entry(dsp_frame)
+set_didf = ttk.Label(dsp_frame, text="Set DSP log name (include .idf):", font=("Arial", 10)).grid(row=3, column=0, padx=3, pady=10)
+dsp_entry = ttk.Entry(dsp_frame, textvariable=dsp_var)
 dsp_entry.grid(row=3, column=1, pady=5, sticky=W)
 
 dsp_torque_button = ttk.Button(dsp_frame, text="Set Name", command=get_dsp_idf)
@@ -806,4 +991,5 @@ canvas2.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
 ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
 plt.show()
+
 root.mainloop()
