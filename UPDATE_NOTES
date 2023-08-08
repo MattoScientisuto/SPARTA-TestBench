@@ -1,0 +1,123 @@
+7-5-23
+ - Removed 'argparse' to run the script using a terminal
+  - No need for it anymore since I added the GUI
+  - Would have become more irrelevant as more parts were added (i.e. torque sensor, DSP)
+ - Added a gain and offset value for the load cell data
+  - Calibrated by using a known weight (i.e. soil sample) and placed it on top of it
+        # Trial and error: repeated until the correct weight in newtons was displayed
+        
+7-10-23
+ - Fixed issue where continuous load cell runs using the GUI resulted in timestamps not saving properly
+  - Every new log file would duplicate amount of timestamp readings
+   - SOLUTION: At the start of every run, clear all previously saved data in lists
+  - Added JPL logo into top left corner
+    
+7-17-23
+  - Added live plot
+   - Running/reading from the load cell is currently assigned to a separate thread
+    - Allows the live plot to actually update (otherwise the main window freezes/stops responding)
+     - BUT currently has an issue where the thread never terminates, so the whole program has to be restarted on each run
+  - Removed old plot that appears after data acquisition was finished
+   - No need for it anymore since we now have live plots
+  - Attempted to figure out timing/performance inconsistencies
+   - Still more work to do
+
+7-18-23
+ - Added torque sensor reading and logging functions + live plot
+  - Added a scuffed separator in between the load cell and torque sensor operations
+    - I thought it would have pushed the torque sensor items to the right
+    - Going to probably need blank placeholders with padding or something
+     
+ - Still need to figure out timing/performance inconsistencies
+  - For sure when laptop is not plugged in, it reads and plots a lot slower
+  - ALSO with the current DAQ tasks, I think setting it on 'CONTINUOUS' might be causing inconsistent time
+   - Sometimes causes a time clock error at the end of operations
+   - Can potentially screw up the overall program
+  - Need to figure out how to stop animation functions once operation is over
+   - Significantly slows down the other component since it's still monitoring another file
+   - Need to figure out how to kill threads properly
+    
+  - POSSIBILITIES:
+   1.) Thread the animation functions as well (might be easier said than done)
+
+7-19-23
+ - Adjusted refresh rate on animation objects to 400ms
+  - Might just have to bite the bullet and look at the lag (takes up way too much CPU space)
+  - Adjusted buffer size
+    - Not exactly what it affected just yet (continue looking into it)
+    - Apparently higher rates will make it capture data less frequently
+
+  - PROBABLY A TEMPORARY FIX:
+   - Added a 'Restart' button 
+    - Restarts the whole script and GUI to make sure the threads for both devices are properly closed
+    - Allows the load cell and torque sensor to re-run properly
+    - In the future, I would rather have a way for it to automatically close the threads without the user needing to know about it
+     
+   - Found that the occasional clock error is because the program is going too slow to keep up with the DAQ
+    - Usually happens when laptop doesn't have enough power, or isn't plugged in
+    - Or too much CPU power is being taken which significantly slows down reading and logging
+     
+    - Need to add
+     - 'Currently running' indicators to show what device is currently running
+     - 'Current log file' indicator to assure the user the correct log file is being used
+      - Right now all of the confirmation outputs go through the terminal, which won't work later once this is an executable
+     - ALSO need to calibrate torque sensor with the wrench once Bob finishes his plate to attach to it
+     
+7-24-23
+ - Changed load cell live plot to 'Depth (cm)' and 'Force (Newtons)'
+ - Also inverted the y-axis
+ - Added 'Date Plotted' to both figures
+    
+7-25-23
+ - Added new status displays for:
+  - Current log file names
+  - Running status (true or false)
+  - FOR LOAD CELL: 
+   - Current depth
+    - Has some performance inconsistencies
+     - Disabled for now
+   - Maximum newton value read
+       
+7-26-23
+ - Major performance improvements
+  - Forgot all about the DAQ print statements that would clog up the console
+  - Average CPU performance dropped from 70-90% capacity to 10-23%
+  - Also allowed the 'Current depth' meter to be re-enabled without any issues
+  - Laptop can now operate at optimal performance (even when unplugged)
+    
+  - DSP Functions created for 0.01V and 0.5V amplitude
+   - Script loads two pre-made Ivium method files and sends them to Ivium to scan
+     - Will probably be adding the same status displays
+  - Added device connected status
+      
+7-31-23
+ - Found a stackoverflow makeshift expanding sidebar
+  - Currently building from the ground up on 'sidebar_stack.py'
+  - Will migrate code back over once everything is running seamlessly
+ - Added all components to CPT page
+  - TESTED: data logging and plotting working, also doesn't erase any data switching page to page
+  - TO DO: adjust grid positions to make it look pretty
+    
+  - Note to self: try to really understand how the sidebar frame and shaping works
+   - Seems really helpful for making custom interfaces that need really specific details
+    
+8-1-23
+ - Completely migrated functions over to this new .py file
+ - Added all components to VST page
+ - Added individual output folders for CPT and DSP
+  - Also includes the current date for more organization purposes
+ - Added some new components to DSP page
+  - 0.01V and 0.5V buttons are temporary (will be replaced with checkboxes or radio buttons)
+  - Added displays for connection and device serial number
+ - Fixed grid positions for CPT and VST
+
+8-8-23
+  'Operation' button on the Home page currently reads and logs from the load cell first, then torque sensor, then DSP.
+ - The log file names are automatically set to begin with CPT_ VST_ and DSP_ , followed by the current date and time when the logging began.
+ - The functionality of the button (for now) is planned to be used for the Blue Origin flight since GUI will not be necessary for the flight (all we need is data logging)
+ - Once I polish the functionality of the button, I will most likely create a separate script without GUI for the micro-PCs
+ To-do:
+ - Currently the DSP logging function saves the .idf file right away before any pre-treatment or primary data is collected. Will need to fix.
+
+For the main manual Cone Penetrator page, running the load cell monitor will activate the linear actuator and stop once the operation finishes.
+ - Still very early, just wanted to see if it worked properly
