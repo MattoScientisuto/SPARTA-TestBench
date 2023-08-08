@@ -8,6 +8,7 @@ Dependencies / Imports:
  - pandas
  - PIL
  - pyvium
+ - serial
  - Thread
  - Tkinter
 
