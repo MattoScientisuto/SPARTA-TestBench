@@ -4,7 +4,7 @@
   - Would have become more irrelevant as more parts were added (i.e. torque sensor, DSP)
  - Added a gain and offset value for the load cell data
   - Calibrated by using a known weight (i.e. soil sample) and placed it on top of it
-        # Trial and error: repeated until the correct weight in newtons was displayed
+   -Trial and error: repeated until the correct weight in newtons was displayed
         
 7-10-23
  - Fixed issue where continuous load cell runs using the GUI resulted in timestamps not saving properly
