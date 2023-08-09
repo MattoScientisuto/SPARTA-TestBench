@@ -111,7 +111,7 @@
   - Added displays for connection and device serial number
  - Fixed grid positions for CPT and VST
 
-8-8-23
+8-7-23
   'Operation' button on the Home page currently reads and logs from the load cell first, then torque sensor, then DSP.
  - The log file names are automatically set to begin with CPT_ VST_ and DSP_ , followed by the current date and time when the logging began.
  - The functionality of the button (for now) is planned to be used for the Blue Origin flight since GUI will not be necessary for the flight (all we need is data logging)
@@ -121,3 +121,10 @@
 
 For the main manual Cone Penetrator page, running the load cell monitor will activate the linear actuator and stop once the operation finishes.
  - Still very early, just wanted to see if it worked properly
+
+8-8-23
+ - Created a new script specifically for Blue Origin flight (work in progress)
+  - Will be the primary script ran on micro-PCs during the flight
+  - Designed to be memory efficient and automated without human interaction
+  - Will most likely have multiple versions for different soil samples and bench systems
+  
