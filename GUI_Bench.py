@@ -6,129 +6,10 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: August 2st, 2023
+# Last Updated: August 8th, 2023
 # ============================================ #
 
-# Changelog:
-#region    
-
-  # 7-5-23
-    # Removed 'argparse' to run the script using a terminal
-     # No need for it anymore since I added the GUI
-     # Would have become more irrelevant as more parts were added (i.e. torque sensor, DSP)
-    # Added a gain and offset value for the load cell data
-        # Calibrated by using a known weight (i.e. soil sample) and placed it on top of it
-        # Trial and error: repeated until the correct weight in newtons was displayed
-        
-  # 7-10-23
-    # Fixed issue where continuous load cell runs using the GUI resulted in timestamps not saving properly
-     # Every new log file would duplicate amount of timestamp readings
-     # SOLUTION: At the start of every run, clear all previously saved data in lists
-    # Added JPL logo into top left corner
-    
-  # 7-17-23
-    # Added live plot
-     # Running/reading from the load cell is currently assigned to a separate thread
-      # Allows the live plot to actually update (otherwise the main window freezes/stops responding)
-      # BUT currently has an issue where the thread never terminates, so the whole program has to be restarted on each run
-    # Removed old plot that appears after data acquisition was finished
-     # No need for it anymore since we now have live plots
-    # Attempted to figure out timing/performance inconsistencies
-     # Still more work to do
-
-  # 7-18-23
-    # Added torque sensor reading and logging functions + live plot
-    # Added a scuffed separator in between the load cell and torque sensor operations
-     # I thought it would have pushed the torque sensor items to the right
-     # Going to probably need blank placeholders with padding or something
-     
-    # Still need to figure out timing/performance inconsistencies
-     # For sure when laptop is not plugged in, it reads and plots a lot slower
-     # ALSO with the current DAQ tasks, I think setting it on 'CONTINUOUS' might be causing inconsistent time
-      # Sometimes causes a time clock error at the end of operations
-       # Can potentially screw up the overall program
-    # Need to figure out how to stop animation functions once operation is over
-     # Significantly slows down the other component since it's still monitoring another file
-    # Need to figure out how to kill threads properly
-    
-    # POSSIBILITIES:
-     # 1.) Thread the animation functions as well (might be easier said than done)
-
-  # 7-19-23
-    # Adjusted refresh rate on animation objects to 400ms
-     # Might just have to bite the bullet and look at the lag (takes up way too much CPU space)
-    # Adjusted buffer size
-     # Not exactly what it affected just yet (continue looking into it)
-     # Apparently higher rates will make it capture data less frequently
-    # PROBABLY A TEMPORARY FIX:
-     # Added a 'Restart' button 
-      # Restarts the whole script and GUI to make sure the threads for both devices are properly closed
-       # Allows the load cell and torque sensor to re-run properly
-      # In the future, I would rather have a way for it to automatically close the threads without the user needing to know about it
-     
-    # Found that the occasional clock error is because the program is going too slow to keep up with the DAQ
-     # Usually happens when laptop doesn't have enough power, or isn't plugged in
-     # Or too much CPU power is being taken which significantly slows down reading and logging
-     
-    # Need to add
-     # 'Currently running' indicators to show what device is currently running
-     # 'Current log file' indicator to assure the user the correct log file is being used
-      # Right now all of the confirmation outputs go through the terminal, which won't work later once this is an executable
-     # ALSO need to calibrate torque sensor with the wrench once Bob finishes his plate to attach to it
-     
-   # 7-24-23
-    # Changed load cell live plot to 'Depth (cm)' and 'Force (Newtons)'
-     # Also inverted the y-axis
-    # Added 'Date Plotted' to both figures
-    
-   # 7-25-23
-    # Added new status displays for:
-     # Current log file names
-     # Running status (true or false)
-     # FOR LOAD CELL: 
-      # Current depth
-       # Has some performance inconsistencies
-       # Disabled for now
-      # Maximum newton value read
-      
-   # 7-26-23
-    # Major performance improvements
-     # Forgot all about the DAQ print statements that would clog up the console
-     # Average CPU performance dropped from 70-90% capacity to 10-23%
-     # Also allowed the 'Current depth' meter to be re-enabled without any issues
-     # Laptop can now operate at optimal performance (even when unplugged)
-    
-    # DSP Functions created for 0.01V and 0.5V amplitude
-     # Script loads two pre-made Ivium method files and sends them to Ivium to scan
-     # Will probably be adding the same status displays
-      # Device connected status
-      # Currently running (refer to Ivium!)
-      
-   # 7-31-23
-    # Found a stackoverflow makeshift expanding sidebar
-     # Currently building from the ground up on 'sidebar_stack.py'
-      # Will migrate code back over once everything is running seamlessly
-    # Added all components to CPT page
-     # TESTED: data logging and plotting working, also doesn't erase any data switching page to page
-     # TO DO: adjust grid positions to make it look pretty
-    
-    # Note to self: try to really understand how the sidebar frame and shaping works
-     # Seems really helpful for making custom interfaces that need really specific details
-    
-   # 8-1-23
-    # Completely migrated functions over to this new .py file
-    # Added all components to VST page
-    # Added individual output folders for CPT and DSP
-     # Also includes the current date for more organization purposes
-    # Added some new components to DSP page
-     # 0.01V and 0.5V buttons are temporary (will be replaced with checkboxes or radio buttons)
-     # Added displays for connection and device serial number
-    # Fixed grid positions for CPT and VST
- 
-   # Add: connection verifiers for each component
-    
-#endregion
-
+#region
 from tkinter import *
 import tkinter as tk
 import tkinter as ttk
@@ -163,6 +44,7 @@ import threading
 root = Tk()
 root.title('SPARTA Test Bench')
 root.geometry('650x720')
+#endregion
 
 def restart_program():
     python = sys.executable
@@ -330,8 +212,6 @@ def read_load_cell():
     global lc_running
     global r_count
     
-    lc_running = True
-    
     with nidaqmx.Task() as ai_task:
          
         # Setup the NI cDAQ-9174 + DAQ 9237 module
@@ -353,6 +233,7 @@ def read_load_cell():
         
         digitalWrite('W')
         ai_task.start()
+        lc_running = True
         switch_true(load_running)
         start_time = dt.datetime.now()
         
@@ -675,6 +556,7 @@ def full_op():
     
     connect_dsp()
     scan_op()
+    time.sleep(130)
     save_idf()
     
 #endregion
@@ -770,10 +652,12 @@ def get_csv():
     # Otherwise, replace the current stored csv
     if len(csv_list) == 0:
         csv_list.append(input)
+        print("Load CSV set to:", input)
     else:
         csv_list[0] = input
+        print("Load CSV set to:", input)
     log_update(curr_log1)
-    print("CSV log set to:", input)
+    
     
     # If today's date doesn't have an output folder yet, make one
     # Otherwise, continue
@@ -796,10 +680,12 @@ def get_torque_csv():
     # Otherwise, replace the current stored csv
     if len(torque_csv) == 0:
         torque_csv.append(input)
+        print("Torque CSV set to:", input)
     else:
         torque_csv[0] = input
+        print("Torque CSV set to:", input)
     log_update(curr_log2)
-    print("CSV log set to:", input)
+    
     
     # If today's date doesn't have an output folder yet, make one
     # Otherwise, continue
@@ -821,10 +707,11 @@ def get_dsp_idf():
     # Otherwise, replace the current stored idf
     if len(dsp_idf) == 0:
         dsp_idf.append(input)
+        print("DSP IDF set to:", input)
     else:
         dsp_idf[0] = input
+        print("DSP IDF set to:", input)
     log_update(curr_log3)
-    print("IDF log set to:", input)
     
     # If today's date doesn't have an output folder yet, make one
     # Otherwise, continue
@@ -859,17 +746,20 @@ label1.grid(row=0, column=0, padx=5, pady=5, sticky=NW)
 main_title = tk.Label(home_frame, text="SPARTA Test Bench Home Page", font=("Arial", 18))
 main_title.grid(row=1, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
 
+git_link = tk.Label(home_frame, text='Github Page', font=('Helveticaitalic', 15), fg="blue", cursor="hand2")
+git_link.grid(row=2, column=0, padx=5, pady=5, sticky=NW)
+
 cpt_var = tk.StringVar()
 vst_var = tk.StringVar()
 dsp_var = tk.StringVar()
     
 # Operation Button
 op_button = ttk.Button(home_frame, text="Run full operation", command=full_op)
-op_button.grid(row=2, column=0, padx=5, pady=5, sticky=NW)
+op_button.grid(row=3, column=0, padx=5, pady=5, sticky=NW)
 
 # Restart Button
 restart_button = ttk.Button(home_frame, text="Restart", command=restart_program)
-restart_button.grid(row=3, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
+restart_button.grid(row=4, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
 
 #endregion
 
