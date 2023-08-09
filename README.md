@@ -12,7 +12,12 @@ Dependencies / Imports:
  - Thread
  - Tkinter
 
-To open in a terminal, use:
+To install all dependencies at once, use:
+```
+npm install
+```
+
+To open the GUI in a terminal, use:
 ```
 python GUI_Bench.py
 ```
