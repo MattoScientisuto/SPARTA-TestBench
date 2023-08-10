@@ -127,4 +127,15 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Will be the primary script ran on micro-PCs during the flight
   - Designed to be memory efficient and automated without human interaction
   - Will most likely have multiple versions for different soil samples and bench systems
+
+8-9-23
+ - Received T4 Pro Micro-PC (64GB HDD, 4GB RAM)
+ - Tested runtime speed of BlueOriginSequence.py
+  - Success! : Ran at same speed of my fully charged JPL laptop
+  - Logged all data on time, DSP sweep saved on time
+
+ - Next steps:
+  - Further optimization: probably no need to add data in real time during logging since no plotting is needed for the flight
+  - Need to add a second DSP channel to run consectively (probably as a method)
+  - Add thermocouple sequence once I receive a pin/wiring diagram and new DAQ
   
