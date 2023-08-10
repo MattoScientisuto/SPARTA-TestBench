@@ -4,7 +4,7 @@
 # Blue Origin Bench Sequence
 
 # Created: August 8th, 2023
-# Last Updated: August 8th, 2023
+# Last Updated: August 9th, 2023
 # ============================================ #
 
 import tkinter as tk
@@ -227,7 +227,7 @@ def full_op():
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         lc_running = False
-        print('Run Completed!')
+        print('CPT Run Completed!')
         
     # ============================================
         
@@ -256,13 +256,11 @@ def full_op():
         
         with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
             writer = csv.writer(file)
-            print(ts_running)
             for i in range(num_of_samples):
                 torque = ai_task.read()     # Read current value
                 true_torque = torque * -1   # Inversion (raw readings come negative for some reason)
                 lb_inch = (torque * (-42960)) - 11.0     # (raw readings * gain) minus offset
 
-                # print(f"Pound-inches: {lb_inch}")
                 now = dt.datetime.now()
                 
                 # Calculate current time, starting from 0 seconds
@@ -286,7 +284,7 @@ def full_op():
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         ts_running = False
-        print('Run Completed!')
+        print('VST Run Completed!')
 
     # ============================================
     
@@ -296,6 +294,7 @@ def full_op():
     scan_op()
     time.sleep(150)
     save_idf()
+    print('DSP Sweep Completed!')
 
 # ===================================
 # Driver Sequence
