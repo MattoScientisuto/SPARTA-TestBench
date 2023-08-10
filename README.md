@@ -12,10 +12,6 @@ Dependencies / Imports:
  - Thread
  - Tkinter
 
-To install all dependencies at once, use:
-```
-npm install
-```
 
 To open the GUI in a terminal, use:
 ```
