@@ -746,8 +746,11 @@ label1.grid(row=0, column=0, padx=5, pady=5, sticky=NW)
 main_title = tk.Label(home_frame, text="SPARTA Test Bench Home Page", font=("Arial", 18))
 main_title.grid(row=1, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
 
+author = tk.Label(home_frame, text='Author: Matthew Duong (US 3223 Affiliate)', font=("Arial", 15))
+author.grid(row=2, column=0, padx=5, pady=5, sticky=NW)
+
 git_link = tk.Label(home_frame, text='Github Page', font=('Helveticaitalic', 15), fg="blue", cursor="hand2")
-git_link.grid(row=2, column=0, padx=5, pady=5, sticky=NW)
+git_link.grid(row=3, column=0, padx=5, pady=5, sticky=NW)
 
 cpt_var = tk.StringVar()
 vst_var = tk.StringVar()
@@ -755,11 +758,11 @@ dsp_var = tk.StringVar()
     
 # Operation Button
 op_button = ttk.Button(home_frame, text="Run full operation", command=full_op)
-op_button.grid(row=3, column=0, padx=5, pady=5, sticky=NW)
+op_button.grid(row=4, column=0, padx=5, pady=5, sticky=NW)
 
 # Restart Button
 restart_button = ttk.Button(home_frame, text="Restart", command=restart_program)
-restart_button.grid(row=4, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
+restart_button.grid(row=5, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
 
 #endregion
 
