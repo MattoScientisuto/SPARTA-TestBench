@@ -138,4 +138,16 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Further optimization: probably no need to add data in real time during logging since no plotting is needed for the flight
   - Need to add a second DSP channel to run consectively (probably as a method)
   - Add thermocouple sequence once I receive a pin/wiring diagram and new DAQ
+
+8-15-23
+ - Added 'Open Data Folder' buttons for each component
+ - Added a blank template page for the upcoming Thermal Conductivity Probe
+  - Will most likely need buttons to inject heat, monitor temperature, record data, and possibly a live plot
+
+8-16-23
+ - Finally got around to fixing the CPT and VST reading threads
+  - No longer need to restart the program to continue reading a component 2 or more times wooo
+  - Very simple fix:
+   - Instead of creating the thread functions once for the CPT and VST and starting them, new ones are now created everytime their respective start functions are called
+   - Eliminated the need to kill them by restarting
   
