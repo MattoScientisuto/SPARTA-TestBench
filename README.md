@@ -1,12 +1,12 @@
 # SPARTA Test Bench
-Python interface software for the SPARTA test bench. Currently automates the reading, logging, and real-time visualization of data from a load cell, torque sensor, and dielectric spectrometer.
-This interface is being developed for my current intern project managed by NASA Jet Propulsion Laboratory.
+Python interface software for the SPARTA (Soil Properties Assessment Resistance and Thermal Analysis) test bench. Currently automates the reading, logging, and real-time visualization of data from a load cell, torque sensor, and dielectric spectrometer.
+This interface is being developed for my current intern project managed by NASA Jet Propulsion Laboratory under Division 32 (Planetary Science).
 
 Dependencies / Imports:
  - Matplotlib
  - NI-DAQmx
  - pandas
- - PIL
+ - Pillow
  - pyvium
  - serial
  - Thread
