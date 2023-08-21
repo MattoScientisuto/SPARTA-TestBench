@@ -150,4 +150,13 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Very simple fix:
    - Instead of creating the thread functions once for the CPT and VST and starting them, new ones are now created everytime their respective start functions are called
    - Eliminated the need to kill them by restarting
-  
+
+8-21-23
+ - Added depth dropdown menu + duration entry box for CPT and VST
+ - CPT Depth dropdown menu ranges from 5cm to 15cm
+  - Currently just a placeholder, values don't serve a purpose yet
+  - Need to know what actuator it is for 
+  - Also would need to calculate actuator velocity to set values and duration correctly
+
+ - VST duration should be functional if nidaqmx acquisition rate stays the same
+  - This needs to be tested in the lab tomorrow
