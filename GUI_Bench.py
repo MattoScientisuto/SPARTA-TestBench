@@ -6,13 +6,12 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: August 8th, 2023
+# Last Updated: August 21st, 2023
 # ============================================ #
 
 #region
 from tkinter import *
 import tkinter as tk
-import tkinter as ttk
 from PIL import Image, ImageTk
 import webbrowser
 
@@ -39,8 +38,6 @@ import csv
 import serial
 
 from threading import Thread
-import threading
-import multiprocessing
 
 root = Tk()
 root.title('SPARTA Test Bench')
@@ -64,6 +61,7 @@ cpt_frame = Frame(root, width=200, height=root.winfo_height())
 vst_frame = Frame(root, width=200, height=root.winfo_height())
 dsp_frame = Frame(root, width=200, height=root.winfo_height())
 tcp_frame = Frame(root, width=200, height=root.winfo_height())
+imu_frame = Frame(root, width=200, height=root.winfo_height())
 
 min_w = 50 # Minimum width of the frame
 max_w = 150 # Maximum width of the frame
@@ -98,6 +96,7 @@ def fill():
         vst_b.config(text='Vane Shear\nTester',image='',font=(0,15), relief='raised')
         dsp_b.config(text='Dielectric\nSpectrometer',image='',font=(0,15), relief='raised')
         tcp_b.config(text='Thermal\nConductivity\nProbe',image='',font=(0,15), relief='raised')
+        imu_b.config(text='Inertial\nMeasurement\nUnit',image='',font=(0,15), relief='raised')
     else:
         # Bring the image back
         home_b.config(image=home,font=(0,15), relief='flat')
@@ -105,6 +104,7 @@ def fill():
         vst_b.config(image=vst,font=(0,15), relief='flat')
         dsp_b.config(image=dsp,font=(0,15), relief='flat')
         tcp_b.config(image=tcp,font=(0,15), relief='flat')
+        imu_b.config(image=imu,font=(0,15), relief='flat')
 
 def show_page(page):
     # Hide all pages
@@ -136,6 +136,7 @@ cpt = ImageTk.PhotoImage(Image.open('.\\gui_images\\cpt.png').resize((40,40)), I
 vst = ImageTk.PhotoImage(Image.open('.\\gui_images\\vst.png').resize((40,40)), Image.Resampling.LANCZOS)
 dsp = ImageTk.PhotoImage(Image.open('.\\gui_images\\dsp.png').resize((40,40)), Image.Resampling.LANCZOS)
 tcp = ImageTk.PhotoImage(Image.open('.\\gui_images\\tcp.png').resize((40,40)), Image.Resampling.LANCZOS)
+imu = ImageTk.PhotoImage(Image.open('.\\gui_images\\imu.png').resize((40,40)), Image.Resampling.LANCZOS)
 folders = ImageTk.PhotoImage(Image.open('.\\gui_images\\data_folder.png').resize((40,40)), Image.Resampling.LANCZOS)
 
 root.update() # For the width to get updated
@@ -148,6 +149,7 @@ cpt_b = Button(frame,image=cpt,bg='orange',relief='flat',   command=lambda: show
 vst_b = Button(frame,image=vst,bg='orange',relief='flat',   command=lambda: show_page("VST"))
 dsp_b = Button(frame,image=dsp,bg='orange',relief='flat',   command=lambda: show_page("DSP"))
 tcp_b = Button(frame,image=tcp,bg='orange',relief='flat',   command=lambda: show_page("TCP"))
+imu_b = Button(frame,image=imu,bg='orange',relief='flat',   command=lambda: show_page("IMU"))
 
 # Put them on the frame
 home_b.grid(row=0,column=0, pady=15)
@@ -155,6 +157,7 @@ cpt_b.grid(row=1,column=0, pady=15)
 vst_b.grid(row=2,column=0, pady=15)
 dsp_b.grid(row=3,column=0, pady=15)
 tcp_b.grid(row=4,column=0, pady=15)
+imu_b.grid(row=5,column=0, pady=15)
 
 # Bind to the frame, if entered or left
 frame.bind('<Enter>',lambda e: expand())
@@ -198,9 +201,13 @@ dsp_connected = False
 
 # Time elapsed (at the end of this method) will be the total 
 total_time = 0
-sample_rate = 50.0
-acquisition_duration = 620 #45 is 28 seconds, 41 is mms and jsc tested 7-12
-num_of_samples = int(sample_rate * acquisition_duration)
+sample_rate = 1615
+
+acquisition_duration = 20 #45 is 28 seconds, 41 is mms and jsc tested 7-12
+vst_duration = 45
+
+cpt_samples = int(sample_rate * acquisition_duration)
+vst_samples = int(sample_rate * vst_duration)
 
 def switch_true(device):
     device.config(text='True', background='#15eb80')
@@ -228,7 +235,6 @@ def read_load_cell():
     global r_count
     global entry_nums
     
-    print(csv_list[0])
     with nidaqmx.Task() as ai_task:
          
         # Setup the NI cDAQ-9174 + DAQ 9237 module
@@ -258,7 +264,7 @@ def read_load_cell():
 
             writer = csv.writer(file)
             
-            for i in range(num_of_samples):
+            for i in range(cpt_samples):
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1   # Inversion (raw readings come negative for some)
                 newton = (strain * (-96960)) - 1.12 # -96960 gain, 1.12 zero offset
@@ -294,7 +300,7 @@ def read_load_cell():
         switch_false(load_running)
         newton_update()
         # digitalWrite('s')
-        print('Run Completed!')
+        print('CPT Run Completed!')
 
 # Torque Sensor Read
 lbs_inches = []
@@ -327,7 +333,7 @@ def read_torque_sensor():
         with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
             writer = csv.writer(file)
             print(ts_running)
-            for i in range(num_of_samples):
+            for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
                 true_torque = torque * -1   # Inversion (raw readings come negative for some reason)
                 lb_inch = (torque * (-42960)) - 11.0     # (raw readings * gain) minus offset
@@ -357,7 +363,8 @@ def read_torque_sensor():
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         ts_running = False
         switch_false(torque_running)
-        print('Run Completed!')
+        # tk.messagebox.showinfo("VST Run Completed!", "Time elapsed: {:.3f} seconds".format(total_time))
+        print('VST Run Completed!')
 
 # ================ #
 #   DSP READING
@@ -387,14 +394,14 @@ def connect_dsp():
     status = Core.IV_getdevicestatus()
     print(Core.IV_getdevicestatus())
     if status == -1:
-        ttk.messagebox.showinfo("Error", 'Please open IviumSoft if you want to connect to a device!')
+        tk.messagebox.showinfo("Error", 'Please open IviumSoft if you want to connect to a device!')
     elif status == 1:
         dsp_connected = True
         switch_true(dsp_status)
         device_serial = (Core.IV_readSN())
         device_update(dsp_device, device_serial[1])
     elif status == 3:
-        ttk.messagebox.showinfo("Error", 'No device detected!')
+        tk.messagebox.showinfo("Error", 'No device detected!')
 
 # Start the scan operation using the selected preset method
 # TEMPORARY: currently statically set to 0.01V method
@@ -409,9 +416,11 @@ def scan_op(method):
     dsp_running = True
     switch_true(dsp_runstatus)
     Core.IV_startmethod(dsp_methods)
+    time.sleep(175)
     dsp_running = False
-    
+    tk.messagebox.showinfo("DSP Scan Completed!", 'Successfully completed! Your .idf file is ready to save!')
     switch_false(dsp_runstatus)
+    print('DSP Run Completed!')
 
 # After the scanning finishes, user can save the data to the output folder
 def save_idf():
@@ -422,7 +431,6 @@ def save_idf():
         print(Core.IV_savedata(dsp_output))
 
 #endregion
-
 
 # =================
 # LIVE PLOTS SETUP
@@ -538,7 +546,7 @@ def get_torque_csv():
         print("Torque CSV set to:", input)
     else:
         torque_csv[0] = input
-        print("Torque CSV set to:", input)
+        print("Torque CSV replaced with:", input)
     log_update(curr_log2)
     
     
@@ -565,14 +573,29 @@ def get_dsp_idf():
         print("DSP IDF set to:", input)
     else:
         dsp_idf[0] = input
-        print("DSP IDF set to:", input)
+        print("DSP IDF replaced with:", input)
     log_update(curr_log3)
     
     # If today's date doesn't have an output folder yet, make one
     # Otherwise, continue
     if not os.path.exists(dsp_dir):
         os.makedirs(dsp_dir)
-        
+
+# ========================
+# Set Durations + Depths
+# ========================
+
+# Set/Change VST Rotation Duration
+def set_vst_dur():
+    global vst_duration
+    input = ttime_entry.get()
+    if '.' in input:
+        tk.messagebox.showinfo("Error", 'Please enter a whole number!')
+    else:  
+        vst_duration = int(input)
+        rot_dur.config(text='{:.2f}'.format(vst_duration))
+        print("VST Duration set to:", vst_duration)
+
 # =========================================
 # Load Cell + Torque Sensor Run Operations
 # =========================================
@@ -594,7 +617,7 @@ def torque_sensor_run():
 #region
 jpl_logo = Image.open('.\\gui_images\\jpl_logo_resized.png')
 jpl_img = ImageTk.PhotoImage(jpl_logo)
-label1 = ttk.Label(home_frame,image=jpl_img)
+label1 = tk.Label(home_frame,image=jpl_img)
 label1.image = jpl_img
 label1.grid(row=0, column=0, padx=5, pady=5, sticky=NW)
 
@@ -602,8 +625,11 @@ label1.grid(row=0, column=0, padx=5, pady=5, sticky=NW)
 main_title = tk.Label(home_frame, text="SPARTA Test Bench Home Page", font=("Arial", 18))
 main_title.grid(row=1, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
 
+author = tk.Label(home_frame, text="Author: Matthew Duong (US 3223 Affiliate)", font=("Arial", 14))
+author.grid(row=2, column=0, padx=5, pady=5, sticky=NW)
+
 git_link = tk.Label(home_frame, text='Github Page', font=('Helveticaitalic', 15), fg="blue", cursor="hand2")
-git_link.grid(row=2, column=0, padx=5, pady=5, sticky=NW)
+git_link.grid(row=3, column=0, padx=5, pady=5, sticky=NW)
 git_link.bind("<Button-1>", lambda x: open_url("https://github.com/MattoScientisuto/SPARTA-TestBench"))
 
 cpt_var = tk.StringVar()
@@ -611,7 +637,7 @@ vst_var = tk.StringVar()
 dsp_var = tk.StringVar()
 
 # Restart Button
-restart_button = ttk.Button(home_frame, text="Restart", command=restart_program)
+restart_button = tk.Button(home_frame, text="Restart", command=restart_program)
 restart_button.grid(row=4, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
 
 #endregion
@@ -624,6 +650,12 @@ cpt_test.grid(row=0,column=0, padx=5, pady=6)
 set_csv = tk.Label(cpt_frame, text="Set load log name (include .csv): ", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
 entry = tk.Entry(cpt_frame, textvariable=cpt_var)
 entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
+
+dep_var = tk.StringVar()
+dep_options = ['5 cm', '6 cm', '7 cm', '8 cm', '9 cm', '10 cm', '11 cm', '12 cm', '13 cm', '14 cm', '15 cm']
+depth_text = tk.Label(cpt_frame, text="Select depth (cm): ", font=("Arial", 10)).grid(row=2, column=0, padx=3, pady=6)
+depth_dropdown = tk.OptionMenu(cpt_frame, dep_var, *dep_options)
+depth_dropdown.grid(row=2, column=1, pady=6)
 
 csv_button = tk.Button(cpt_frame, text="Set Name", command=get_csv)
 csv_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
@@ -655,29 +687,40 @@ cpt_folder.grid(row=6, column=2)
 # VST page
 #region
 
-vst_test = ttk.Label(vst_frame, text='Vane Shear Tester', font=("Arial", 18)) 
+vst_test = tk.Label(vst_frame, text='Vane Shear Tester', font=("Arial", 18)) 
 vst_test.grid(row=0,column=0, padx=5, pady=6)
 
-set_tcsv = ttk.Label(vst_frame, text="Set torque log name (include .csv):", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
-torque_entry = ttk.Entry(vst_frame, textvariable=vst_var)
+set_tcsv = tk.Label(vst_frame, text="Set torque log name (include .csv):", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+torque_entry = tk.Entry(vst_frame, textvariable=vst_var)
 torque_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
-csv_torque_button = ttk.Button(vst_frame, text="Set Name", command=get_torque_csv)
+vst_dur = tk.Label(vst_frame, text="Set rotation duration (seconds):", font=("Arial", 10)).grid(row=2, column=0, padx=3, pady=3)
+ttime_entry = tk.Entry(vst_frame)
+ttime_entry.grid(row=2, column=1, padx=3, pady=3, sticky=W)
+
+csv_torque_button = tk.Button(vst_frame, text="Set Name", command=get_torque_csv)
 csv_torque_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
 
-run_torque_button = ttk.Button(vst_frame, text="Run Torque Sensor", command=torque_sensor_run)
-run_torque_button.grid(row=2, column=2, padx=3, pady=3, sticky=W)
+ttime_set = tk.Button(vst_frame, text="Set Duration", command=set_vst_dur)
+ttime_set.grid(row=2, column=2, padx=3, pady=3, sticky=W)
 
-log2 = ttk.Label(vst_frame, text="Logging to: ", font=("Arial", 10)).grid(row=3, column=0)
-curr_log2 = ttk.Label(vst_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
-curr_log2.grid(row=3, column=1, sticky=W, pady=2)
+run_torque_button = tk.Button(vst_frame, text="Run Torque Sensor", command=torque_sensor_run)
+run_torque_button.grid(row=3, column=2, padx=3, pady=3, sticky=W)
 
-running2 = ttk.Label(vst_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=4, column=0, pady=2)
-torque_running = ttk.Label(vst_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
-torque_running.grid(row=4, column=1, sticky=W, pady=2)
+log2 = tk.Label(vst_frame, text="Logging to: ", font=("Arial", 10)).grid(row=4, column=0)
+curr_log2 = tk.Label(vst_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
+curr_log2.grid(row=4, column=1, sticky=W, pady=2)
+
+rot_dial = tk.Label(vst_frame, text="Rotation duration (seconds): ", font=("Arial", 10)).grid(row=5, column=0)
+rot_dur = tk.Label(vst_frame, text='{:.2f}'.format(vst_duration), font=("Arial", 14), background='#15eb80', relief='groove')
+rot_dur.grid(row=5, column=1, sticky=W, pady=2)
+
+running2 = tk.Label(vst_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=6, column=0, pady=2)
+torque_running = tk.Label(vst_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
+torque_running.grid(row=6, column=1, sticky=W, pady=2)
 
 vst_folder = tk.Button(vst_frame, image=folders, command=lambda:open_folder('.\\data_output\\vst'))
-vst_folder.grid(row=4, column=2)
+vst_folder.grid(row=6, column=2)
 
 #endregion
 
@@ -725,7 +768,7 @@ dsp_saveidf = tk.Button(dsp_frame, text="Save .idf File", command=save_idf)
 dsp_saveidf.grid(row=8, column=2, padx=5, pady=5, sticky=N)
 
 dsp_folder = tk.Button(dsp_frame, image=folders, command=lambda:open_folder('.\\data_output\\dsp'))
-dsp_folder.grid(row=9, column=2)
+dsp_folder.grid(row=9, column=2, pady=10)
 
 #endregion
 
@@ -744,7 +787,7 @@ canvas.get_tk_widget().grid(row=7, column=0, columnspan=3, padx=30, pady=15)
 canvas.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 
 canvas2 = FigureCanvasTkAgg(fig2, master=vst_frame)
-canvas2.get_tk_widget().grid(row=5, column=0, columnspan=3, padx=30, pady=15)
+canvas2.get_tk_widget().grid(row=7, column=0, columnspan=3, padx=30, pady=15)
 canvas2.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 #endregion
 
