@@ -201,13 +201,10 @@ dsp_connected = False
 
 # Time elapsed (at the end of this method) will be the total 
 total_time = 0
-sample_rate = 1615
+sample_rate = 1665
 
 acquisition_duration = 20 #45 is 28 seconds, 41 is mms and jsc tested 7-12
 vst_duration = 45
-
-cpt_samples = int(sample_rate * acquisition_duration)
-vst_samples = int(sample_rate * vst_duration)
 
 def switch_true(device):
     device.config(text='True', background='#15eb80')
@@ -234,6 +231,7 @@ def read_load_cell():
     global lc_running
     global r_count
     global entry_nums
+    cpt_samples = int(sample_rate * acquisition_duration)
     
     with nidaqmx.Task() as ai_task:
          
@@ -310,6 +308,9 @@ torque_timestamps = []
 def read_torque_sensor():
     global total_time
     global ts_running
+    
+    vst_samples = int(sample_rate * vst_duration)
+    
     with nidaqmx.Task() as ai_task:
          
         # Setup the NI cDAQ-9174 + DAQ 9237 module
@@ -660,7 +661,7 @@ depth_dropdown.grid(row=2, column=1, pady=6)
 csv_button = tk.Button(cpt_frame, text="Set Name", command=get_csv)
 csv_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
 
-run_button = tk.Button(cpt_frame, text="Run Load Cell", command=load_cell_run)
+run_button = tk.Button(cpt_frame, text="Run Cone Penetrator", command=load_cell_run)
 run_button.grid(row=2, column=2, padx=3, pady=3, sticky=W)
 
 log1 = tk.Label(cpt_frame, text="Logging to: ", font=("Arial", 10)).grid(row=3, column=0)
@@ -704,7 +705,7 @@ csv_torque_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
 ttime_set = tk.Button(vst_frame, text="Set Duration", command=set_vst_dur)
 ttime_set.grid(row=2, column=2, padx=3, pady=3, sticky=W)
 
-run_torque_button = tk.Button(vst_frame, text="Run Torque Sensor", command=torque_sensor_run)
+run_torque_button = tk.Button(vst_frame, text="Run Vane Shear", command=torque_sensor_run)
 run_torque_button.grid(row=3, column=2, padx=3, pady=3, sticky=W)
 
 log2 = tk.Label(vst_frame, text="Logging to: ", font=("Arial", 10)).grid(row=4, column=0)
