@@ -160,3 +160,18 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
  - VST duration should be functional if nidaqmx acquisition rate stays the same
   - This needs to be tested in the lab tomorrow
+
+8-22-23
+ - Adjusted VST sample rate to match DAQ speed
+  - This might need to be adjusted once the actual torque sensor is connected (more or less)
+
+8-23-23
+ - Added TCP page and operation (fully functional)
+  - Runs concurrently in the background with any other device's operation (CPT, VST, DSP)
+  - Logs and plots data in real time
+  - Runs indefinitely until you press stop
+  - Wiring and temperature calibration still needs to be addressed before usage
+
+ - Also minor changes on CPT and VST data logging
+  - Got rid of unnecessary array appending that took place before writing to their respective CSV 
+  - Probably a very minor efficiency increase, but an increase is an increase :D
