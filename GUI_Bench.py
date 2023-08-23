@@ -26,7 +26,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 import nidaqmx
-from nidaqmx.constants import BridgePhysicalUnits
+from nidaqmx.constants import BridgePhysicalUnits, RTDType, ExcitationSource, TemperatureUnits, ResistanceConfiguration
 
 from pyvium import Core
 from pyvium import Tools
@@ -176,6 +176,7 @@ def digitalWrite(command):
 csv_list = []
 torque_csv = []
 dsp_idf = []
+tcp_csv = []
 
 # Directory adjusts to any PC
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -185,17 +186,16 @@ todays_date = date.today().strftime("%m-%d-%Y")
 cpt_dir = f'.\\data_output\\cpt\\{todays_date}'
 vst_dir = f'.\\data_output\\vst\\{todays_date}'
 dsp_dir = f'.\\data_output\\dsp\\{todays_date}'
+tcp_dir = f'.\\data_output\\tcp\\{todays_date}'
 
 strain_data = []
-strain_orig = []
-timestamps = []
-
 entry_nums = []
 r_count = 1
 
 lc_running = False
 ts_running = False
 dsp_running = False
+tcp_running = False
 
 dsp_connected = False
 
@@ -219,6 +219,8 @@ def log_update(device):
         device.config(text=torque_csv[0], background='#15eb80')
     elif device is curr_log3:
         device.config(text=dsp_idf[0], background='#15eb80')
+    elif device is curr_log4:
+        device.config(text=tcp_csv[0], background='#15eb80')
     
 def depth_update(i):
     curr_depth.config(text='{:.3f}'.format(entry_nums[i]))
@@ -226,11 +228,13 @@ def depth_update(i):
 def newton_update():
     curr_newt.config(text='{:.3f}'.format(max(strain_data)), background='white')
     
+# Load Cell Read       
 def read_load_cell():
     global total_time
     global lc_running
     global r_count
     global entry_nums
+    
     cpt_samples = int(sample_rate * acquisition_duration)
     
     with nidaqmx.Task() as ai_task:
@@ -245,10 +249,7 @@ def read_load_cell():
 
         # Start the task
         
-        # CLEAR OLD DATA EVERY NEW RUN TO PREVENT INTERFERANCE!
-        timestamps.clear()
-        strain_data.clear()
-        strain_orig.clear()
+        # CLEAR/RESET OLD DATA EVERY NEW RUN TO PREVENT INTERFERANCE!
         entry_nums.clear()
         r_count = 1
         
@@ -266,29 +267,24 @@ def read_load_cell():
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1   # Inversion (raw readings come negative for some)
                 newton = (strain * (-96960)) - 1.12 # -96960 gain, 1.12 zero offset
+                cdepth = r_count / 7500
 
                 # print(f"Newtons: {newton}")
                 now = dt.datetime.now()
                 
                 # Calculate current time, starting from 0 seconds
-                # Then store in global timestamps list for plotting
                 elapsed_time = now - start_time
                 seconds = elapsed_time.total_seconds()
                 rounded_seconds = round(seconds, 3)
-                timestamps.append(rounded_seconds)
-                
-                # Store newton readings
+
                 strain_data.append(newton)
-                # Also storing raw values just in case
-                strain_orig.append(true_strain)
-                # Store current depth
-                entry_nums.append(r_count / 7500)
+                entry_nums.append(cdepth)
                 depth_update(i)
                 r_count+=1
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([timestamps[i], entry_nums[i], strain_data[i], strain_orig[i]])
+                writer.writerow([rounded_seconds, cdepth, newton, true_strain])
             file.close()
         
         end_time = dt.datetime.now() 
@@ -301,10 +297,6 @@ def read_load_cell():
         print('CPT Run Completed!')
 
 # Torque Sensor Read
-lbs_inches = []
-raw_torque = []
-torque_timestamps = []
-
 def read_torque_sensor():
     global total_time
     global ts_running
@@ -321,11 +313,6 @@ def read_torque_sensor():
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS)
         ai_task.in_stream.input_buf_size = 5000
         
-        # CLEAR OLD DATA EVERY NEW RUN TO PREVENT INTERFERANCE!
-        torque_timestamps.clear()
-        lbs_inches.clear()
-        raw_torque.clear()
-        
         ai_task.start()
         ts_running = True
         switch_true(torque_running)
@@ -333,7 +320,6 @@ def read_torque_sensor():
         
         with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
             writer = csv.writer(file)
-            print(ts_running)
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
                 true_torque = torque * -1   # Inversion (raw readings come negative for some reason)
@@ -347,16 +333,10 @@ def read_torque_sensor():
                 elapsed_time = now - start_time
                 seconds = elapsed_time.total_seconds()
                 rounded_seconds = round(seconds, 3)
-                torque_timestamps.append(rounded_seconds)
-                
-                # Store newton readings
-                lbs_inches.append(lb_inch)
-                # Also storing raw values just in case
-                raw_torque.append(true_torque)
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([torque_timestamps[i], lbs_inches[i], raw_torque[i]])
+                writer.writerow([rounded_seconds, lb_inch, true_torque])
             file.close()
                 
         end_time = dt.datetime.now() 
@@ -364,9 +344,52 @@ def read_torque_sensor():
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         ts_running = False
         switch_false(torque_running)
-        # tk.messagebox.showinfo("VST Run Completed!", "Time elapsed: {:.3f} seconds".format(total_time))
         print('VST Run Completed!')
 
+# Temperature Read
+def read_tcp():
+    global tcp_running
+    
+    with nidaqmx.Task() as ai_task:
+        ai_task.ai_channels.add_ai_rtd_chan(physical_channel='cDAQ1Mod2/ai0', min_val=0.0, max_val=100.0, units=TemperatureUnits.DEG_F, rtd_type=RTDType.PT_3750, resistance_config=ResistanceConfiguration.THREE_WIRE, current_excit_source=ExcitationSource.INTERNAL, current_excit_val=1.0e-3, r_0=100.0)
+        
+        ai_task.start()
+        tcp_running = True
+        switch_true(temp_running)
+        start_time = dt.datetime.now()
+        
+        with open(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'a', newline='') as file:
+            print(tcp_csv[0])
+            writer = csv.writer(file)
+
+            while tcp_running:
+                temp = ai_task.read()     # Read current value
+                true_temp = temp * -1   # Inversion (raw readings come negative for some reason)
+                temp_f = (temp * (-42960)) - 11.0     # (raw readings * gain) minus offset
+
+                now = dt.datetime.now()
+                
+                # Calculate current time, starting from 0 seconds
+                # Then store in global timestamps list for plotting
+                elapsed_time = now - start_time
+                seconds = elapsed_time.total_seconds()
+                rounded_seconds = round(seconds, 3)
+                
+                writer.writerow([rounded_seconds, true_temp])
+                file.flush()
+                
+            file.close()    
+                       
+        end_time = dt.datetime.now() 
+        total_time = (end_time - start_time).total_seconds()
+        print("Total time elapsed: {:.3f} seconds".format(total_time))
+        print('TCP Run Completed!')
+            
+def stop_tcp():
+    global tcp_running
+    tcp_running = False
+    switch_false(temp_running)
+    
 # ================ #
 #   DSP READING
 # ================ #
@@ -450,8 +473,8 @@ load_cell.set_xlabel('Force (Newtons)')
 load_cell.set_ylabel('Depth (cm)')
 load_cell.invert_yaxis()
 load_cell.grid()
-current_date = date.today().strftime("%m-%d-%Y")
-fig1.text(0.01, 0.97, f"Plotted: {current_date}", ha='left', va='top', fontsize=10.5)
+
+fig1.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 #endregion
 
 # Torque Sensor
@@ -468,9 +491,24 @@ torque_sensor.set_xlabel('Time Elapsed (seconds)')
 torque_sensor.set_ylabel('Torque (Pound-inches)')
 torque_sensor.grid()
 
-tcurrent_date = date.today().strftime("%m-%d-%Y")
-fig2.text(0.01, 0.97, f"Plotted: {tcurrent_date}", ha='left', va='top', fontsize=10.5)
+fig2.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 
+#endregion
+
+# Temperature Sensor
+#region
+fig3 = Figure(figsize=(4.5,4.5), dpi=100)
+fig3.subplots_adjust(left=0.19, bottom=0.15)
+temp_sensor = fig3.add_subplot(111)
+
+# Labels Setup
+tcp_line, = temp_sensor.plot([], [], linestyle='solid', linewidth='2', color='#e37005')
+temp_sensor.set_title('Thermal Conductivity Probe', weight='bold')  
+temp_sensor.set_xlabel('Time Elapsed (seconds)')
+temp_sensor.set_ylabel('Degrees (Fahrenheit)')
+temp_sensor.grid()
+
+fig3.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 #endregion
 
 # ==================
@@ -501,6 +539,18 @@ def animate_torque_sensor(i):
         torque_line.set_data(x,y)
         torque_sensor.relim()
         torque_sensor.autoscale_view()
+
+# Temperature Sensor Animate Function  
+def animate_tcp(i):
+    global tcp_running
+    if tcp_csv and tcp_running is True:
+        data = pd.read_csv(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', sep=",")
+        x = data['Timestamp (seconds)'] 
+        y = data['Temperature [Fahrenheit]']                             
+        
+        tcp_line.set_data(x,y)
+        temp_sensor.relim()
+        temp_sensor.autoscale_view()
 
 # =================
 # 'Get' CSV Names
@@ -582,6 +632,33 @@ def get_dsp_idf():
     if not os.path.exists(dsp_dir):
         os.makedirs(dsp_dir)
 
+# Get TCP CSV log name
+def get_tcp_csv():
+    global tcp_csv
+    global tcp_dir
+    input = tcp_entry.get()
+    
+    # If the list of csvs is empty, append
+    # Otherwise, replace the current stored csv
+    if len(tcp_csv) == 0:
+        tcp_csv.append(input)
+        print("TCP CSV set to:", input)
+    else:
+        tcp_csv[0] = input
+        print("TCP CSV replaced with:", input)
+    log_update(curr_log4)
+    
+    # If today's date doesn't have an output folder yet, make one
+    # Otherwise, continue
+    if not os.path.exists(tcp_dir):
+        os.makedirs(tcp_dir)
+    
+    # Create the csv file and write the column titles
+    with open(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Timestamp (seconds)", "Temperature [Fahrenheit]"])
+        file.close()
+        
 # ========================
 # Set Durations + Depths
 # ========================
@@ -610,6 +687,10 @@ def torque_sensor_run():
     thread_vst = Thread(target=read_torque_sensor) 
     thread_vst.start()
     
+def tcp_run():
+    thread_tcp = Thread(target=read_tcp) 
+    thread_tcp.start()
+    
 # ===================
 #       Frames
 # ===================
@@ -636,6 +717,7 @@ git_link.bind("<Button-1>", lambda x: open_url("https://github.com/MattoScientis
 cpt_var = tk.StringVar()
 vst_var = tk.StringVar()
 dsp_var = tk.StringVar()
+tcp_var = tk.StringVar()
 
 # Restart Button
 restart_button = tk.Button(home_frame, text="Restart", command=restart_program)
@@ -777,6 +859,31 @@ dsp_folder.grid(row=9, column=2, pady=10)
 #region
 tcp_test = tk.Label(tcp_frame, text='Thermal Conductivity Probe', font=("Arial", 18)) 
 tcp_test.grid(row=0,column=0, padx=5, pady=6)
+
+set_tcp_csv = tk.Label(tcp_frame, text="Set TCP log name (include .csv):", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+tcp_entry = tk.Entry(tcp_frame)
+tcp_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
+csv_tcp_button = tk.Button(tcp_frame, text="Set Name", command=get_tcp_csv)
+csv_tcp_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
+
+run_tcp_button = tk.Button(tcp_frame, text="Run Temperature Sensor", command=tcp_run)
+run_tcp_button.grid(row=2, column=2, padx=3, pady=3, sticky=W)
+
+log4 = tk.Label(tcp_frame, text="Logging to: ", font=("Arial", 10)).grid(row=3, column=0)
+curr_log4 = tk.Label(tcp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
+curr_log4.grid(row=3, column=1, sticky=W, pady=2)
+
+running4 = tk.Label(tcp_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=4, column=0, pady=2)
+temp_running = tk.Label(tcp_frame, text=str(tcp_running), font=("Arial", 14), background='#f05666', relief='groove')
+temp_running.grid(row=4, column=1, sticky=W, pady=2)
+
+stop_tcp_button = tk.Button(tcp_frame, text="Stop Temperature Sensor", command=stop_tcp)
+stop_tcp_button.grid(row=4, column=2, padx=3, pady=3, sticky=W)
+
+tcp_folder = tk.Button(tcp_frame, image=folders, command=lambda:open_folder('.\\data_output\\tcp'))
+tcp_folder.grid(row=5, column=2)
+
+
 #endregion
 
 # =======================
@@ -790,11 +897,15 @@ canvas.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 canvas2 = FigureCanvasTkAgg(fig2, master=vst_frame)
 canvas2.get_tk_widget().grid(row=7, column=0, columnspan=3, padx=30, pady=15)
 canvas2.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
-#endregion
 
+canvas3 = FigureCanvasTkAgg(fig3, master=tcp_frame)
+canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=15)
+canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
+#endregion
 
 ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
 ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
+ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
 plt.show()
 
 root.mainloop()
