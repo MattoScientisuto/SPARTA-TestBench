@@ -167,10 +167,25 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
-# ser = serial.Serial('COM8', baudrate=9600, timeout=1)
+actuator = serial.Serial('COM8', baudrate=9600, timeout=1)
+stepper = serial.Serial('COM5', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
+def go_to():
+    stepper.write('@0A100\r'.encode())
+    stepper.write('@0B100\r'.encode())
+    stepper.write('@0M1000\r'.encode())
+    stepper.write('@0P5000\r'.encode())
+    stepper.write('@0G\r'.encode())   
+    stepper.write('@0F\r'.encode())   
+    print('Rotating forward...')
+def reset():
+    stepper.write('@0P0\r'.encode())
+    stepper.write('@0G\r'.encode())
+    stepper.write('@0F\r'.encode())
+    print('Resetting position...')
+    
 def digitalWrite(command):
-    # ser.write(command.encode())
+    actuator.write(command.encode())
     print('Command sent:', command)
 
 csv_list = []
@@ -253,8 +268,9 @@ def read_load_cell():
         entry_nums.clear()
         r_count = 1
         
-        # digitalWrite('W')
+        
         ai_task.start()
+        digitalWrite('W')
         lc_running = True
         switch_true(load_running)
         start_time = dt.datetime.now()
@@ -293,7 +309,7 @@ def read_load_cell():
         lc_running = False
         switch_false(load_running)
         newton_update()
-        # digitalWrite('s')
+        digitalWrite('s')
         print('CPT Run Completed!')
 
 # Torque Sensor Read
@@ -314,6 +330,7 @@ def read_torque_sensor():
         ai_task.in_stream.input_buf_size = 5000
         
         ai_task.start()
+        go_to()
         ts_running = True
         switch_true(torque_running)
         start_time = dt.datetime.now()
@@ -345,6 +362,7 @@ def read_torque_sensor():
         ts_running = False
         switch_false(torque_running)
         print('VST Run Completed!')
+        tk.messagebox.showinfo("VST Run Completed", "Total time elapsed: {:.3f} seconds\n NOW RESET THE MOTOR POSITION!".format(total_time))
 
 # Temperature Read
 def read_tcp():
@@ -384,6 +402,7 @@ def read_tcp():
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         print('TCP Run Completed!')
+        tk.messagebox.showinfo("TCP Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
             
 def stop_tcp():
     global tcp_running
@@ -502,7 +521,7 @@ fig3.subplots_adjust(left=0.19, bottom=0.15)
 temp_sensor = fig3.add_subplot(111)
 
 # Labels Setup
-tcp_line, = temp_sensor.plot([], [], linestyle='solid', linewidth='2', color='#e37005')
+tcp_line, = temp_sensor.plot([], [], linestyle='solid', linewidth='2', color='purple')
 temp_sensor.set_title('Thermal Conductivity Probe', weight='bold')  
 temp_sensor.set_xlabel('Time Elapsed (seconds)')
 temp_sensor.set_ylabel('Degrees (Fahrenheit)')
@@ -753,10 +772,14 @@ curr_log1.grid(row=3, column=1, sticky=W, pady=2)
 running1 = tk.Label(cpt_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=4, column=0, pady=2)
 load_running = tk.Label(cpt_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
 load_running.grid(row=4, column=1, sticky=W, pady=2)
+act_estop = tk.Button(cpt_frame, text="Emergency Stop Actuator", command=lambda: digitalWrite('s'))
+act_estop.grid(row=4, column=2, sticky=tk.W)
 
 depth = tk.Label(cpt_frame, text="Current Depth (cm): ", font=("Arial Bold", 10)).grid(row=5, column=0, pady=2)
 curr_depth = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='white', relief='groove')
 curr_depth.grid(row=5, column=1, sticky=W, pady=2)
+act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite('C'))
+act_reset.grid(row=5, column=2, sticky=tk.W)
 
 newt = tk.Label(cpt_frame, text="Greatest Force (Newton): ", font=("Arial Bold", 10)).grid(row=6, column=0, pady=2)
 curr_newt = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='#e0e0e0', relief='ridge')
@@ -797,6 +820,9 @@ curr_log2.grid(row=4, column=1, sticky=W, pady=2)
 rot_dial = tk.Label(vst_frame, text="Rotation duration (seconds): ", font=("Arial", 10)).grid(row=5, column=0)
 rot_dur = tk.Label(vst_frame, text='{:.2f}'.format(vst_duration), font=("Arial", 14), background='#15eb80', relief='groove')
 rot_dur.grid(row=5, column=1, sticky=W, pady=2)
+
+reset_pos = tk.Button(vst_frame, text='Reset Motor Position', command=reset)
+reset_pos.grid(row=5, column=2, sticky=W)
 
 running2 = tk.Label(vst_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=6, column=0, pady=2)
 torque_running = tk.Label(vst_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
