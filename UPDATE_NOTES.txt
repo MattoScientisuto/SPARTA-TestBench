@@ -175,3 +175,17 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
  - Also minor changes on CPT and VST data logging
   - Got rid of unnecessary array appending that took place before writing to their respective CSV 
   - Probably a very minor efficiency increase, but an increase is an increase :D
+
+9-5-23
+ - Added serial ports for CPT actuator and stepper motor
+  - Temporarily disabled stepper motor serial port until CPT is completed finished and calibrated
+
+9-6-23
+ - Added functionality to CPT depth selection menu
+  - Can choose from 5cm to 10cm depth for the actuator to go
+ - Also added 'Emergency Stop' button and 'Reset Actuator' Position button
+ * Next steps:
+  - Find out a way to make COM ports correctly correspond to both the actuator and motor
+   - They can change often when disconnected and reconnected from time to time
+   - It would be a hassle in the future if you have to go directly into the code to change the COM port manually
+  
