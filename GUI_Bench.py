@@ -6,7 +6,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: August 21st, 2023
+# Last Updated: September 6th, 2023
 # ============================================ #
 
 #region
@@ -43,10 +43,6 @@ root = Tk()
 root.title('SPARTA Test Bench')
 root.geometry('650x740')
 #endregion
-
-def restart_program():
-    python = sys.executable
-    os.execl(python, 'python ', *sys.argv)
 
 def open_url(url):
     webbrowser.open_new_tab(url)
@@ -168,20 +164,20 @@ frame.grid_propagate(False)
 
 # ========================================================================
 actuator = serial.Serial('COM8', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM5', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+# stepper = serial.Serial('COM6', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
 def go_to():
-    stepper.write('@0A100\r'.encode())
-    stepper.write('@0B100\r'.encode())
-    stepper.write('@0M1000\r'.encode())
-    stepper.write('@0P5000\r'.encode())
-    stepper.write('@0G\r'.encode())   
-    stepper.write('@0F\r'.encode())   
+    # stepper.write('@0A100\r'.encode())
+    # stepper.write('@0B100\r'.encode())
+    # stepper.write('@0M1000\r'.encode())
+    # stepper.write('@0P5000\r'.encode())
+    # stepper.write('@0G\r'.encode())   
+    # stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
 def reset():
-    stepper.write('@0P0\r'.encode())
-    stepper.write('@0G\r'.encode())
-    stepper.write('@0F\r'.encode())
+    # stepper.write('@0P0\r'.encode())
+    # stepper.write('@0G\r'.encode())
+    # stepper.write('@0F\r'.encode())
     print('Resetting position...')
     
 def digitalWrite(command):
@@ -205,7 +201,6 @@ tcp_dir = f'.\\data_output\\tcp\\{todays_date}'
 
 strain_data = []
 entry_nums = []
-r_count = 1
 
 lc_running = False
 ts_running = False
@@ -216,9 +211,9 @@ dsp_connected = False
 
 # Time elapsed (at the end of this method) will be the total 
 total_time = 0
-sample_rate = 1665
+sample_rate = 1655
 
-acquisition_duration = 20 #45 is 28 seconds, 41 is mms and jsc tested 7-12
+acquisition_duration = 0
 vst_duration = 45
 
 def switch_true(device):
@@ -236,15 +231,16 @@ def log_update(device):
         device.config(text=dsp_idf[0], background='#15eb80')
     elif device is curr_log4:
         device.config(text=tcp_csv[0], background='#15eb80')
-    
-def depth_update(i):
-    curr_depth.config(text='{:.3f}'.format(entry_nums[i]))
 
 def newton_update():
     curr_newt.config(text='{:.3f}'.format(max(strain_data)), background='white')
     
 # Load Cell Read       
 def read_load_cell():
+    if acquisition_duration == 0:
+        tk.messagebox.showinfo("Set depth first", "Please select an actuator depth first!")
+        return
+    
     global total_time
     global lc_running
     global r_count
@@ -268,7 +264,6 @@ def read_load_cell():
         entry_nums.clear()
         r_count = 1
         
-        
         ai_task.start()
         digitalWrite('W')
         lc_running = True
@@ -283,9 +278,8 @@ def read_load_cell():
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1   # Inversion (raw readings come negative for some)
                 newton = (strain * (-96960)) - 1.12 # -96960 gain, 1.12 zero offset
-                cdepth = r_count / 7500
+                cdepth = r_count / 7705     # About 7705 data points per centimeter at 3 Volts
 
-                # print(f"Newtons: {newton}")
                 now = dt.datetime.now()
                 
                 # Calculate current time, starting from 0 seconds
@@ -295,7 +289,6 @@ def read_load_cell():
 
                 strain_data.append(newton)
                 entry_nums.append(cdepth)
-                depth_update(i)
                 r_count+=1
                 
                 # Write current value to CSV
@@ -311,6 +304,7 @@ def read_load_cell():
         newton_update()
         digitalWrite('s')
         print('CPT Run Completed!')
+        tk.messagebox.showinfo("CPT Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
 
 # Torque Sensor Read
 def read_torque_sensor():
@@ -738,10 +732,6 @@ vst_var = tk.StringVar()
 dsp_var = tk.StringVar()
 tcp_var = tk.StringVar()
 
-# Restart Button
-restart_button = tk.Button(home_frame, text="Restart", command=restart_program)
-restart_button.grid(row=4, column=0, padx=5, pady=5, sticky=NW)  # Update column to 0
-
 #endregion
 
 # CPT page
@@ -754,10 +744,26 @@ entry = tk.Entry(cpt_frame, textvariable=cpt_var)
 entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
 dep_var = tk.StringVar()
-dep_options = ['5 cm', '6 cm', '7 cm', '8 cm', '9 cm', '10 cm', '11 cm', '12 cm', '13 cm', '14 cm', '15 cm']
+def update_depth(depth):
+    global acquisition_duration
+    selected = depth
+    if selected == '5 cm':
+        acquisition_duration = 23.42 #23.42
+    elif selected == '6 cm':
+        acquisition_duration = 28.11
+    elif selected == '7 cm':
+        acquisition_duration = 32.80
+    elif selected == '8 cm':
+        acquisition_duration = 37.49
+    elif selected == '9 cm':
+        acquisition_duration = 42.18
+    elif selected == '10 cm':
+        acquisition_duration = 46.88
+    print(f'Selected {selected} actuator depth!')   
+dep_options = ['5 cm', '6 cm', '7 cm', '8 cm', '9 cm', '10 cm']
 depth_text = tk.Label(cpt_frame, text="Select depth (cm): ", font=("Arial", 10)).grid(row=2, column=0, padx=3, pady=6)
-depth_dropdown = tk.OptionMenu(cpt_frame, dep_var, *dep_options)
-depth_dropdown.grid(row=2, column=1, pady=6)
+depth_dropdown = tk.OptionMenu(cpt_frame, dep_var, *dep_options, command=update_depth)
+depth_dropdown.grid(row=2, column=1, pady=6, sticky=W)
 
 csv_button = tk.Button(cpt_frame, text="Set Name", command=get_csv)
 csv_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
@@ -765,19 +771,19 @@ csv_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
 run_button = tk.Button(cpt_frame, text="Run Cone Penetrator", command=load_cell_run)
 run_button.grid(row=2, column=2, padx=3, pady=3, sticky=W)
 
-log1 = tk.Label(cpt_frame, text="Logging to: ", font=("Arial", 10)).grid(row=3, column=0)
+log1 = tk.Label(cpt_frame, text="Logging to: ", font=("Arial", 10)).grid(row=4, column=0)
 curr_log1 = tk.Label(cpt_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
-curr_log1.grid(row=3, column=1, sticky=W, pady=2)
+curr_log1.grid(row=4, column=1, sticky=W, pady=2)
 
-running1 = tk.Label(cpt_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=4, column=0, pady=2)
+running1 = tk.Label(cpt_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=5, column=0, pady=2)
 load_running = tk.Label(cpt_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
-load_running.grid(row=4, column=1, sticky=W, pady=2)
+load_running.grid(row=5, column=1, sticky=W, pady=2)
 act_estop = tk.Button(cpt_frame, text="Emergency Stop Actuator", command=lambda: digitalWrite('s'))
-act_estop.grid(row=4, column=2, sticky=tk.W)
+act_estop.grid(row=3, column=2, sticky=W)
 
-depth = tk.Label(cpt_frame, text="Current Depth (cm): ", font=("Arial Bold", 10)).grid(row=5, column=0, pady=2)
-curr_depth = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='white', relief='groove')
-curr_depth.grid(row=5, column=1, sticky=W, pady=2)
+# depth = tk.Label(cpt_frame, text="Current Depth (cm): ", font=("Arial Bold", 10)).grid(row=5, column=0, pady=2)
+# curr_depth = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='white', relief='groove')
+# curr_depth.grid(row=5, column=1, sticky=W, pady=2)
 act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite('C'))
 act_reset.grid(row=5, column=2, sticky=tk.W)
 
@@ -929,9 +935,9 @@ canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=15)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 #endregion
 
-ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
-ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
-ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
+ani = FuncAnimation(fig1, animate_load_cell, interval=900, cache_frame_data=False)
+ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=900, cache_frame_data=False)
+ani3 = FuncAnimation(fig3, animate_tcp, interval=900, cache_frame_data=False)
 plt.show()
 
 root.mainloop()
