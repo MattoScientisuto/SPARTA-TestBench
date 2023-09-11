@@ -6,7 +6,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: September 6th, 2023
+# Last Updated: September 11th, 2023
 # ============================================ #
 
 #region
@@ -163,12 +163,12 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
-actuator = serial.Serial('COM8', baudrate=9600, timeout=1)
+actuator = serial.Serial('COM20', baudrate=9600, timeout=1)
 # stepper = serial.Serial('COM6', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
 def go_to():
-    # stepper.write('@0A100\r'.encode())
-    # stepper.write('@0B100\r'.encode())
+    # stepper.write('@0A200\r'.encode())
+    # stepper.write('@0B200\r'.encode())
     # stepper.write('@0M1000\r'.encode())
     # stepper.write('@0P5000\r'.encode())
     # stepper.write('@0G\r'.encode())   
@@ -237,9 +237,6 @@ def newton_update():
     
 # Load Cell Read       
 def read_load_cell():
-    if acquisition_duration == 0:
-        tk.messagebox.showinfo("Set depth first", "Please select an actuator depth first!")
-        return
     
     global total_time
     global lc_running
@@ -278,7 +275,7 @@ def read_load_cell():
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1   # Inversion (raw readings come negative for some)
                 newton = (strain * (-96960)) - 1.12 # -96960 gain, 1.12 zero offset
-                cdepth = r_count / 7705     # About 7705 data points per centimeter at 3 Volts
+                cdepth = r_count / 7712     # About 7705 data points per centimeter at 3 Volts
 
                 now = dt.datetime.now()
                 
@@ -288,7 +285,6 @@ def read_load_cell():
                 rounded_seconds = round(seconds, 3)
 
                 strain_data.append(newton)
-                entry_nums.append(cdepth)
                 r_count+=1
                 
                 # Write current value to CSV
@@ -693,6 +689,9 @@ def set_vst_dur():
 
 # Run all load cell operations (read, log, plot)    
 def load_cell_run():
+    if acquisition_duration == 0:
+        tk.messagebox.showinfo("Error", "Please select an actuator depth first!")
+        return
     thread_cpt = Thread(target=read_load_cell)
     thread_cpt.start()
     
@@ -748,17 +747,17 @@ def update_depth(depth):
     global acquisition_duration
     selected = depth
     if selected == '5 cm':
-        acquisition_duration = 23.42 #23.42
+        acquisition_duration = 23.47 #23.42
     elif selected == '6 cm':
-        acquisition_duration = 28.11
+        acquisition_duration = 28.04
     elif selected == '7 cm':
-        acquisition_duration = 32.80
+        acquisition_duration = 32.64
     elif selected == '8 cm':
-        acquisition_duration = 37.49
+        acquisition_duration = 37.38
     elif selected == '9 cm':
-        acquisition_duration = 42.18
+        acquisition_duration = 41.98
     elif selected == '10 cm':
-        acquisition_duration = 46.88
+        acquisition_duration = 46.64
     print(f'Selected {selected} actuator depth!')   
 dep_options = ['5 cm', '6 cm', '7 cm', '8 cm', '9 cm', '10 cm']
 depth_text = tk.Label(cpt_frame, text="Select depth (cm): ", font=("Arial", 10)).grid(row=2, column=0, padx=3, pady=6)
