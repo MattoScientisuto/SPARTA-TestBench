@@ -417,6 +417,8 @@ def connect_dsp():
     global dsp_connected
     
     Core.IV_open()
+    Core.IV_SelectChannel(1)
+    Core.IV_selectdevice = 1
     # '1' means to connect
     Core.IV_connect(1)
     
@@ -437,31 +439,32 @@ def connect_dsp():
         tk.messagebox.showinfo("Error", 'No device detected!')
 
 # Start the scan operation using the selected preset method
-# TEMPORARY: currently statically set to 0.01V method
 def scan_op(method):
     global dsp_running
     
+    # Set as default file name (serial, date, time) if user didn't set a custom name
+    if len(dsp_idf) == 0: 
+        get_dsp_idf()
+    
     # Merge ivium.py directory + dsp_settings folder + chosen settings
     dsp_methods = os.path.join(current_directory, 'dsp_settings', method)
-    
+    Core.IV_SelectChannel(1)
     Core.IV_readmethod(dsp_methods)
-    
     dsp_running = True
     switch_true(dsp_runstatus)
     Core.IV_startmethod(dsp_methods)
-    time.sleep(175)
+    
+    time.sleep(145)
     dsp_running = False
-    tk.messagebox.showinfo("DSP Scan Completed!", 'Successfully completed! Your .idf file is ready to save!')
+    
+    dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
+    tk.messagebox.showinfo("DSP Scan Completed!", f'Successfully completed! Your .idf file has been saved as {dsp_idf[0]}')
     switch_false(dsp_runstatus)
     print('DSP Run Completed!')
-
-# After the scanning finishes, user can save the data to the output folder
-def save_idf():
-    if len(dsp_idf) == 0:
-        tk.messagebox.showinfo("Error", 'No name has been set for the log file!')
-    else:
-        dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
-        print(Core.IV_savedata(dsp_output))
+    
+    # Save to dsp folder
+    
+    print(Core.IV_savedata(dsp_output))
 
 #endregion
 
@@ -624,7 +627,13 @@ def get_torque_csv():
 # Get DSP IDF log name
 def get_dsp_idf():
     global dsp_idf
-    input = dsp_entry.get()
+    
+    curr_time = datetime.now().strftime("%H-%M-%S")
+    serial = (Core.IV_readSN())
+    if len(dsp_entry.get()) == 0:
+        input = f'{serial[1]}_{todays_date}_{curr_time}.idf'
+    else:
+        input = dsp_entry.get()
     
     # If the list of idfs is empty, append
     # Otherwise, replace the current stored idf
@@ -698,6 +707,10 @@ def load_cell_run():
 def torque_sensor_run():
     thread_vst = Thread(target=read_torque_sensor) 
     thread_vst.start()
+    
+def dsp_run(method):
+    thread_dsp = Thread(target=lambda:scan_op(method))
+    thread_dsp.start()
     
 def tcp_run():
     thread_tcp = Thread(target=read_tcp) 
@@ -866,23 +879,17 @@ water_instr.grid(row=4, column=0, pady=10, padx=8, sticky=E)
 log3 = tk.Label(dsp_frame, text="Logging to: ", font=("Arial", 10)).grid(row=5, column=0)
 curr_log3 = tk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log3.grid(row=5, column=1, sticky=W, pady=2)
-dsp_scan = tk.Button(dsp_frame, text="Run 0.01V Scan", command=lambda:scan_op(dsp_001method))
+dsp_scan = tk.Button(dsp_frame, text="Run 0.01V Scan", command=lambda:dsp_run(dsp_001method))
 dsp_scan.grid(row=5, column=2, padx=5, pady=5, sticky=N)
-dsp_scan2 = tk.Button(dsp_frame, text="Run 0.5V Scan", command=lambda:scan_op(dsp_05method))
+dsp_scan2 = tk.Button(dsp_frame, text="Run 0.5V Scan", command=lambda:dsp_run(dsp_05method))
 dsp_scan2.grid(row=6, column=2, padx=5, pady=5, sticky=N)
 
 dsp_runtstat = tk.Label(dsp_frame, text='Currently running:', font=("Arial Bold", 10)).grid(row=7, column=0, pady=2)
 dsp_runstatus = tk.Label(dsp_frame, text=str(dsp_running), font=("Arial", 14), background='#f05666', relief='groove')
 dsp_runstatus.grid(row=7, column=1, sticky=W, pady=2)
 
-dsp_readysave = tk.Label(dsp_frame, text='Ready to save:', font=("Arial Bold", 10)).grid(row=8, column=0, pady=2)
-dsp_savestat = tk.Label(dsp_frame, text='False', font=("Arial", 14), background='#f05666', relief='groove')
-dsp_savestat.grid(row=8, column=1, sticky=W, pady=2)
-dsp_saveidf = tk.Button(dsp_frame, text="Save .idf File", command=save_idf)
-dsp_saveidf.grid(row=8, column=2, padx=5, pady=5, sticky=N)
-
 dsp_folder = tk.Button(dsp_frame, image=folders, command=lambda:open_folder('.\\data_output\\dsp'))
-dsp_folder.grid(row=9, column=2, pady=10)
+dsp_folder.grid(row=8, column=2, pady=10)
 
 #endregion
 
