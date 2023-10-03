@@ -57,7 +57,6 @@ cpt_frame = Frame(root, width=200, height=root.winfo_height())
 vst_frame = Frame(root, width=200, height=root.winfo_height())
 dsp_frame = Frame(root, width=200, height=root.winfo_height())
 tcp_frame = Frame(root, width=200, height=root.winfo_height())
-imu_frame = Frame(root, width=200, height=root.winfo_height())
 
 min_w = 50 # Minimum width of the frame
 max_w = 150 # Maximum width of the frame
@@ -92,7 +91,6 @@ def fill():
         vst_b.config(text='Vane Shear\nTester',image='',font=(0,15), relief='raised')
         dsp_b.config(text='Dielectric\nSpectrometer',image='',font=(0,15), relief='raised')
         tcp_b.config(text='Thermal\nConductivity\nProbe',image='',font=(0,15), relief='raised')
-        imu_b.config(text='Inertial\nMeasurement\nUnit',image='',font=(0,15), relief='raised')
     else:
         # Bring the image back
         home_b.config(image=home,font=(0,15), relief='flat')
@@ -100,7 +98,6 @@ def fill():
         vst_b.config(image=vst,font=(0,15), relief='flat')
         dsp_b.config(image=dsp,font=(0,15), relief='flat')
         tcp_b.config(image=tcp,font=(0,15), relief='flat')
-        imu_b.config(image=imu,font=(0,15), relief='flat')
 
 def show_page(page):
     # Hide all pages
@@ -132,7 +129,6 @@ cpt = ImageTk.PhotoImage(Image.open('.\\gui_images\\cpt.png').resize((40,40)), I
 vst = ImageTk.PhotoImage(Image.open('.\\gui_images\\vst.png').resize((40,40)), Image.Resampling.LANCZOS)
 dsp = ImageTk.PhotoImage(Image.open('.\\gui_images\\dsp.png').resize((40,40)), Image.Resampling.LANCZOS)
 tcp = ImageTk.PhotoImage(Image.open('.\\gui_images\\tcp.png').resize((40,40)), Image.Resampling.LANCZOS)
-imu = ImageTk.PhotoImage(Image.open('.\\gui_images\\imu.png').resize((40,40)), Image.Resampling.LANCZOS)
 folders = ImageTk.PhotoImage(Image.open('.\\gui_images\\data_folder.png').resize((40,40)), Image.Resampling.LANCZOS)
 
 root.update() # For the width to get updated
@@ -145,7 +141,6 @@ cpt_b = Button(frame,image=cpt,bg='orange',relief='flat',   command=lambda: show
 vst_b = Button(frame,image=vst,bg='orange',relief='flat',   command=lambda: show_page("VST"))
 dsp_b = Button(frame,image=dsp,bg='orange',relief='flat',   command=lambda: show_page("DSP"))
 tcp_b = Button(frame,image=tcp,bg='orange',relief='flat',   command=lambda: show_page("TCP"))
-imu_b = Button(frame,image=imu,bg='orange',relief='flat',   command=lambda: show_page("IMU"))
 
 # Put them on the frame
 home_b.grid(row=0,column=0, pady=15)
@@ -153,7 +148,6 @@ cpt_b.grid(row=1,column=0, pady=15)
 vst_b.grid(row=2,column=0, pady=15)
 dsp_b.grid(row=3,column=0, pady=15)
 tcp_b.grid(row=4,column=0, pady=15)
-imu_b.grid(row=5,column=0, pady=15)
 
 # Bind to the frame, if entered or left
 frame.bind('<Enter>',lambda e: expand())
@@ -163,25 +157,25 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
-actuator = serial.Serial('COM20', baudrate=9600, timeout=1)
-# stepper = serial.Serial('COM6', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+# actuator = serial.Serial('COM20', baudrate=9600, timeout=1)
+stepper = serial.Serial('COM22', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
 def go_to():
-    # stepper.write('@0A200\r'.encode())
-    # stepper.write('@0B200\r'.encode())
-    # stepper.write('@0M1000\r'.encode())
-    # stepper.write('@0P5000\r'.encode())
-    # stepper.write('@0G\r'.encode())   
-    # stepper.write('@0F\r'.encode())   
+    stepper.write('@0A200\r'.encode())
+    stepper.write('@0B200\r'.encode())
+    stepper.write('@0M10000\r'.encode())
+    stepper.write('@0P75000\r'.encode())
+    stepper.write('@0G\r'.encode())   
+    stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
 def reset():
-    # stepper.write('@0P0\r'.encode())
-    # stepper.write('@0G\r'.encode())
-    # stepper.write('@0F\r'.encode())
+    stepper.write('@0P0\r'.encode())
+    stepper.write('@0G\r'.encode())
+    stepper.write('@0F\r'.encode())
     print('Resetting position...')
     
 def digitalWrite(command):
-    actuator.write(command.encode())
+    # actuator.write(command.encode())
     print('Command sent:', command)
 
 csv_list = []
@@ -941,9 +935,9 @@ canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=15)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 #endregion
 
-ani = FuncAnimation(fig1, animate_load_cell, interval=900, cache_frame_data=False)
-ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=900, cache_frame_data=False)
-ani3 = FuncAnimation(fig3, animate_tcp, interval=900, cache_frame_data=False)
+ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
+ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
+ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
 plt.show()
 
 root.mainloop()
