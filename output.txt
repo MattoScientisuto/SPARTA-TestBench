@@ -1,0 +1,14 @@
+
+C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE>start C:\IviumStat\IviumSoft.exe 
+Ivium started at: 16:25:09
+
+DSP IDF set to: P28659_10-09-2023_16-25-11.idf
+Scan started at: 16:25:12
+Device Status: 1, Device idle & ready
+0
+(0, 'C:\\Users\\mattduong\\Documents\\MATT SPARTA SOFTWARE\\data_output\\dsp\\10-09-2023\\P28659_10-09-2023_16-25-11.idf')
+DSP Sweep Completed at: 16:27:24
+
+
+DSP IDF replaced with: P28659_10-09-2023_16-27-25.idf
+Scan started at: 16:27:25
