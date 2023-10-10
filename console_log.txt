@@ -1,0 +1,16 @@
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>start C:\IviumStat\IviumSoft.exe 
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>start C:\Users\keith\OneDrive\Desktop\Bench_Repo\IMU_Executable\IMU_App2.exe 
+Ivium opened at: 16:49:37
+IMU Executable opened at: 16:49:47
+
+DSP IDF set to:  P28659_10-09-2023_16-49-51.idf
+Scan started at: 16:49:53
+Device Status: 1, Device idle & ready
+(0, 'C:\\Users\\keith\\OneDrive\\Desktop\\Bench_Repo\\data_output\\dsp\\10-09-2023\\P28659_10-09-2023_16-49-51.idf')
+DSP Sweep Completed at: 16:52:15
+
+
+DSP IDF replaced with:  P28659_10-09-2023_16-52-16.idf
+Scan started at: 16:52:16

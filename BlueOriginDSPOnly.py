@@ -32,10 +32,10 @@ def get_dsp_idf():
     
     if len(dsp_idf) == 0:
         dsp_idf.append(input)
-        print(f"\nDSP IDF set to: {input}")
+        print("\nDSP IDF set to: ", input)
     else:
         dsp_idf[0] = input
-        print(f"\nDSP IDF replaced with: {input}")
+        print("\nDSP IDF replaced with: ", input)
     
     if not os.path.exists(dsp_dir):
         os.makedirs(dsp_dir)
@@ -119,13 +119,22 @@ def dsp_wait():
 def start_ivium():
     # Start IviumSoft.exe
     subprocess.call([r'start_ivium.bat'])
-    time.sleep(5)
+    time.sleep(10)
     time_now = dt.datetime.now().strftime("%H:%M:%S")
-    print(f'Ivium started at: {time_now}')
+    print(f'Ivium opened at: {time_now}')
+
+def start_imu():
+    subprocess.call([r'start_IMU.bat'])
+    time.sleep(10)
+    time_now = dt.datetime.now().strftime("%H:%M:%S")
+    print(f'IMU Executable opened at: {time_now}')
 
 def full_op():
 
+    # Power up ivium and IMU
+    # 10 second delay for each to open on time before scanning
     start_ivium()
+    start_imu()
 
     Core.IV_open()
     time.sleep(0.1)
