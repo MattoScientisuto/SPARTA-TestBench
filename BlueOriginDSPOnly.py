@@ -170,7 +170,7 @@ def full_op():
     # Power up ivium and IMU
     # 8 second delay for each to open on time before scanning
     start_ivium()
-    # start_imu()
+    start_imu()
 
     Core.IV_open()
     time.sleep(0.1)
