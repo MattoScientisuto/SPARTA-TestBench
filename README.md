@@ -12,6 +12,7 @@ This interface is being developed for my current intern project managed by NASA 
  - serial
  - Thread
  - Tkinter
+ - subprocess
 
 
 <h3>Start-up</h3>
