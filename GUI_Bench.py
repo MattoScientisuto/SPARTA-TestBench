@@ -6,7 +6,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: October 2nd, 2023
+# Last Updated: October 30th, 2023
 # ============================================ #
 
 #region
@@ -38,6 +38,8 @@ import csv
 import serial
 
 from threading import Thread
+
+import subprocess
 
 root = Tk()
 root.title('SPARTA Test Bench')
@@ -158,20 +160,20 @@ frame.grid_propagate(False)
 
 # ========================================================================
 # actuator = serial.Serial('COM20', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM22', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+# stepper = serial.Serial('COM22', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
 def go_to():
-    stepper.write('@0A200\r'.encode())
-    stepper.write('@0B200\r'.encode())
-    stepper.write('@0M10000\r'.encode())
-    stepper.write('@0P75000\r'.encode())
-    stepper.write('@0G\r'.encode())   
-    stepper.write('@0F\r'.encode())   
+    # stepper.write('@0A200\r'.encode())
+    # stepper.write('@0B200\r'.encode())
+    # stepper.write('@0M10000\r'.encode())
+    # stepper.write('@0P75000\r'.encode())
+    # stepper.write('@0G\r'.encode())   
+    # stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
 def reset():
-    stepper.write('@0P0\r'.encode())
-    stepper.write('@0G\r'.encode())
-    stepper.write('@0F\r'.encode())
+    # stepper.write('@0P0\r'.encode())
+    # stepper.write('@0G\r'.encode())
+    # stepper.write('@0F\r'.encode())
     print('Resetting position...')
     
 def digitalWrite(command):
@@ -406,6 +408,14 @@ def device_update(device, serial):
 dsp_001method = 'EIS230724140245.imf'
 dsp_05method = 'EIS230724135821.imf'
 
+# Start IviumSoft
+def start_ivium():
+    # Start IviumSoft.exe
+    subprocess.call([r'start_ivium.bat'])
+    time.sleep(3)
+    time_now = dt.datetime.now().strftime("%H:%M:%S")
+    print(f'Ivium opened at: {time_now}')
+
 # Connect to DSP
 def connect_dsp():
     global dsp_connected
@@ -415,6 +425,7 @@ def connect_dsp():
     Core.IV_selectdevice = 1
     # '1' means to connect
     Core.IV_connect(1)
+    time.sleep(0.5)
     
     # '-1' == IviumSoft isn't opened
     # '0'  == Not connected to IviumSoft yet
@@ -432,6 +443,23 @@ def connect_dsp():
     elif status == 3:
         tk.messagebox.showinfo("Error", 'No device detected!')
 
+# Check if DSP is finished
+def dsp_wait():
+    while True:
+        # Channel 1
+        # Core.IV_SelectChannel(1)
+        status = Core.IV_getdevicestatus()
+        
+        time.sleep(0.5)
+        
+        # Check if the channel is done
+        if status == 1:
+            return status
+        
+        # Check in 10 second intervals
+        print('not done, restart')
+        time.sleep(10)
+
 # Start the scan operation using the selected preset method
 def scan_op(method):
     global dsp_running
@@ -448,7 +476,7 @@ def scan_op(method):
     switch_true(dsp_runstatus)
     Core.IV_startmethod(dsp_methods)
     
-    time.sleep(145)
+    dsp_wait()
     dsp_running = False
     
     dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
@@ -567,7 +595,7 @@ def get_csv():
     global csv_list
     global cpt_dir
     
-    input = entry.get()
+    input = entry.get() + '.csv'
     
     # If the list of csvs is empty, append
     # Otherwise, replace the current stored csv
@@ -594,7 +622,7 @@ def get_csv():
 def get_torque_csv():
     global torque_csv
     global vst_dir
-    input = torque_entry.get()
+    input = torque_entry.get() + '.csv'
     
     # If the list of csvs is empty, append
     # Otherwise, replace the current stored csv
@@ -627,7 +655,7 @@ def get_dsp_idf():
     if len(dsp_entry.get()) == 0:
         input = f'{serial[1]}_{todays_date}_{curr_time}.idf'
     else:
-        input = dsp_entry.get()
+        input = dsp_entry.get() + '.idf'
     
     # If the list of idfs is empty, append
     # Otherwise, replace the current stored idf
@@ -648,7 +676,7 @@ def get_dsp_idf():
 def get_tcp_csv():
     global tcp_csv
     global tcp_dir
-    input = tcp_entry.get()
+    input = tcp_entry.get() + '.csv'
     
     # If the list of csvs is empty, append
     # Otherwise, replace the current stored csv
@@ -745,7 +773,7 @@ tcp_var = tk.StringVar()
 cpt_test = tk.Label(cpt_frame, text='Cone Penetrator', font=("Arial", 18)) 
 cpt_test.grid(row=0,column=0, padx=5, pady=6)
 
-set_csv = tk.Label(cpt_frame, text="Set load log name (include .csv): ", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+set_csv = tk.Label(cpt_frame, text="Set load log name: ", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
 entry = tk.Entry(cpt_frame, textvariable=cpt_var)
 entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
@@ -808,7 +836,7 @@ cpt_folder.grid(row=6, column=2)
 vst_test = tk.Label(vst_frame, text='Vane Shear Tester', font=("Arial", 18)) 
 vst_test.grid(row=0,column=0, padx=5, pady=6)
 
-set_tcsv = tk.Label(vst_frame, text="Set torque log name (include .csv):", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+set_tcsv = tk.Label(vst_frame, text="Set torque log name:", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
 torque_entry = tk.Entry(vst_frame, textvariable=vst_var)
 torque_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
@@ -854,16 +882,19 @@ dsp_test.grid(row=0,column=0, padx=5, pady=6)
 dsp_connection = tk.Label(dsp_frame, text="Connected to Ivium: ", font=("Arial Bold", 10)).grid(row=1, column=0, pady=2)
 dsp_status = tk.Label(dsp_frame, text=str(dsp_connected), font=("Arial", 14), background='#f05666', relief='groove')
 dsp_status.grid(row=1, column=1, sticky=W, pady=2)
+start_ivium_button = tk.Button(dsp_frame, text="Start IviumSoft", command=start_ivium)
+start_ivium_button.grid(row=1, column=2, padx=5, pady=5)
 dsp_connect = tk.Button(dsp_frame, text="Connect to DSP", command=connect_dsp)
-dsp_connect.grid(row=1, column=2, padx=5, pady=5)
+dsp_connect.grid(row=2, column=2, padx=5, pady=5)
 
 dsp_device_status = tk.Label(dsp_frame, text="Device Serial: ", font=("Arial Bold", 10)).grid(row=2, column=0, pady=2)
 dsp_device = tk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 dsp_device.grid(row=2, column=1, sticky=W, pady=2)
 
-set_didf = tk.Label(dsp_frame, text="Set DSP log name (include .idf):", font=("Arial", 10)).grid(row=3, column=0, padx=3, pady=10)
+set_didf = tk.Label(dsp_frame, text="Set DSP log name:", font=("Arial", 10)).grid(row=3, column=0, padx=3, pady=10)
 dsp_entry = tk.Entry(dsp_frame, textvariable=dsp_var)
 dsp_entry.grid(row=3, column=1, pady=5, sticky=W)
+
 dsp_torque_button = tk.Button(dsp_frame, text="Set Name", command=get_dsp_idf)
 dsp_torque_button.grid(row=3, column=2, padx=5, pady=5)
 
@@ -892,7 +923,7 @@ dsp_folder.grid(row=8, column=2, pady=10)
 tcp_test = tk.Label(tcp_frame, text='Thermal Conductivity Probe', font=("Arial", 18)) 
 tcp_test.grid(row=0,column=0, padx=5, pady=6)
 
-set_tcp_csv = tk.Label(tcp_frame, text="Set TCP log name (include .csv):", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+set_tcp_csv = tk.Label(tcp_frame, text="Set TCP log name:", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
 tcp_entry = tk.Entry(tcp_frame)
 tcp_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 csv_tcp_button = tk.Button(tcp_frame, text="Set Name", command=get_tcp_csv)
