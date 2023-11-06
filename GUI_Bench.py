@@ -407,6 +407,7 @@ def device_update(device, serial):
 # EIS230724135821.imf = 0.5V for samples over 1.0% water
 dsp_001method = 'EIS230724140245.imf'
 dsp_05method = 'EIS230724135821.imf'
+current_method = ''
 
 # Start IviumSoft
 def start_ivium():
@@ -457,36 +458,61 @@ def dsp_wait():
             return status
         
         # Check in 10 second intervals
-        print('not done, restart')
+        print('Not done yet, wait another 10 seconds...')
         time.sleep(10)
 
 # Start the scan operation using the selected preset method
 def scan_op(method):
     global dsp_running
-    
-    # Set as default file name (serial, date, time) if user didn't set a custom name
-    if len(dsp_idf) == 0: 
-        get_dsp_idf()
-    
-    # Merge ivium.py directory + dsp_settings folder + chosen settings
-    dsp_methods = os.path.join(current_directory, 'dsp_settings', method)
-    Core.IV_SelectChannel(1)
-    Core.IV_readmethod(dsp_methods)
-    dsp_running = True
-    switch_true(dsp_runstatus)
-    Core.IV_startmethod(dsp_methods)
-    
-    dsp_wait()
-    dsp_running = False
-    
-    dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
-    tk.messagebox.showinfo("DSP Scan Completed!", f'Successfully completed! Your .idf file has been saved as {dsp_idf[0]}')
-    switch_false(dsp_runstatus)
-    print('DSP Run Completed!')
-    
-    # Save to dsp folder
-    
-    print(Core.IV_savedata(dsp_output))
+
+    Core.IV_open()
+    status = Core.IV_getdevicestatus()
+    print(status)
+
+    # If no voltage is selected, do not proceed
+    if method == '' or ():
+        tk.messagebox.showinfo("Error", f'Please select a voltage first!')
+    # If DSP isn't connected to Ivium yet, do not let it proceed
+    # or else it will close the program
+    elif status == 0 or status == -1:
+        tk.messagebox.showinfo("Error", f'Please connect to the DSP first!')
+    else:
+        # Set as default file name (serial, date, time) if user didn't set a custom name
+        if len(dsp_idf) == 0: 
+            get_dsp_idf()
+        
+        # Merge ivium.py directory + dsp_settings folder + chosen settings
+        dsp_methods = os.path.join(current_directory, 'dsp_settings', method)
+        Core.IV_SelectChannel(1)
+        Core.IV_readmethod(dsp_methods)
+        dsp_running = True
+        switch_true(dsp_runstatus)
+        Core.IV_startmethod(dsp_methods)
+        
+        dsp_wait()
+        dsp_running = False
+        
+        dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
+        tk.messagebox.showinfo("DSP Scan Completed!", f'Successfully completed! Your .idf file has been saved as {dsp_idf[0]}')
+        switch_false(dsp_runstatus)
+        print('DSP Run Completed!')
+        
+        # Save to dsp folder
+        
+        print(Core.IV_savedata(dsp_output))
+
+def stop_dsp():
+    Core.IV_open()
+    status = Core.IV_getdevicestatus()
+    print(status)
+
+    # If DSP isn't connected to Ivium yet, do not let it proceed
+    # or else it will close the program
+    if status == 0 or status == -1:
+        tk.messagebox.showinfo("Error", f'Please connect to the DSP first!')
+    else:
+        Core.IV_abort()
+        switch_false(dsp_runstatus)
 
 #endregion
 
@@ -650,27 +676,36 @@ def get_torque_csv():
 def get_dsp_idf():
     global dsp_idf
     
-    curr_time = datetime.now().strftime("%H-%M-%S")
-    serial = (Core.IV_readSN())
-    if len(dsp_entry.get()) == 0:
-        input = f'{serial[1]}_{todays_date}_{curr_time}.idf'
+    Core.IV_open()
+    status = Core.IV_getdevicestatus()
+    print(status)
+
+    # If DSP isn't connected to Ivium yet, do not let it proceed
+    # or else it will close the program
+    if status == 0 or status == -1:
+        tk.messagebox.showinfo("Error", f'Please connect to the DSP first!')
     else:
-        input = dsp_entry.get() + '.idf'
-    
-    # If the list of idfs is empty, append
-    # Otherwise, replace the current stored idf
-    if len(dsp_idf) == 0:
-        dsp_idf.append(input)
-        print("DSP IDF set to:", input)
-    else:
-        dsp_idf[0] = input
-        print("DSP IDF replaced with:", input)
-    log_update(curr_log3)
-    
-    # If today's date doesn't have an output folder yet, make one
-    # Otherwise, continue
-    if not os.path.exists(dsp_dir):
-        os.makedirs(dsp_dir)
+        curr_time = datetime.now().strftime("%H-%M-%S")
+        serial = (Core.IV_readSN())
+        if len(dsp_entry.get()) == 0:
+            input = f'{serial[1]}_{todays_date}_{curr_time}.idf'
+        else:
+            input = dsp_entry.get() + '.idf'
+        
+        # If the list of idfs is empty, append
+        # Otherwise, replace the current stored idf
+        if len(dsp_idf) == 0:
+            dsp_idf.append(input)
+            print("DSP IDF set to:", input)
+        else:
+            dsp_idf[0] = input
+            print("DSP IDF replaced with:", input)
+        log_update(curr_log3)
+        
+        # If today's date doesn't have an output folder yet, make one
+        # Otherwise, continue
+        if not os.path.exists(dsp_dir):
+            os.makedirs(dsp_dir)
 
 # Get TCP CSV log name
 def get_tcp_csv():
@@ -815,9 +850,6 @@ load_running.grid(row=5, column=1, sticky=W, pady=2)
 act_estop = tk.Button(cpt_frame, text="Emergency Stop Actuator", command=lambda: digitalWrite('s'))
 act_estop.grid(row=3, column=2, sticky=W)
 
-# depth = tk.Label(cpt_frame, text="Current Depth (cm): ", font=("Arial Bold", 10)).grid(row=5, column=0, pady=2)
-# curr_depth = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='white', relief='groove')
-# curr_depth.grid(row=5, column=1, sticky=W, pady=2)
 act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite('C'))
 act_reset.grid(row=5, column=2, sticky=tk.W)
 
@@ -901,13 +933,28 @@ dsp_torque_button.grid(row=3, column=2, padx=5, pady=5)
 water_instr = tk.Label(dsp_frame, text="For < 1.0% water: 0.5V Scan\nFor >= 1.0% water: 0.01V Scan", font=("Arial", 12), foreground='blue')
 water_instr.grid(row=4, column=0, pady=10, padx=8, sticky=E)
 
-log3 = tk.Label(dsp_frame, text="Logging to: ", font=("Arial", 10)).grid(row=5, column=0)
+volt_var = tk.StringVar()
+def update_dsp_volt(voltage):
+    global current_method
+    selected = voltage
+    if selected == '0.01V':
+        current_method = dsp_001method
+    elif selected == '0.5V':
+        current_method = dsp_05method
+    print(f'Selected {selected} actuator depth!')   
+volt_options = ['0.01V', '0.5V']
+volt_text = tk.Label(dsp_frame, text="Select Voltage: ", font=("Arial", 10)).grid(row=5, column=0, padx=3, pady=6)
+volt_dropdown = tk.OptionMenu(dsp_frame, volt_var, *volt_options, command=update_dsp_volt)
+volt_dropdown.grid(row=5, column=1, pady=6, sticky=W)
+
+log3 = tk.Label(dsp_frame, text="Logging to: ", font=("Arial", 10)).grid(row=6, column=0)
 curr_log3 = tk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
-curr_log3.grid(row=5, column=1, sticky=W, pady=2)
-dsp_scan = tk.Button(dsp_frame, text="Run 0.01V Scan", command=lambda:dsp_run(dsp_001method))
-dsp_scan.grid(row=5, column=2, padx=5, pady=5, sticky=N)
-dsp_scan2 = tk.Button(dsp_frame, text="Run 0.5V Scan", command=lambda:dsp_run(dsp_05method))
-dsp_scan2.grid(row=6, column=2, padx=5, pady=5, sticky=N)
+curr_log3.grid(row=6, column=1, sticky=W, pady=2)
+dsp_scan = tk.Button(dsp_frame, text="Start Scan", command=lambda:dsp_run(current_method))
+dsp_scan.grid(row=6, column=2, padx=5, pady=5, sticky=N)
+dsp_scan2 = tk.Button(dsp_frame, text="Abort Scan", command=stop_dsp)
+dsp_scan2.grid(row=7, column=2, padx=5, pady=5, sticky=N)
+
 
 dsp_runtstat = tk.Label(dsp_frame, text='Currently running:', font=("Arial Bold", 10)).grid(row=7, column=0, pady=2)
 dsp_runstatus = tk.Label(dsp_frame, text=str(dsp_running), font=("Arial", 14), background='#f05666', relief='groove')
@@ -921,7 +968,7 @@ dsp_folder.grid(row=8, column=2, pady=10)
 # TCP page
 #region
 tcp_test = tk.Label(tcp_frame, text='Thermal Conductivity Probe', font=("Arial", 18)) 
-tcp_test.grid(row=0,column=0, padx=5, pady=6)
+tcp_test.grid(row=0,column=0, padx=5, pady=6, columnspan=2)
 
 set_tcp_csv = tk.Label(tcp_frame, text="Set TCP log name:", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
 tcp_entry = tk.Entry(tcp_frame)
