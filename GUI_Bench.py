@@ -6,7 +6,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: October 30th, 2023
+# Last Updated: November 13th, 2023
 # ============================================ #
 
 #region
@@ -40,11 +40,14 @@ import serial
 from threading import Thread
 
 import subprocess
+#endregion
 
 root = Tk()
 root.title('SPARTA Test Bench')
-root.geometry('650x740')
-#endregion
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+root.geometry(f"{screen_width}x{screen_height}")
+root.state('zoomed')
 
 def open_url(url):
     webbrowser.open_new_tab(url)
@@ -55,6 +58,7 @@ def open_folder(comp_path):
 # Home frame is set as the start up page
 home_frame = Frame(root, width=200, height=root.winfo_height())
 home_frame.grid(row=0, column=1, sticky=N)
+aio_frame = Frame(root, width=200, height=root.winfo_height())
 cpt_frame = Frame(root, width=200, height=root.winfo_height())
 vst_frame = Frame(root, width=200, height=root.winfo_height())
 dsp_frame = Frame(root, width=200, height=root.winfo_height())
@@ -89,6 +93,7 @@ def fill():
     if expanded: # If the frame is expanded
         # Show a text, and remove the image
         home_b.config(text='Home',image=home,font=(0,15), relief='raised')
+        aio_b.config(text='All\nComponents',image='',font=(0,15), relief='raised')
         cpt_b.config(text='Cone\nPenetrator',image='',font=(0,15), relief='raised')
         vst_b.config(text='Vane Shear\nTester',image='',font=(0,15), relief='raised')
         dsp_b.config(text='Dielectric\nSpectrometer',image='',font=(0,15), relief='raised')
@@ -96,6 +101,7 @@ def fill():
     else:
         # Bring the image back
         home_b.config(image=home,font=(0,15), relief='flat')
+        aio_b.config(image=aio,font=(0,15), relief='flat')
         cpt_b.config(image=cpt,font=(0,15), relief='flat')
         vst_b.config(image=vst,font=(0,15), relief='flat')
         dsp_b.config(image=dsp,font=(0,15), relief='flat')
@@ -104,6 +110,7 @@ def fill():
 def show_page(page):
     # Hide all pages
     home_frame.grid_forget()
+    aio_frame.grid_forget()
     cpt_frame.grid_forget()
     vst_frame.grid_forget()
     dsp_frame.grid_forget()
@@ -111,22 +118,34 @@ def show_page(page):
 
     # Show the selected page
     if page == "Home":
+        # root.geometry('650x740')
         home_frame.grid(row=0, column=1, sticky=N)
 
+    elif page == "AIO":
+        # root.geometry('1500x740')
+        cpt_frame.grid(row=0, column=1, sticky=N)   
+        vst_frame.grid(row=0, column=2, sticky=N) 
+        tcp_frame.grid(row=0, column=3, sticky=N) 
+
     elif page == "CPT":
+        # root.geometry('650x740')
         cpt_frame.grid(row=0, column=1, sticky=N)   
 
     elif page == "VST":
+        # root.geometry('650x740')
         vst_frame.grid(row=0, column=1, sticky=N)   
 
     elif page == "DSP":
+        # root.geometry('650x740')
         dsp_frame.grid(row=0, column=1, sticky=N)   
     
     elif page == "TCP":
+        # root.geometry('650x740')
         tcp_frame.grid(row=0, column=1, sticky=N)   
 
 # Define the icons to be shown and resize it
 home = ImageTk.PhotoImage(Image.open('.\\gui_images\\home.png').resize((40,40)), Image.Resampling.LANCZOS)
+aio = ImageTk.PhotoImage(Image.open('.\\gui_images\\aio.png').resize((40,40)), Image.Resampling.LANCZOS)
 cpt = ImageTk.PhotoImage(Image.open('.\\gui_images\\cpt.png').resize((40,40)), Image.Resampling.LANCZOS)
 vst = ImageTk.PhotoImage(Image.open('.\\gui_images\\vst.png').resize((40,40)), Image.Resampling.LANCZOS)
 dsp = ImageTk.PhotoImage(Image.open('.\\gui_images\\dsp.png').resize((40,40)), Image.Resampling.LANCZOS)
@@ -134,11 +153,13 @@ tcp = ImageTk.PhotoImage(Image.open('.\\gui_images\\tcp.png').resize((40,40)), I
 folders = ImageTk.PhotoImage(Image.open('.\\gui_images\\data_folder.png').resize((40,40)), Image.Resampling.LANCZOS)
 
 root.update() # For the width to get updated
-frame = Frame(root,bg='orange',width=50,height=root.winfo_height())
+frame = Frame(root,bg='orange', width=50, height=root.winfo_height())
 frame.grid(row=0,column=0) 
+frame.grid_propagate(False)
 
 # Make the buttons with the icons to be shown
 home_b = Button(frame,image=home,bg='orange',relief='flat', command=lambda: show_page("Home"))
+aio_b = Button(frame,image=aio,bg='orange',relief='flat',   command=lambda: show_page("AIO"))
 cpt_b = Button(frame,image=cpt,bg='orange',relief='flat',   command=lambda: show_page("CPT"))
 vst_b = Button(frame,image=vst,bg='orange',relief='flat',   command=lambda: show_page("VST"))
 dsp_b = Button(frame,image=dsp,bg='orange',relief='flat',   command=lambda: show_page("DSP"))
@@ -146,10 +167,11 @@ tcp_b = Button(frame,image=tcp,bg='orange',relief='flat',   command=lambda: show
 
 # Put them on the frame
 home_b.grid(row=0,column=0, pady=15)
-cpt_b.grid(row=1,column=0, pady=15)
-vst_b.grid(row=2,column=0, pady=15)
-dsp_b.grid(row=3,column=0, pady=15)
-tcp_b.grid(row=4,column=0, pady=15)
+aio_b.grid(row=1,column=0, pady=15)
+cpt_b.grid(row=2,column=0, pady=15)
+vst_b.grid(row=3,column=0, pady=15)
+dsp_b.grid(row=4,column=0, pady=15)
+tcp_b.grid(row=5,column=0, pady=15)
 
 # Bind to the frame, if entered or left
 frame.bind('<Enter>',lambda e: expand())
@@ -830,7 +852,8 @@ def update_depth(depth):
         acquisition_duration = 46.64
     print(f'Selected {selected} actuator depth!')   
 dep_options = ['5 cm', '6 cm', '7 cm', '8 cm', '9 cm', '10 cm']
-depth_text = tk.Label(cpt_frame, text="Select depth (cm): ", font=("Arial", 10)).grid(row=2, column=0, padx=3, pady=6)
+depth_text = tk.Label(cpt_frame, text="Select depth (cm): ", font=("Arial", 10))
+depth_text.grid(row=2, column=0, padx=3, pady=6)
 depth_dropdown = tk.OptionMenu(cpt_frame, dep_var, *dep_options, command=update_depth)
 depth_dropdown.grid(row=2, column=1, pady=6, sticky=W)
 
@@ -840,11 +863,13 @@ csv_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
 run_button = tk.Button(cpt_frame, text="Run Cone Penetrator", command=load_cell_run)
 run_button.grid(row=2, column=2, padx=3, pady=3, sticky=W)
 
-log1 = tk.Label(cpt_frame, text="Logging to: ", font=("Arial", 10)).grid(row=4, column=0)
+log1 = tk.Label(cpt_frame, text="Logging to: ", font=("Arial", 10))
+log1.grid(row=4, column=0)
 curr_log1 = tk.Label(cpt_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log1.grid(row=4, column=1, sticky=W, pady=2)
 
-running1 = tk.Label(cpt_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=5, column=0, pady=2)
+running1 = tk.Label(cpt_frame, text="Currently Running: ", font=("Arial Bold", 10))
+running1.grid(row=5, column=0, pady=2)
 load_running = tk.Label(cpt_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
 load_running.grid(row=5, column=1, sticky=W, pady=2)
 act_estop = tk.Button(cpt_frame, text="Emergency Stop Actuator", command=lambda: digitalWrite('s'))
@@ -853,7 +878,8 @@ act_estop.grid(row=3, column=2, sticky=W)
 act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite('C'))
 act_reset.grid(row=5, column=2, sticky=tk.W)
 
-newt = tk.Label(cpt_frame, text="Greatest Force (Newton): ", font=("Arial Bold", 10)).grid(row=6, column=0, pady=2)
+newt = tk.Label(cpt_frame, text="Greatest Force (Newton): ", font=("Arial Bold", 10))
+newt.grid(row=6, column=0, pady=2)
 curr_newt = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='#e0e0e0', relief='ridge')
 curr_newt.grid(row=6, column=1, sticky=W, pady=2)
 
@@ -868,11 +894,13 @@ cpt_folder.grid(row=6, column=2)
 vst_test = tk.Label(vst_frame, text='Vane Shear Tester', font=("Arial", 18)) 
 vst_test.grid(row=0,column=0, padx=5, pady=6)
 
-set_tcsv = tk.Label(vst_frame, text="Set torque log name:", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+set_tcsv = tk.Label(vst_frame, text="Set torque log name:", font=("Arial", 10))
+set_tcsv.grid(row=1, column=0, padx=3, pady=3)
 torque_entry = tk.Entry(vst_frame, textvariable=vst_var)
 torque_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
-vst_dur = tk.Label(vst_frame, text="Set rotation duration (seconds):", font=("Arial", 10)).grid(row=2, column=0, padx=3, pady=3)
+vst_dur = tk.Label(vst_frame, text="Set rotation duration (seconds):", font=("Arial", 10))
+vst_dur.grid(row=2, column=0, padx=3, pady=3)
 ttime_entry = tk.Entry(vst_frame)
 ttime_entry.grid(row=2, column=1, padx=3, pady=3, sticky=W)
 
@@ -885,18 +913,21 @@ ttime_set.grid(row=2, column=2, padx=3, pady=3, sticky=W)
 run_torque_button = tk.Button(vst_frame, text="Run Vane Shear", command=torque_sensor_run)
 run_torque_button.grid(row=3, column=2, padx=3, pady=3, sticky=W)
 
-log2 = tk.Label(vst_frame, text="Logging to: ", font=("Arial", 10)).grid(row=4, column=0)
+log2 = tk.Label(vst_frame, text="Logging to: ", font=("Arial", 10))
+log2.grid(row=4, column=0)
 curr_log2 = tk.Label(vst_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log2.grid(row=4, column=1, sticky=W, pady=2)
 
-rot_dial = tk.Label(vst_frame, text="Rotation duration (seconds): ", font=("Arial", 10)).grid(row=5, column=0)
+rot_dial = tk.Label(vst_frame, text="Rotation duration (seconds): ", font=("Arial", 10))
+rot_dial.grid(row=5, column=0)
 rot_dur = tk.Label(vst_frame, text='{:.2f}'.format(vst_duration), font=("Arial", 14), background='#15eb80', relief='groove')
 rot_dur.grid(row=5, column=1, sticky=W, pady=2)
 
 reset_pos = tk.Button(vst_frame, text='Reset Motor Position', command=reset)
 reset_pos.grid(row=5, column=2, sticky=W)
 
-running2 = tk.Label(vst_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=6, column=0, pady=2)
+running2 = tk.Label(vst_frame, text="Currently Running: ", font=("Arial Bold", 10))
+running2.grid(row=6, column=0, pady=2)
 torque_running = tk.Label(vst_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
 torque_running.grid(row=6, column=1, sticky=W, pady=2)
 
@@ -911,7 +942,8 @@ vst_folder.grid(row=6, column=2)
 dsp_test = tk.Label(dsp_frame, text='Dielectric Spectrometer', font=("Arial", 18)) 
 dsp_test.grid(row=0,column=0, padx=5, pady=6)
 
-dsp_connection = tk.Label(dsp_frame, text="Connected to Ivium: ", font=("Arial Bold", 10)).grid(row=1, column=0, pady=2)
+dsp_connection = tk.Label(dsp_frame, text="Connected to Ivium: ", font=("Arial Bold", 10))
+dsp_connection.grid(row=1, column=0, pady=2)
 dsp_status = tk.Label(dsp_frame, text=str(dsp_connected), font=("Arial", 14), background='#f05666', relief='groove')
 dsp_status.grid(row=1, column=1, sticky=W, pady=2)
 start_ivium_button = tk.Button(dsp_frame, text="Start IviumSoft", command=start_ivium)
@@ -919,11 +951,13 @@ start_ivium_button.grid(row=1, column=2, padx=5, pady=5)
 dsp_connect = tk.Button(dsp_frame, text="Connect to DSP", command=connect_dsp)
 dsp_connect.grid(row=2, column=2, padx=5, pady=5)
 
-dsp_device_status = tk.Label(dsp_frame, text="Device Serial: ", font=("Arial Bold", 10)).grid(row=2, column=0, pady=2)
+dsp_device_status = tk.Label(dsp_frame, text="Device Serial: ", font=("Arial Bold", 10))
+dsp_device_status.grid(row=2, column=0, pady=2)
 dsp_device = tk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 dsp_device.grid(row=2, column=1, sticky=W, pady=2)
 
-set_didf = tk.Label(dsp_frame, text="Set DSP log name:", font=("Arial", 10)).grid(row=3, column=0, padx=3, pady=10)
+set_didf = tk.Label(dsp_frame, text="Set DSP log name:", font=("Arial", 10))
+set_didf.grid(row=3, column=0, padx=3, pady=10)
 dsp_entry = tk.Entry(dsp_frame, textvariable=dsp_var)
 dsp_entry.grid(row=3, column=1, pady=5, sticky=W)
 
@@ -943,11 +977,13 @@ def update_dsp_volt(voltage):
         current_method = dsp_05method
     print(f'Selected {selected} actuator depth!')   
 volt_options = ['0.01V', '0.5V']
-volt_text = tk.Label(dsp_frame, text="Select Voltage: ", font=("Arial", 10)).grid(row=5, column=0, padx=3, pady=6)
+volt_text = tk.Label(dsp_frame, text="Select Voltage: ", font=("Arial", 10))
+volt_text.grid(row=5, column=0, padx=3, pady=6)
 volt_dropdown = tk.OptionMenu(dsp_frame, volt_var, *volt_options, command=update_dsp_volt)
 volt_dropdown.grid(row=5, column=1, pady=6, sticky=W)
 
-log3 = tk.Label(dsp_frame, text="Logging to: ", font=("Arial", 10)).grid(row=6, column=0)
+log3 = tk.Label(dsp_frame, text="Logging to: ", font=("Arial", 10))
+log3.grid(row=6, column=0)
 curr_log3 = tk.Label(dsp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log3.grid(row=6, column=1, sticky=W, pady=2)
 dsp_scan = tk.Button(dsp_frame, text="Start Scan", command=lambda:dsp_run(current_method))
@@ -956,7 +992,8 @@ dsp_scan2 = tk.Button(dsp_frame, text="Abort Scan", command=stop_dsp)
 dsp_scan2.grid(row=7, column=2, padx=5, pady=5, sticky=N)
 
 
-dsp_runtstat = tk.Label(dsp_frame, text='Currently running:', font=("Arial Bold", 10)).grid(row=7, column=0, pady=2)
+dsp_runtstat = tk.Label(dsp_frame, text='Currently running:', font=("Arial Bold", 10))
+dsp_runtstat.grid(row=7, column=0, pady=2)
 dsp_runstatus = tk.Label(dsp_frame, text=str(dsp_running), font=("Arial", 14), background='#f05666', relief='groove')
 dsp_runstatus.grid(row=7, column=1, sticky=W, pady=2)
 
@@ -970,7 +1007,8 @@ dsp_folder.grid(row=8, column=2, pady=10)
 tcp_test = tk.Label(tcp_frame, text='Thermal Conductivity Probe', font=("Arial", 18)) 
 tcp_test.grid(row=0,column=0, padx=5, pady=6, columnspan=2)
 
-set_tcp_csv = tk.Label(tcp_frame, text="Set TCP log name:", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
+set_tcp_csv = tk.Label(tcp_frame, text="Set TCP log name:", font=("Arial", 10))
+set_tcp_csv.grid(row=1, column=0, padx=3, pady=3)
 tcp_entry = tk.Entry(tcp_frame)
 tcp_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 csv_tcp_button = tk.Button(tcp_frame, text="Set Name", command=get_tcp_csv)
@@ -979,11 +1017,13 @@ csv_tcp_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
 run_tcp_button = tk.Button(tcp_frame, text="Run Temperature Sensor", command=tcp_run)
 run_tcp_button.grid(row=2, column=2, padx=3, pady=3, sticky=W)
 
-log4 = tk.Label(tcp_frame, text="Logging to: ", font=("Arial", 10)).grid(row=3, column=0)
+log4 = tk.Label(tcp_frame, text="Logging to: ", font=("Arial", 10))
+log4.grid(row=3, column=0)
 curr_log4 = tk.Label(tcp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log4.grid(row=3, column=1, sticky=W, pady=2)
 
-running4 = tk.Label(tcp_frame, text="Currently Running: ", font=("Arial Bold", 10)).grid(row=4, column=0, pady=2)
+running4 = tk.Label(tcp_frame, text="Currently Running: ", font=("Arial Bold", 10))
+running4.grid(row=4, column=0, pady=2)
 temp_running = tk.Label(tcp_frame, text=str(tcp_running), font=("Arial", 14), background='#f05666', relief='groove')
 temp_running.grid(row=4, column=1, sticky=W, pady=2)
 
@@ -992,7 +1032,6 @@ stop_tcp_button.grid(row=4, column=2, padx=3, pady=3, sticky=W)
 
 tcp_folder = tk.Button(tcp_frame, image=folders, command=lambda:open_folder('.\\data_output\\tcp'))
 tcp_folder.grid(row=5, column=2)
-
 
 #endregion
 
