@@ -126,7 +126,7 @@ def show_page(page):
         cpt_frame.grid(row=0, column=1, sticky=N)   
         vst_frame.grid(row=0, column=2, sticky=N) 
         tcp_frame.grid(row=0, column=3, sticky=N) 
-
+        
     elif page == "CPT":
         # root.geometry('650x740')
         cpt_frame.grid(row=0, column=1, sticky=N)   
@@ -975,7 +975,7 @@ def update_dsp_volt(voltage):
         current_method = dsp_001method
     elif selected == '0.5V':
         current_method = dsp_05method
-    print(f'Selected {selected} actuator depth!')   
+    print(f'Selected {selected} amplitude voltage!')   
 volt_options = ['0.01V', '0.5V']
 volt_text = tk.Label(dsp_frame, text="Select Voltage: ", font=("Arial", 10))
 volt_text.grid(row=5, column=0, padx=3, pady=6)
@@ -1040,15 +1040,15 @@ tcp_folder.grid(row=5, column=2)
 # =======================
 #region
 canvas = FigureCanvasTkAgg(fig1, master=cpt_frame)
-canvas.get_tk_widget().grid(row=7, column=0, columnspan=3, padx=30, pady=15)
+canvas.get_tk_widget().grid(row=7, column=0, columnspan=3, padx=30, pady=20)
 canvas.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 
 canvas2 = FigureCanvasTkAgg(fig2, master=vst_frame)
-canvas2.get_tk_widget().grid(row=7, column=0, columnspan=3, padx=30, pady=15)
+canvas2.get_tk_widget().grid(row=7, column=0, columnspan=3, padx=30, pady=26)
 canvas2.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 
 canvas3 = FigureCanvasTkAgg(fig3, master=tcp_frame)
-canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=15)
+canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=58)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 #endregion
 
