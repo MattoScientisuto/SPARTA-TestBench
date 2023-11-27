@@ -434,7 +434,8 @@ current_method = ''
 # Start IviumSoft
 def start_ivium():
     # Start IviumSoft.exe
-    subprocess.call([r'start_ivium.bat'])
+    ivium_path = os.path.join(os.path.dirname(__file__), 'start_ivium.bat')
+    subprocess.call([ivium_path])
     time.sleep(3)
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'Ivium opened at: {time_now}')

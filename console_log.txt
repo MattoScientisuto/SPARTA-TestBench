@@ -1,34 +1,21 @@
 
-C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE>start C:\IviumStat\IviumSoft.exe 
-Ivium opened at: 12:27:28
+C:\windows\system32>start C:\IviumStat\IviumSoft.exe 
+Ivium opened at: 14:19:38
 
-[CHANNEL 1] IDF set to:  P28659_10-16-2023_12-27-34.idf
-[CHANNEL 2] IDF set to:  P46323_10-16-2023_12-27-36.idf
-[CHANNEL 1] Scan started at: 12:27:36
-[CHANNEL 2] Scan started at: 12:27:38
+[CHANNEL 1] IDF set to:  P28659_11-27-2023_14-19-43.idf
+[CHANNEL 2] IDF set to:  P46323_11-27-2023_14-19-44.idf
+[CHANNEL 1] Scan started at: 14:19:44
+[CHANNEL 2] Scan started at: 14:19:46
 All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved at:
+ C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\data_output\dsp\11-27-2023\P28659_11-27-2023_14-19-43.idf
 [CHANNEL 2] IDF saved at:
- C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\data_output\dsp\10-16-2023\P28659_10-16-2023_12-27-34.idf
-[CHANNEL 2] IDF saved at:
- C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\data_output\dsp\10-16-2023\P46323_10-16-2023_12-27-36.idf
-DSP Sweep on both channels completed at: 12:30:03
+ C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\data_output\dsp\11-27-2023\P46323_11-27-2023_14-19-44.idf
+DSP Sweep on both channels completed at: 14:22:10
 
 ===
 
-[CHANNEL 1] IDF replaced with:  P28659_10-16-2023_12-30-04.idf
-[CHANNEL 2] IDF replaced with:  P46323_10-16-2023_12-30-05.idf
-[CHANNEL 1] Scan started at: 12:30:06
-[CHANNEL 2] Scan started at: 12:30:08
-All Devices Statuses: 1, Idle & ready to restart!
-[CHANNEL 2] IDF saved at:
- C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\data_output\dsp\10-16-2023\P28659_10-16-2023_12-30-04.idf
-[CHANNEL 2] IDF saved at:
- C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\data_output\dsp\10-16-2023\P46323_10-16-2023_12-30-05.idf
-DSP Sweep on both channels completed at: 12:32:33
-
-===
-
-[CHANNEL 1] IDF replaced with:  P28659_10-16-2023_12-32-34.idf
-[CHANNEL 2] IDF replaced with:  P46323_10-16-2023_12-32-35.idf
-[CHANNEL 1] Scan started at: 12:32:36
-[CHANNEL 2] Scan started at: 12:32:37
+[CHANNEL 1] IDF replaced with:  P28659_11-27-2023_14-22-11.idf
+[CHANNEL 2] IDF replaced with:  P46323_11-27-2023_14-22-12.idf
+[CHANNEL 1] Scan started at: 14:22:12
+^C

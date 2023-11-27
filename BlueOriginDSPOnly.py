@@ -78,14 +78,14 @@ def connect_dsp():
     # '1' means to connect
     Core.IV_connect(1)
     
-    time.sleep(1)
+    time.sleep(3)
     
     # Channel 2 DSP:
     Core.IV_SelectChannel(2)
     Core.IV_selectdevice=2
     Core.IV_connect(1)
     
-    time.sleep(1)
+    time.sleep(3)
     
     status = Core.IV_getdevicestatus()
     if status == -1:
@@ -107,13 +107,13 @@ def scan_op():
     print(f"[CHANNEL 1] Scan started at: {time_now}")
     sys.stdout.flush()
     
-    time.sleep(1)
+    time.sleep(3)
     
     # Channel 2
     dsp_methods2 = os.path.join(current_directory, 'dsp_settings', dsp_05method)
     Core.IV_SelectChannel(2)
     Core.IV_readmethod(dsp_methods2)
-    time.sleep(0.5)
+    time.sleep(1)
     Core.IV_startmethod(dsp_methods2)
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f"[CHANNEL 2] Scan started at: {time_now}")
@@ -125,7 +125,7 @@ def save_idf():
     ch1_savelog = Core.IV_savedata(dsp_output)
     print(f'[CHANNEL 1] IDF saved at:\n {ch1_savelog[1]}')
     
-    time.sleep(0.5)
+    time.sleep(1)
     
     Core.IV_SelectChannel(2)
     dsp_output2 = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf2[0])
@@ -138,7 +138,7 @@ def dsp_wait():
         Core.IV_SelectChannel(1)
         status = Core.IV_getdevicestatus()
         
-        time.sleep(0.5)
+        time.sleep(1)
         
         # Channel 2
         Core.IV_SelectChannel(2)
@@ -154,14 +154,17 @@ def dsp_wait():
 
 def start_ivium():
     # Start IviumSoft.exe
-    subprocess.call([r'start_ivium.bat'])
-    time.sleep(8)
+    ivium_path = os.path.join(os.path.dirname(__file__), 'start_ivium.bat')
+    subprocess.call([ivium_path])
+    time.sleep(15)
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'Ivium opened at: {time_now}')
 
 def start_imu():
-    subprocess.call([r'start_IMU.bat'])
-    time.sleep(10)
+    # Start DSP VI
+    imu_path = os.path.join(os.path.dirname(__file__), 'start_IMU.bat')
+    subprocess.call([imu_path])
+    time.sleep(12)
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'IMU Executable opened at: {time_now}')
 
@@ -170,10 +173,10 @@ def full_op():
     # Power up ivium and IMU
     # 8 second delay for each to open on time before scanning
     start_ivium()
-    start_imu()
+    # start_imu()
 
     Core.IV_open()
-    time.sleep(0.1)
+    time.sleep(1)
     
     # Always start on channel 1
     connect_dsp()

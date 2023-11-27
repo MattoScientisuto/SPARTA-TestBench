@@ -1,0 +1,1 @@
+"C:\Program Files\Python311\python.exe" "C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\BlueOriginDSPOnly.py" > "C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\console_log.txt" 2>&1
