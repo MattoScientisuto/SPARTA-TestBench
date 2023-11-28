@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence
 
 # Created: September 11th, 2023
-# Last Updated: October 16th, 2023
+# Last Updated: November 27th, 2023
 # ============================================ #
 
 from pyvium import Core
@@ -19,6 +19,7 @@ import datetime as dt
 import time
 
 import subprocess
+import psutil
 
 dsp_idf = []
 dsp_idf2 = []
@@ -151,22 +152,46 @@ def dsp_wait():
         
         # Check in 10 second intervals
         time.sleep(10)
+        
+def ivium_wait():
+    while True:
+        ivium_status = "IviumSoft.exe" in (i.name() for i in psutil.process_iter()) 
+        
+        if ivium_status == True:
+            time.sleep(20)
+            return ivium_status
+            
+        time_now = dt.datetime.now().strftime("%H:%M:%S")
+        print(f'Ivium still starting up at: {time_now}\nCheck again in 10 seconds...')
+        time.sleep(10)
+        
+def imu_wait():
+    while True:
+        imu_status = "IMU_App2.exe" in (i.name() for i in psutil.process_iter()) 
+        
+        if imu_status == True:
+            time.sleep(20)
+            return imu_status
+            
+        time_now = dt.datetime.now().strftime("%H:%M:%S")
+        print(f'IMU still starting up at: {time_now}\nCheck again in 10 seconds...')
+        time.sleep(10)
 
 def start_ivium():
     # Start IviumSoft.exe
     ivium_path = os.path.join(os.path.dirname(__file__), 'start_ivium.bat')
     subprocess.call([ivium_path])
-    time.sleep(15)
+    ivium_wait()
     time_now = dt.datetime.now().strftime("%H:%M:%S")
-    print(f'Ivium opened at: {time_now}')
+    print(f'Ivium successfully started at: {time_now}')
 
 def start_imu():
     # Start DSP VI
     imu_path = os.path.join(os.path.dirname(__file__), 'start_IMU.bat')
     subprocess.call([imu_path])
-    time.sleep(12)
+    imu_wait()
     time_now = dt.datetime.now().strftime("%H:%M:%S")
-    print(f'IMU Executable opened at: {time_now}')
+    print(f'IMU Executable successfully started at: {time_now}')
 
 def full_op():
 
