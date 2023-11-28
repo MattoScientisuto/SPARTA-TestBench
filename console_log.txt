@@ -1,21 +1,34 @@
 
-C:\windows\system32>start C:\IviumStat\IviumSoft.exe 
-Ivium opened at: 14:19:38
+C:\WINDOWS\system32>start C:\IviumStat\IviumSoft.exe 
 
-[CHANNEL 1] IDF set to:  P28659_11-27-2023_14-19-43.idf
-[CHANNEL 2] IDF set to:  P46323_11-27-2023_14-19-44.idf
-[CHANNEL 1] Scan started at: 14:19:44
-[CHANNEL 2] Scan started at: 14:19:46
+C:\WINDOWS\system32>start C:\Users\keith\OneDrive\Desktop\Bench_Repo\IMU_Executable\IMU_App2.exe 
+Ivium successfully started at: 18:16:53
+IMU Executable successfully started at: 18:17:13
+
+[CHANNEL 1] IDF set to:  P28659_11-27-2023_18-17-26.idf
+[CHANNEL 2] IDF set to:  P46323_11-27-2023_18-17-27.idf
+[CHANNEL 1] Scan started at: 18:17:28
+[CHANNEL 2] Scan started at: 18:17:32
 All Devices Statuses: 1, Idle & ready to restart!
 [CHANNEL 1] IDF saved at:
- C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\data_output\dsp\11-27-2023\P28659_11-27-2023_14-19-43.idf
+ C:\Users\keith\OneDrive\Desktop\Bench_Repo\data_output\dsp\11-27-2023\P28659_11-27-2023_18-17-26.idf
 [CHANNEL 2] IDF saved at:
- C:\Users\mattduong\Documents\MATT SPARTA SOFTWARE\data_output\dsp\11-27-2023\P46323_11-27-2023_14-19-44.idf
-DSP Sweep on both channels completed at: 14:22:10
+ C:\Users\keith\OneDrive\Desktop\Bench_Repo\data_output\dsp\11-27-2023\P46323_11-27-2023_18-17-27.idf
+DSP Sweep on both channels completed at: 18:20:01
 
 ===
 
-[CHANNEL 1] IDF replaced with:  P28659_11-27-2023_14-22-11.idf
-[CHANNEL 2] IDF replaced with:  P46323_11-27-2023_14-22-12.idf
-[CHANNEL 1] Scan started at: 14:22:12
+[CHANNEL 1] IDF replaced with:  P28659_11-27-2023_18-20-02.idf
+[CHANNEL 2] IDF replaced with:  P46323_11-27-2023_18-20-03.idf
+[CHANNEL 1] Scan started at: 18:20:04
+[CHANNEL 2] Scan started at: 18:20:08
+Traceback (most recent call last):
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginDSPOnly.py", line 228, in <module>
+    full_op()
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginDSPOnly.py", line 215, in full_op
+    status = dsp_wait()
+             ^^^^^^^^^^
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginDSPOnly.py", line 154, in dsp_wait
+    time.sleep(10)
+KeyboardInterrupt
 ^C
