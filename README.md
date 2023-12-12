@@ -13,6 +13,7 @@ This interface is being developed for my current intern project managed by NASA 
  - Thread
  - Tkinter
  - subprocess
+ - psutil
 
 
 <h3>Start-up</h3>
@@ -20,6 +21,11 @@ This interface is being developed for my current intern project managed by NASA 
 To open the GUI in a terminal, use:
 ```
 python GUI_Bench.py
+```
+
+To open the GUI without a terminal, use:
+```
+start.bat
 ```
 
 <h2>In order to run tests on any bench component:</h2>
@@ -42,3 +48,18 @@ python GUI_Bench.py
 
 **Anaheim Automation:** PCL601USB + MBC25081TB Stepper Motor Controller must be connected with USB
  - Connected to a power supply giving at most 24 VDC
+
+<h2>Blue Origin Operation Sequence:</h2>
+
+To start the sequence, use:
+```
+startBlueOriginDSP_fullpaths.bat
+```
+
+**Ivium:** Four PocketStat2 DSPs must be connected with USB to the micro PC USB hub
+  - Script is designed to continuously run all four simultaneously while in flight
+  - Estimated to be running for about 6 hours
+
+**Intertial Labs:** IMU-P must be connected with USB to the micro PC USB hub
+  - Designed to be ran through a LabView executable
+  - Will run simultaneously to the DSPs

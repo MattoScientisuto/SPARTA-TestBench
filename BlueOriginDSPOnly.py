@@ -196,9 +196,8 @@ def start_imu():
 def full_op():
 
     # Power up ivium and IMU
-    # 8 second delay for each to open on time before scanning
     start_ivium()
-    # start_imu()
+    start_imu()
 
     Core.IV_open()
     time.sleep(1)
@@ -209,12 +208,13 @@ def full_op():
     
     # Data Collection Loop
     while True:
+        
         get_dsp_idf()
         scan_op()
-        
+
         status = dsp_wait()
         print(f'All Devices Statuses: {status}, Idle & ready to restart!')
-        
+
         save_idf()
         time_now = dt.datetime.now().strftime("%H:%M:%S")
         print(f'DSP Sweep on both channels completed at: {time_now}\n\n===')
