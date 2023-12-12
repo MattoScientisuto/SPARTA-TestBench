@@ -4,7 +4,7 @@
 # Linear Actuator + Arduino + Relays Tester
 
 # Created: September 5th, 2023
-# Last Updated: November 20th, 2023
+# Last Updated: December 11th, 2023
 # ============================================ #
 
 import serial
@@ -15,7 +15,7 @@ def digitalWrite(command):
     ser.write(command.encode())
     print('Command sent:', command)
 
-ser = serial.Serial('COM20', baudrate=9600, timeout=1)
+ser = serial.Serial('COM5', baudrate=9600, timeout=1)
 
 root = tk.Tk()
 root.geometry('300x300')

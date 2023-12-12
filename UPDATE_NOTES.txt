@@ -188,4 +188,10 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Find out a way to make COM ports correctly correspond to both the actuator and motor
    - They can change often when disconnected and reconnected from time to time
    - It would be a hassle in the future if you have to go directly into the code to change the COM port manually
-  
+
+...
+
+12-11-23
+  - Added a stepper motor tester GUI script
+   - Works similarly to the ActuatorTester.py, except it's for the torque motor
+   - Used to verify connection and functionality before installing on the bench
