@@ -10,7 +10,7 @@
 import serial
 import tkinter as tk
 
-stepper = serial.Serial('COM6', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial('COM20', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
 def go_to():
     stepper.write('@0A200\r'.encode())

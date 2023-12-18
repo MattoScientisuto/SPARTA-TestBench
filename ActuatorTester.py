@@ -15,7 +15,7 @@ def digitalWrite(command):
     ser.write(command.encode())
     print('Command sent:', command)
 
-ser = serial.Serial('COM5', baudrate=9600, timeout=1)
+ser = serial.Serial('COM22', baudrate=9600, timeout=1)
 
 root = tk.Tk()
 root.geometry('300x300')

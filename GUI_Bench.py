@@ -181,25 +181,25 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
-# actuator = serial.Serial('COM20', baudrate=9600, timeout=1)
-# stepper = serial.Serial('COM22', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+actuator = serial.Serial('COM22', baudrate=9600, timeout=1)
+stepper = serial.Serial('COM20', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
 def go_to():
     # stepper.write('@0A200\r'.encode())
     # stepper.write('@0B200\r'.encode())
     # stepper.write('@0M10000\r'.encode())
-    # stepper.write('@0P75000\r'.encode())
-    # stepper.write('@0G\r'.encode())   
-    # stepper.write('@0F\r'.encode())   
+    stepper.write('@0P10000\r'.encode())
+    stepper.write('@0G\r'.encode())   
+    stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
 def reset():
-    # stepper.write('@0P0\r'.encode())
-    # stepper.write('@0G\r'.encode())
-    # stepper.write('@0F\r'.encode())
+    stepper.write('@0P0\r'.encode())
+    stepper.write('@0G\r'.encode())
+    stepper.write('@0F\r'.encode())
     print('Resetting position...')
     
 def digitalWrite(command):
-    # actuator.write(command.encode())
+    actuator.write(command.encode())
     print('Command sent:', command)
 
 csv_list = []
@@ -268,7 +268,7 @@ def read_load_cell():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_bridge_chan("cDAQ1Mod1/ai0")
+        ai_task.ai_channels.add_ai_bridge_chan("cDAQ2Mod1/ai0")
         ai_task.ai_channels.ai_bridge_units = BridgePhysicalUnits.NEWTONS
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS)
         ai_task.in_stream.input_buf_size = 2000
@@ -293,7 +293,7 @@ def read_load_cell():
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1   # Inversion (raw readings come negative for some)
                 newton = (strain * (-96960)) - 1.12 # -96960 gain, 1.12 zero offset
-                cdepth = r_count / 7712     # About 7705 data points per centimeter at 3 Volts
+                cdepth = r_count / 1732     # About 7705 data points per centimeter at 3 Volts
 
                 now = dt.datetime.now()
                 
@@ -332,7 +332,7 @@ def read_torque_sensor():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_bridge_chan("cDAQ1Mod1/ai1")
+        ai_task.ai_channels.add_ai_bridge_chan("cDAQ2Mod1/ai1")
         ai_task.ai_channels.ai_bridge_units = BridgePhysicalUnits.INCH_POUNDS
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS)
         ai_task.in_stream.input_buf_size = 5000
@@ -840,19 +840,29 @@ def update_depth(depth):
     global acquisition_duration
     selected = depth
     if selected == '5 cm':
-        acquisition_duration = 23.47 #23.42
+        acquisition_duration = 5.236
     elif selected == '6 cm':
-        acquisition_duration = 28.04
+        acquisition_duration = 6.283
     elif selected == '7 cm':
-        acquisition_duration = 32.64
+        acquisition_duration = 7.330
     elif selected == '8 cm':
-        acquisition_duration = 37.38
+        acquisition_duration = 8.377
     elif selected == '9 cm':
-        acquisition_duration = 41.98
+        acquisition_duration = 9.424
     elif selected == '10 cm':
-        acquisition_duration = 46.64
+        acquisition_duration = 10.471
+    elif selected == '11 cm':
+        acquisition_duration = 11.518
+    elif selected == '12 cm':
+        acquisition_duration = 12.565
+    elif selected == '13 cm':
+        acquisition_duration = 13.612
+    elif selected == '14 cm':
+        acquisition_duration = 14.659
+    elif selected == '15 cm':
+        acquisition_duration = 15.706
     print(f'Selected {selected} actuator depth!')   
-dep_options = ['5 cm', '6 cm', '7 cm', '8 cm', '9 cm', '10 cm']
+dep_options = ['5 cm', '6 cm', '7 cm', '8 cm', '9 cm', '10 cm', '11 cm', '12 cm', '13 cm', '14 cm', '15 cm']
 depth_text = tk.Label(cpt_frame, text="Select depth (cm): ", font=("Arial", 10))
 depth_text.grid(row=2, column=0, padx=3, pady=6)
 depth_dropdown = tk.OptionMenu(cpt_frame, dep_var, *dep_options, command=update_depth)
