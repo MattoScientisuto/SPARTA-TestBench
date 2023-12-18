@@ -125,7 +125,7 @@ def show_page(page):
         # root.geometry('1500x740')
         cpt_frame.grid(row=0, column=1, sticky=N)   
         vst_frame.grid(row=0, column=2, sticky=N) 
-        tcp_frame.grid(row=0, column=3, sticky=N) 
+        # tcp_frame.grid(row=0, column=3, sticky=N) 
         
     elif page == "CPT":
         # root.geometry('650x740')
