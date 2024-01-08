@@ -4,7 +4,7 @@
 # Torque Motor (Anaheim Automation) Tester
 
 # Created: December 11th, 2023
-# Last Updated: December 11th, 2023
+# Last Updated: January 8th, 2023
 # ============================================ #
 
 import serial
@@ -18,7 +18,7 @@ def go_to():
     stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
 def step_stop():
-    stepper.write('@0,\r'.encode())
+    stepper.write('@0.\r'.encode())
     stepper.write('@0F\r'.encode())
     print('Rotation stopped!')
 def reset():

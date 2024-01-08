@@ -1,0 +1,2 @@
+python StepperTester.py
+pause
