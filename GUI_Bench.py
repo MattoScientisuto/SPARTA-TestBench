@@ -184,24 +184,29 @@ frame.grid_propagate(False)
 actuator = serial.Serial('COM22', baudrate=9600, timeout=1)
 stepper = serial.Serial('COM20', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
+# Write command for Stepper Motor
+vst_step_pos = 45000
 def go_to():
-    # stepper.write('@0A200\r'.encode())
-    # stepper.write('@0B200\r'.encode())
-    # stepper.write('@0M10000\r'.encode())
-    stepper.write('@0P10000\r'.encode())
+    stepper.write(f'@0P{vst_step_pos}\r'.encode())
     stepper.write('@0G\r'.encode())   
     stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
+def step_stop():
+    stepper.write('@,\r'.encode())
+    stepper.write('@F\r'.encode())
+    print('Rotation stopped!')
 def reset():
     stepper.write('@0P0\r'.encode())
     stepper.write('@0G\r'.encode())
     stepper.write('@0F\r'.encode())
     print('Resetting position...')
-    
+
+# Write command for Linear Actuator    
 def digitalWrite(command):
     actuator.write(command.encode())
     print('Command sent:', command)
 
+# Arrays for CSV names
 csv_list = []
 torque_csv = []
 dsp_idf = []
@@ -227,12 +232,15 @@ tcp_running = False
 
 dsp_connected = False
 
+cpt_estop_flag = False
+vst_estop_flag = False
+
 # Time elapsed (at the end of this method) will be the total 
 total_time = 0
 sample_rate = 1655
 
 acquisition_duration = 0
-vst_duration = 45
+vst_duration = 30
 
 def switch_true(device):
     device.config(text='True', background='#15eb80')
@@ -308,6 +316,12 @@ def read_load_cell():
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
                 writer.writerow([rounded_seconds, cdepth, newton, true_strain])
+                
+                # If E-STOP condition is flagged:
+                if cpt_estop_flag:
+                    print("Emergency stop actuator!")
+                    break
+                
             file.close()
         
         end_time = dt.datetime.now() 
@@ -362,6 +376,12 @@ def read_torque_sensor():
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
                 writer.writerow([rounded_seconds, lb_inch, true_torque])
+                
+                # If E-STOP condition is flagged:
+                if vst_estop_flag:
+                    print("Emergency stop torque motor!")
+                    break
+                
             file.close()
                 
         end_time = dt.datetime.now() 
@@ -763,14 +783,18 @@ def get_tcp_csv():
 
 # Set/Change VST Rotation Duration
 def set_vst_dur():
+    global vst_step_pos
     global vst_duration
     input = ttime_entry.get()
     if '.' in input:
         tk.messagebox.showinfo("Error", 'Please enter a whole number!')
     else:  
         vst_duration = int(input)
+        # Time -> Steps conversion: 1500 steps per second
+        vst_step_pos = (1500 * vst_duration)
         rot_dur.config(text='{:.2f}'.format(vst_duration))
         print("VST Duration set to:", vst_duration)
+    print(vst_step_pos)
 
 # =========================================
 # Load Cell + Torque Sensor Run Operations
@@ -883,7 +907,13 @@ running1 = tk.Label(cpt_frame, text="Currently Running: ", font=("Arial Bold", 1
 running1.grid(row=5, column=0, pady=2)
 load_running = tk.Label(cpt_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
 load_running.grid(row=5, column=1, sticky=W, pady=2)
-act_estop = tk.Button(cpt_frame, text="Emergency Stop Actuator", command=lambda: digitalWrite('s'))
+
+# Emergency Stop should send a stop code to the relays, then stop/finish the load cell reading
+def cpt_estop():
+    global cpt_estop_flag
+    cpt_estop_flag = True
+    
+act_estop = tk.Button(cpt_frame, text="Emergency Stop", bg="#ffcdc9", command=cpt_estop)
 act_estop.grid(row=3, column=2, sticky=W)
 
 act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite('C'))
@@ -928,6 +958,13 @@ log2 = tk.Label(vst_frame, text="Logging to: ", font=("Arial", 10))
 log2.grid(row=4, column=0)
 curr_log2 = tk.Label(vst_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log2.grid(row=4, column=1, sticky=W, pady=2)
+
+# Emergency Stop should send a stop code to the motor controller, then stop/finish the torque sensor reading
+def vst_estop():
+    global vst_estop_flag
+    vst_estop_flag = True
+vst_stop = tk.Button(vst_frame, text="Emergency Stop", bg="#ffcdc9", command=cpt_estop)
+vst_stop.grid(row=4, column=2, sticky=W, pady=2)
 
 rot_dial = tk.Label(vst_frame, text="Rotation duration (seconds): ", font=("Arial", 10))
 rot_dial.grid(row=5, column=0)
