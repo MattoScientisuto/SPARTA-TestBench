@@ -195,3 +195,9 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Added a stepper motor tester GUI script
    - Works similarly to the ActuatorTester.py, except it's for the torque motor
    - Used to verify connection and functionality before installing on the bench
+
+1-8-24
+  - Added VST Emergency Stop button
+  - Separated CPT Operation/Emergency Stop and Actuator Stop
+   - Actuator Stop: stops the actuator BUT continues monitoring
+   - Operation Stop: stops the actuator and concludes monitoring

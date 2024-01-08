@@ -192,8 +192,8 @@ def go_to():
     stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
 def step_stop():
-    stepper.write('@,\r'.encode())
-    stepper.write('@F\r'.encode())
+    stepper.write('@0.\r'.encode())
+    stepper.write('@0F\r'.encode())
     print('Rotation stopped!')
 def reset():
     stepper.write('@0P0\r'.encode())
@@ -338,6 +338,7 @@ def read_load_cell():
 def read_torque_sensor():
     global total_time
     global ts_running
+    global vst_estop_flag
     
     vst_samples = int(sample_rate * vst_duration)
     
@@ -380,10 +381,12 @@ def read_torque_sensor():
                 # If E-STOP condition is flagged:
                 if vst_estop_flag:
                     print("Emergency stop torque motor!")
+                    step_stop()
                     break
                 
             file.close()
                 
+        vst_estop_flag = False
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
@@ -913,8 +916,10 @@ def cpt_estop():
     global cpt_estop_flag
     cpt_estop_flag = True
     
-act_estop = tk.Button(cpt_frame, text="Emergency Stop", bg="#ffcdc9", command=cpt_estop)
-act_estop.grid(row=3, column=2, sticky=W)
+act_nstop = tk.Button(cpt_frame, text="Actuator Stop", bg="#fcf5b6", command=lambda: digitalWrite('s'))
+act_nstop.grid(row=3, column=2, sticky=W)
+act_estop = tk.Button(cpt_frame, text="Stop Operation", bg="#ffcdc9", command=cpt_estop)
+act_estop.grid(row=4, column=2, sticky=W)
 
 act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite('C'))
 act_reset.grid(row=5, column=2, sticky=tk.W)
@@ -963,7 +968,8 @@ curr_log2.grid(row=4, column=1, sticky=W, pady=2)
 def vst_estop():
     global vst_estop_flag
     vst_estop_flag = True
-vst_stop = tk.Button(vst_frame, text="Emergency Stop", bg="#ffcdc9", command=cpt_estop)
+    print(vst_estop_flag)
+vst_stop = tk.Button(vst_frame, text="Stop Operation", bg="#ffcdc9", command=vst_estop)
 vst_stop.grid(row=4, column=2, sticky=W, pady=2)
 
 rot_dial = tk.Label(vst_frame, text="Rotation duration (seconds): ", font=("Arial", 10))
