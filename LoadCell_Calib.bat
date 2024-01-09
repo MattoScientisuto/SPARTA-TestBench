@@ -1,0 +1,2 @@
+python LoadCellCalibrator.py
+pause

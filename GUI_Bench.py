@@ -288,7 +288,9 @@ def read_load_cell():
         r_count = 1
         
         ai_task.start()
+        
         digitalWrite('W')
+
         lc_running = True
         switch_true(load_running)
         start_time = dt.datetime.now()
@@ -300,7 +302,7 @@ def read_load_cell():
             for i in range(cpt_samples):
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1   # Inversion (raw readings come negative for some)
-                newton = (strain * (-96960)) - 1.12 # -96960 gain, 1.12 zero offset
+                newton = (strain * (-96960)) - 9.25 # -96960 gain, 9.25 offset
                 cdepth = r_count / 1732     # About 7705 data points per centimeter at 3 Volts
 
                 now = dt.datetime.now()
@@ -363,7 +365,7 @@ def read_torque_sensor():
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
                 true_torque = torque * -1   # Inversion (raw readings come negative for some reason)
-                lb_inch = (torque * (-42960)) - 11.0     # (raw readings * gain) minus offset
+                lb_inch = (torque * (-42960)) - 8.2     # (raw readings * gain) minus offset
 
                 # print(f"Pound-inches: {lb_inch}")
                 now = dt.datetime.now()
@@ -789,10 +791,12 @@ def set_vst_dur():
     global vst_step_pos
     global vst_duration
     input = ttime_entry.get()
+    vst_duration = int(input)
     if '.' in input:
         tk.messagebox.showinfo("Error", 'Please enter a whole number!')
+    elif vst_duration >= 5591:
+        tk.messagebox.showinfo("Error", 'The maximum duration is 5591 seconds!')
     else:  
-        vst_duration = int(input)
         # Time -> Steps conversion: 1500 steps per second
         vst_step_pos = (1500 * vst_duration)
         rot_dur.config(text='{:.2f}'.format(vst_duration))
@@ -805,13 +809,17 @@ def set_vst_dur():
 
 # Run all load cell operations (read, log, plot)    
 def load_cell_run():
+    global cpt_estop_flag
     if acquisition_duration == 0:
         tk.messagebox.showinfo("Error", "Please select an actuator depth first!")
         return
+    cpt_estop_flag = False
     thread_cpt = Thread(target=read_load_cell)
     thread_cpt.start()
     
 def torque_sensor_run():
+    global vst_estop_flag
+    vst_estop_flag = False
     thread_vst = Thread(target=read_torque_sensor) 
     thread_vst.start()
     
@@ -867,29 +875,19 @@ def update_depth(depth):
     global acquisition_duration
     selected = depth
     if selected == '5 cm':
-        acquisition_duration = 5.236
-    elif selected == '6 cm':
-        acquisition_duration = 6.283
-    elif selected == '7 cm':
-        acquisition_duration = 7.330
-    elif selected == '8 cm':
-        acquisition_duration = 8.377
-    elif selected == '9 cm':
-        acquisition_duration = 9.424
+        acquisition_duration = 5.25
     elif selected == '10 cm':
-        acquisition_duration = 10.471
-    elif selected == '11 cm':
-        acquisition_duration = 11.518
-    elif selected == '12 cm':
-        acquisition_duration = 12.565
-    elif selected == '13 cm':
-        acquisition_duration = 13.612
-    elif selected == '14 cm':
-        acquisition_duration = 14.659
+        acquisition_duration = 10.49
     elif selected == '15 cm':
-        acquisition_duration = 15.706
+        acquisition_duration = 15.74
+    elif selected == '20 cm':
+        acquisition_duration = 20.99
+    elif selected == '25 cm':
+        acquisition_duration = 26.24
+    elif selected == '30 cm':
+        acquisition_duration = 31.49
     print(f'Selected {selected} actuator depth!')   
-dep_options = ['5 cm', '6 cm', '7 cm', '8 cm', '9 cm', '10 cm', '11 cm', '12 cm', '13 cm', '14 cm', '15 cm']
+dep_options = ['5 cm', '10 cm', '15 cm', '20 cm', '25 cm', '30 cm']
 depth_text = tk.Label(cpt_frame, text="Select depth (cm): ", font=("Arial", 10))
 depth_text.grid(row=2, column=0, padx=3, pady=6)
 depth_dropdown = tk.OptionMenu(cpt_frame, dep_var, *dep_options, command=update_depth)
@@ -918,6 +916,12 @@ def cpt_estop():
     
 act_nstop = tk.Button(cpt_frame, text="Actuator Stop", bg="#fcf5b6", command=lambda: digitalWrite('s'))
 act_nstop.grid(row=3, column=2, sticky=W)
+
+jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite('W'))
+jog_up = tk.Button(cpt_frame, text="Jog Up", bg="#cfe1ff", command=lambda: digitalWrite('C'))
+jog_down.grid(row=4, column=3, sticky=W)
+jog_up.grid(row=3, column=3, sticky=W)
+
 act_estop = tk.Button(cpt_frame, text="Stop Operation", bg="#ffcdc9", command=cpt_estop)
 act_estop.grid(row=4, column=2, sticky=W)
 
