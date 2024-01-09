@@ -201,3 +201,9 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Separated CPT Operation/Emergency Stop and Actuator Stop
    - Actuator Stop: stops the actuator BUT continues monitoring
    - Operation Stop: stops the actuator and concludes monitoring
+
+  - Added Jog Buttons for linear actuator
+   - Used to jog the actuator without needing to log data
+
+  - Added a separate Load Cell Calibrator to log data continuously for 1000 seconds
+   - Used to monitor load cell data without jogging the actuator
