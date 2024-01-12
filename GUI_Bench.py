@@ -6,7 +6,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: January 8th, 2023
+# Last Updated: January 9th, 2023
 # ============================================ #
 
 #region
@@ -402,7 +402,7 @@ def read_tcp():
     global tcp_running
     
     with nidaqmx.Task() as ai_task:
-        ai_task.ai_channels.add_ai_rtd_chan(physical_channel='cDAQ1Mod2/ai0', min_val=0.0, max_val=100.0, units=TemperatureUnits.DEG_F, rtd_type=RTDType.PT_3750, resistance_config=ResistanceConfiguration.THREE_WIRE, current_excit_source=ExcitationSource.INTERNAL, current_excit_val=1.0e-3, r_0=100.0)
+        ai_task.ai_channels.add_ai_rtd_chan(physical_channel='cDAQ2Mod3/ai2', min_val=0.0, max_val=100.0, units=TemperatureUnits.DEG_F, rtd_type=RTDType.PT_3750, resistance_config=ResistanceConfiguration.THREE_WIRE, current_excit_source=ExcitationSource.INTERNAL, current_excit_val=1.0e-3, r_0=100.0)
         
         ai_task.start()
         tcp_running = True

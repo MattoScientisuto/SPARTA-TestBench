@@ -207,3 +207,13 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   - Added a separate Load Cell Calibrator to log data continuously for 1000 seconds
    - Used to monitor load cell data without jogging the actuator
+
+1-9-24
+  - Re-enabled TCP module (still not working)
+   - most likely a wiring issue we'll have to figure out
+  
+1-12-24
+  - Changed CPT and VST appending process
+   - Now allows continuous appending on the same file while live plot updates
+  - 'Run Count' indicator added on CPT and VST
+   - Run count on the same log file is kept track of
