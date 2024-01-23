@@ -1,34 +1,80 @@
 
-C:\WINDOWS\system32>start C:\IviumStat\IviumSoft.exe 
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>start C:\IviumStat\IviumSoft.exe 
 
-C:\WINDOWS\system32>start C:\Users\keith\OneDrive\Desktop\Bench_Repo\IMU_Executable\IMU_App2.exe 
-Ivium successfully started at: 18:16:53
-IMU Executable successfully started at: 18:17:13
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>start C:\Users\keith\OneDrive\Desktop\Bench_Repo\IMU_Executable\IMU_App2.exe 
+Ivium successfully started at: 16:04:59
+IMU Executable successfully started at: 16:05:26
 
-[CHANNEL 1] IDF set to:  P28659_11-27-2023_18-17-26.idf
-[CHANNEL 2] IDF set to:  P46323_11-27-2023_18-17-27.idf
-[CHANNEL 1] Scan started at: 18:17:28
-[CHANNEL 2] Scan started at: 18:17:32
+[CHANNEL 1] IDF set to:  P28659_01-22-2024_16-05-47.idf
+Reached sleep
+Passed Sleep
+Got time
+selected channel 2
+(0, 'P46323')
+saved channel 2 status
+[CHANNEL 2] IDF set to:  P46323_01-22-2024_16-05-48.idf
+[CHANNEL 1] Scan started at: 16:05:49
+[CHANNEL 2] Scan started at: 16:05:53
+Pre-wait check delay started
+Pre-wait check delay ended
 All Devices Statuses: 1, Idle & ready to restart!
-[CHANNEL 1] IDF saved at:
- C:\Users\keith\OneDrive\Desktop\Bench_Repo\data_output\dsp\11-27-2023\P28659_11-27-2023_18-17-26.idf
-[CHANNEL 2] IDF saved at:
- C:\Users\keith\OneDrive\Desktop\Bench_Repo\data_output\dsp\11-27-2023\P46323_11-27-2023_18-17-27.idf
-DSP Sweep on both channels completed at: 18:20:01
+C:\Users\keith\OneDrive\Desktop\Bench_Repo 01-22-2024 P28659_01-22-2024_16-05-47.idf
+<class 'str'> <class 'str'> <class 'str'>
+(0, 'C:\\Users\\keith\\OneDrive\\Desktop\\Bench_Repo\\data_output\\dsp\\01-22-2024\\P28659_01-22-2024_16-05-47.idf')
+(0, 'C:\\Users\\keith\\OneDrive\\Desktop\\Bench_Repo\\data_output\\dsp\\01-22-2024\\P46323_01-22-2024_16-05-48.idf')
+DSP Sweep on both channels completed at: 16:08:22
 
 ===
 
-[CHANNEL 1] IDF replaced with:  P28659_11-27-2023_18-20-02.idf
-[CHANNEL 2] IDF replaced with:  P46323_11-27-2023_18-20-03.idf
-[CHANNEL 1] Scan started at: 18:20:04
-[CHANNEL 2] Scan started at: 18:20:08
-Traceback (most recent call last):
-  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginDSPOnly.py", line 228, in <module>
-    full_op()
-  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginDSPOnly.py", line 215, in full_op
-    status = dsp_wait()
-             ^^^^^^^^^^
-  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginDSPOnly.py", line 154, in dsp_wait
-    time.sleep(10)
-KeyboardInterrupt
+[CHANNEL 1] IDF replaced with:  P28659_01-22-2024_16-08-23.idf
+Reached sleep
+Passed Sleep
+Got time
+selected channel 2
+(0, 'P46323')
+saved channel 2 status
+[CHANNEL 2] IDF replaced with:  P46323_01-22-2024_16-08-24.idf
+[CHANNEL 1] Scan started at: 16:08:25
+[CHANNEL 2] Scan started at: 16:08:29
+Pre-wait check delay started
+Pre-wait check delay ended
+All Devices Statuses: 1, Idle & ready to restart!
+C:\Users\keith\OneDrive\Desktop\Bench_Repo 01-22-2024 P28659_01-22-2024_16-08-23.idf
+<class 'str'> <class 'str'> <class 'str'>
+(0, 'C:\\Users\\keith\\OneDrive\\Desktop\\Bench_Repo\\data_output\\dsp\\01-22-2024\\P28659_01-22-2024_16-08-23.idf')
+(0, 'C:\\Users\\keith\\OneDrive\\Desktop\\Bench_Repo\\data_output\\dsp\\01-22-2024\\P46323_01-22-2024_16-08-24.idf')
+DSP Sweep on both channels completed at: 16:10:58
+
+===
+
+[CHANNEL 1] IDF replaced with:  P28659_01-22-2024_16-10-59.idf
+Reached sleep
+Passed Sleep
+Got time
+selected channel 2
+(0, 'P46323')
+saved channel 2 status
+[CHANNEL 2] IDF replaced with:  P46323_01-22-2024_16-11-01.idf
+[CHANNEL 1] Scan started at: 16:11:01
+[CHANNEL 2] Scan started at: 16:11:05
+Pre-wait check delay started
+Pre-wait check delay ended
+All Devices Statuses: 1, Idle & ready to restart!
+C:\Users\keith\OneDrive\Desktop\Bench_Repo 01-22-2024 P28659_01-22-2024_16-10-59.idf
+<class 'str'> <class 'str'> <class 'str'>
+(0, 'C:\\Users\\keith\\OneDrive\\Desktop\\Bench_Repo\\data_output\\dsp\\01-22-2024\\P28659_01-22-2024_16-10-59.idf')
+(0, 'C:\\Users\\keith\\OneDrive\\Desktop\\Bench_Repo\\data_output\\dsp\\01-22-2024\\P46323_01-22-2024_16-11-01.idf')
+DSP Sweep on both channels completed at: 16:13:35
+
+===
+
+[CHANNEL 1] IDF replaced with:  P28659_01-22-2024_16-13-36.idf
+Reached sleep
+Passed Sleep
+Got time
+selected channel 2
+(0, 'P46323')
+saved channel 2 status
+[CHANNEL 2] IDF replaced with:  P46323_01-22-2024_16-13-37.idf
+[CHANNEL 1] Scan started at: 16:13:37
 ^C

@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence
 
 # Created: September 11th, 2023
-# Last Updated: November 27th, 2023
+# Last Updated: January 22nd, 2024
 # ============================================ #
 
 from pyvium import Core
@@ -38,24 +38,30 @@ def get_dsp_idf():
     curr_time = datetime.now().strftime("%H-%M-%S")
     Core.IV_SelectChannel(1)
     serial = (Core.IV_readSN())
-    input = f'{serial[1]}_{todays_date}_{curr_time}.idf'
+    inputjuan = f'{serial[1]}_{todays_date}_{curr_time}.idf'
     
     if len(dsp_idf) == 0:
-        dsp_idf.append(input)
-        print("\n[CHANNEL 1] IDF set to: ", input)
+        dsp_idf.append(inputjuan)
+        print("\n[CHANNEL 1] IDF set to: ", inputjuan)
     else:
-        dsp_idf[0] = input
-        print("\n[CHANNEL 1] IDF replaced with: ", input)
+        dsp_idf[0] = inputjuan
+        print("\n[CHANNEL 1] IDF replaced with: ", inputjuan)
     
     if not os.path.exists(dsp_dir):
         os.makedirs(dsp_dir)
         
+    print("Reached sleep")
     time.sleep(1)
-        
+    print("Passed Sleep")
+
     # Channel 2
     curr_time = datetime.now().strftime("%H-%M-%S")
+    print("Got time")
     Core.IV_SelectChannel(2)
+    print("selected channel 2")
     serial2 = (Core.IV_readSN())    
+    print(serial2)
+    print("saved channel 2 status")
     input2 = f'{serial2[1]}_{todays_date}_{curr_time}.idf'
     
     if len(dsp_idf2) == 0:
@@ -122,16 +128,20 @@ def scan_op():
 # After the scanning finishes, user can save the data to the output folder
 def save_idf():
     Core.IV_SelectChannel(1)
+    print(current_directory, todays_date, dsp_idf[0])
+    print(type(current_directory), type(todays_date), type(dsp_idf[0]))
     dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
-    ch1_savelog = Core.IV_savedata(dsp_output)
-    print(f'[CHANNEL 1] IDF saved at:\n {ch1_savelog[1]}')
+    print(Core.IV_savedata(dsp_output))
+    # ch1_savelog = Core.IV_savedata(dsp_output)
+    # print(f'[CHANNEL 1] IDF saved at:\n {ch1_savelog[1]}')
     
     time.sleep(1)
     
     Core.IV_SelectChannel(2)
     dsp_output2 = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf2[0])
-    ch2_savelog = Core.IV_savedata(dsp_output2)
-    print(f'[CHANNEL 2] IDF saved at:\n {ch2_savelog[1]}')
+    print(Core.IV_savedata(dsp_output2))
+    # ch2_savelog = Core.IV_savedata(dsp_output2)
+    # print(f'[CHANNEL 2] IDF saved at:\n {ch2_savelog[1]}')
 
 def dsp_wait():
     while True:
@@ -196,6 +206,7 @@ def start_imu():
 def full_op():
 
     # Power up ivium and IMU
+    # 8 second delay for each to open on time before scanning
     start_ivium()
     start_imu()
 
@@ -208,13 +219,16 @@ def full_op():
     
     # Data Collection Loop
     while True:
-        
         get_dsp_idf()
         scan_op()
+        
+        print('Pre-wait check delay started')
+        time.sleep(12)
+        print('Pre-wait check delay ended')
 
         status = dsp_wait()
         print(f'All Devices Statuses: {status}, Idle & ready to restart!')
-
+        
         save_idf()
         time_now = dt.datetime.now().strftime("%H:%M:%S")
         print(f'DSP Sweep on both channels completed at: {time_now}\n\n===')
