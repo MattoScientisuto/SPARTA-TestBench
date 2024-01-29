@@ -219,7 +219,7 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - Run count on the same log file is kept track of
 
 1-22-24
- - Fixed DSP crashing when launching from task scheduler
+ - Fixed Blue Origin DSP sequence crashing when launching from task scheduler
   - Could've stemmed from a multitude of reasons:
    1. 'input' as the variable name for the array holding dsp#1's names 
     - input is the default name for a python function and it was yellow
@@ -229,3 +229,9 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    4. There was no delay between starting the scans and checking if the devices were free yet
     - From the console logs, it looked like the scans finished in seconds
     - When I wanted to print the current device, it kept changing from dsp#1 and #2
+
+1-29-24
+ - Updated Blue Origin DSP print statements to be more clear
+  - specifies which channel it's selecting a device from and scanning on
+  - prints status codes when selecting devices 
+ 

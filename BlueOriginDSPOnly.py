@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence
 
 # Created: September 11th, 2023
-# Last Updated: January 22nd, 2024
+# Last Updated: January 29th, 2024
 # ============================================ #
 
 from pyvium import Core
@@ -37,31 +37,28 @@ def get_dsp_idf():
     # Channel 1
     curr_time = datetime.now().strftime("%H-%M-%S")
     Core.IV_SelectChannel(1)
-    serial = (Core.IV_readSN())
-    inputjuan = f'{serial[1]}_{todays_date}_{curr_time}.idf'
+    serialjuan = (Core.IV_readSN())
+    print("[CHANNEL 1] Device selected: ", serialjuan)
+    inputjuan = f'{serialjuan[1]}_{todays_date}_{curr_time}.idf'
     
+    # If there's no existing IDF names in the array yet, add it
     if len(dsp_idf) == 0:
         dsp_idf.append(inputjuan)
-        print("\n[CHANNEL 1] IDF set to: ", inputjuan)
+        print("[CHANNEL 1] IDF set to: ", inputjuan)
+    # Otherwise, just replace the previous one
     else:
         dsp_idf[0] = inputjuan
-        print("\n[CHANNEL 1] IDF replaced with: ", inputjuan)
+        print("[CHANNEL 1] IDF replaced with: ", inputjuan)
     
     if not os.path.exists(dsp_dir):
         os.makedirs(dsp_dir)
-        
-    print("Reached sleep")
-    time.sleep(1)
-    print("Passed Sleep")
+
 
     # Channel 2
     curr_time = datetime.now().strftime("%H-%M-%S")
-    print("Got time")
     Core.IV_SelectChannel(2)
-    print("selected channel 2")
     serial2 = (Core.IV_readSN())    
-    print(serial2)
-    print("saved channel 2 status")
+    print("[CHANNEL 2] Device selected: ", serial2)
     input2 = f'{serial2[1]}_{todays_date}_{curr_time}.idf'
     
     if len(dsp_idf2) == 0:
@@ -128,21 +125,16 @@ def scan_op():
 # After the scanning finishes, user can save the data to the output folder
 def save_idf():
     Core.IV_SelectChannel(1)
-    print(current_directory, todays_date, dsp_idf[0])
-    print(type(current_directory), type(todays_date), type(dsp_idf[0]))
     dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
-    print(Core.IV_savedata(dsp_output))
-    # ch1_savelog = Core.IV_savedata(dsp_output)
-    # print(f'[CHANNEL 1] IDF saved at:\n {ch1_savelog[1]}')
+    print("[CHANNEL 1] IDF saved: ", Core.IV_savedata(dsp_output))
     
     time.sleep(1)
     
     Core.IV_SelectChannel(2)
     dsp_output2 = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf2[0])
-    print(Core.IV_savedata(dsp_output2))
-    # ch2_savelog = Core.IV_savedata(dsp_output2)
-    # print(f'[CHANNEL 2] IDF saved at:\n {ch2_savelog[1]}')
+    print("[CHANNEL 2] IDF saved: ", Core.IV_savedata(dsp_output2))
 
+# Check if IMU LabView program is open yet
 def dsp_wait():
     while True:
         # Channel 1
@@ -162,7 +154,7 @@ def dsp_wait():
         
         # Check in 10 second intervals
         time.sleep(10)
-        
+# Check if IviumSoft is open yet
 def ivium_wait():
     while True:
         ivium_status = "IviumSoft.exe" in (i.name() for i in psutil.process_iter()) 
@@ -174,7 +166,7 @@ def ivium_wait():
         time_now = dt.datetime.now().strftime("%H:%M:%S")
         print(f'Ivium still starting up at: {time_now}\nCheck again in 10 seconds...')
         time.sleep(10)
-        
+# Check if IMU LabView program is open
 def imu_wait():
     while True:
         imu_status = "IMU_App2.exe" in (i.name() for i in psutil.process_iter()) 
@@ -187,21 +179,20 @@ def imu_wait():
         print(f'IMU still starting up at: {time_now}\nCheck again in 10 seconds...')
         time.sleep(10)
 
+# Start IviumSoft.exe
 def start_ivium():
-    # Start IviumSoft.exe
     ivium_path = os.path.join(os.path.dirname(__file__), 'start_ivium.bat')
     subprocess.call([ivium_path])
     ivium_wait()
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'Ivium successfully started at: {time_now}')
-
-def start_imu():
-    # Start DSP VI
+# Start DSP VI
+def start_imu():  
     imu_path = os.path.join(os.path.dirname(__file__), 'start_IMU.bat')
     subprocess.call([imu_path])
     imu_wait()
     time_now = dt.datetime.now().strftime("%H:%M:%S")
-    print(f'IMU Executable successfully started at: {time_now}')
+    print(f'IMU Executable successfully started at: {time_now}\n')
 
 def full_op():
 
@@ -222,16 +213,16 @@ def full_op():
         get_dsp_idf()
         scan_op()
         
-        print('Pre-wait check delay started')
+        print('Pre-wait DSP check 12-second-delay started')
         time.sleep(12)
-        print('Pre-wait check delay ended')
+        print('Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!')
 
         status = dsp_wait()
         print(f'All Devices Statuses: {status}, Idle & ready to restart!')
         
         save_idf()
         time_now = dt.datetime.now().strftime("%H:%M:%S")
-        print(f'DSP Sweep on both channels completed at: {time_now}\n\n===')
+        print(f'DSP Sweep on both channels completed at: {time_now}\n\n===\n')
         time.sleep(1)
         
     Core.IV_close()
