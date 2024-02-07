@@ -235,3 +235,26 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - specifies which channel it's selecting a device from and scanning on
   - prints status codes when selecting devices 
  
+2-6-24
+ - Major fixes to DAQ virtual channels for Load Cell and Torque sensor
+  - Followed the correct setup documentation on the link at the top of the file
+   1. Previously I was just using bridge ai channels
+    - This made it so no configuration options were available since it didn't recognize what type of sensor I was using
+    - It was reading completely raw values with no excitation, no bridge info, or correctly scaled units
+   2. Currently have the following channels:
+
+    - Load Cell: add_ai_force_bridge_two_point_lin_chan
+    - Torque Sensor: add_ai_torque_bridge_two_point_lin_chan
+    - TCP: add_ai_rtd_chan
+
+   3. For the Load Cell and Torque Sensor, there are more options, but so far I'm thinking the current is ok
+    - Reason being, it matches up exactly to NI-MAX's default channel settings
+    - And it matches the exact measurements
+    * HOWEVER: other channels allow for electrical to Physical units conversion
+     - And I'm aware that the calibration sheet from Transducer Techniques has the numbers for that
+     - Definitely ask next time
+
+  - Also added serial port kill button + serial status indicators on home page (as per Luke and Bob's suggestion)
+   - Seems to be working well so far (no COM problems if you kill the ports manually with the button)
+   * When the program starts up, the 2nd last line of code 'check_ports()' checks the status and will appear as true if successful
+   - Might make it so you can re-activate as well 

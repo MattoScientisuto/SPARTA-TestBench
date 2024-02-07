@@ -1,4 +1,6 @@
 # https://stackoverflow.com/questions/51973653/tkinter-grid-fill-empty-space
+# 2-7-24 (Before Layoff day): https://nidaqmx-python.readthedocs.io/en/latest/ai_channel_collection.html#nidaqmx._task_modules.ai_channel_collection.AIChannelCollection.add_ai_torque_bridge_table_chan
+# ^ Super useful when fixing the torque sensor channel
 
 # ============================================ #
 # Author: Matthew Duong (US 3223 Affiliate)
@@ -6,7 +8,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: January 12th, 2023
+# Last Updated: February 6th, 2024
 # ============================================ #
 
 #region
@@ -27,6 +29,7 @@ from matplotlib.figure import Figure
 
 import nidaqmx
 from nidaqmx.constants import BridgePhysicalUnits, RTDType, ExcitationSource, TemperatureUnits, ResistanceConfiguration
+from nidaqmx.constants import AcquisitionType, TerminalConfiguration, TorqueUnits, BridgeConfiguration, BridgeElectricalUnits, AcquisitionType, ForceUnits
 
 from pyvium import Core
 from pyvium import Tools
@@ -183,6 +186,32 @@ frame.grid_propagate(False)
 # ========================================================================
 actuator = serial.Serial('COM22', baudrate=9600, timeout=1)
 stepper = serial.Serial('COM4', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+ser_running = False
+torser_running = False
+
+def switch_true(device):
+    device.config(text='True', background='#15eb80')
+    
+def switch_false(device):
+    device.config(text='False', background='#f05666')
+
+def check_ports():
+    global ser_running
+    global torser_running
+    if actuator.isOpen() == True:
+        ser_running = True
+        switch_true(actser_status)
+    if stepper.isOpen() == True:
+        torser_running = True
+        switch_true(torser_status)
+
+def kill_ports():
+    if actuator.isOpen() == True:
+        actuator.close()
+        switch_false(actser_status)
+    if stepper.isOpen() == True:
+        stepper.close()
+        switch_false(torser_status)
 
 # Write command for Stepper Motor
 vst_step_pos = 45000
@@ -245,12 +274,6 @@ sample_rate = 1655
 
 acquisition_duration = 0
 vst_duration = 30
-
-def switch_true(device):
-    device.config(text='True', background='#15eb80')
-    
-def switch_false(device):
-    device.config(text='False', background='#f05666')
     
 def log_update(device):
     if device is curr_log1:
@@ -289,9 +312,10 @@ def read_load_cell():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_bridge_chan("cDAQ2Mod1/ai0")
-        ai_task.ai_channels.ai_bridge_units = BridgePhysicalUnits.NEWTONS
-        ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS)
+        ai_task.ai_channels.add_ai_force_bridge_two_point_lin_chan("cDAQ2Mod1/ai0", units=ForceUnits.POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+                                                                    voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
+                                                                    physical_units=BridgePhysicalUnits.POUNDS)
+        ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
         ai_task.in_stream.input_buf_size = 2000
 
         # Start the task
@@ -322,9 +346,9 @@ def read_load_cell():
             
             for i in range(cpt_samples):
                 strain = ai_task.read()     # Read current value
-                true_strain = strain * -1   # Inversion (raw readings come negative for some)
+                true_strain = strain * -1
                 newton = (strain * (-96960)) - 21.25 # -96960 gain, 9.25 offset
-                cdepth = r_count / 1732     # About 7705 data points per centimeter at 3 Volts
+                cdepth = r_count / 1732     # About 1732 data points per centimeter at 12 Volts
 
                 now = dt.datetime.now()
                 
@@ -335,7 +359,7 @@ def read_load_cell():
 
                 continued_timestamp = last_timestamp + rounded_seconds
 
-                strain_data.append(newton)
+                strain_data.append(true_strain)
                 r_count+=1
                 
                 # Write current value to CSV
@@ -383,9 +407,10 @@ def read_torque_sensor():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_bridge_chan("cDAQ2Mod1/ai1")
-        ai_task.ai_channels.ai_bridge_units = BridgePhysicalUnits.INCH_POUNDS
-        ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=nidaqmx.constants.AcquisitionType.CONTINUOUS)
+        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ2Mod1/ai1", units=TorqueUnits.INCH_POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+                                                                    voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
+                                                                    physical_units=BridgePhysicalUnits.INCH_POUNDS)
+        ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
         ai_task.in_stream.input_buf_size = 5000
         
         ai_task.start()
@@ -407,9 +432,9 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = torque * -1   # Inversion (raw readings come negative for some reason)
-                lb_inch = (torque * (-42960)) - 8.2     # (raw readings * gain) minus offset
-
+                true_torque = torque 
+                lb_inch = (torque * (-42960)) - 8.2     # THIS IS A RANDOM GAIN I JUST SET TO HAVE IT RUNNING 
+                                                        # (raw readings * gain) minus offset
                 now = dt.datetime.now()
                 
                 # Calculate current time, starting from 0 seconds
@@ -468,8 +493,8 @@ def read_tcp():
             while tcp_running:
                 temp = ai_task.read()     # Read current value
                 true_temp = temp * -1   # Inversion (raw readings come negative for some reason)
-                temp_f = (temp * (-42960)) - 11.0     # (raw readings * gain) minus offset
-
+                temp_f = (temp * (-42960)) - 11.0     # THIS IS A RANDOM GAIN I JUST SET TO HAVE IT RUNNING 
+                                                      # (raw readings * gain) minus offset
                 now = dt.datetime.now()
                 
                 # Calculate current time, starting from 0 seconds
@@ -681,7 +706,7 @@ def animate_load_cell(i):
     if csv_list and lc_running is True:
         data = pd.read_csv(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=",")
         x = data['Timestamp'] 
-        y = data['Force [Newtons]'] 
+        y = data['Force [Raw Reading]'] 
         y2 = data['Depth [cm]']                            
         
         load_line.set_data(y,y2)
@@ -694,9 +719,9 @@ def animate_torque_sensor(i):
     if torque_csv and ts_running is True:
         data = pd.read_csv(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
         x = data['Timestamp (seconds)'] 
-        y = data['Torque [Pound-inches]']                             
+        y = data['Torque [Raw Reading]']                             
         
-        torque_line.set_data(x,abs(y))
+        torque_line.set_data(x,y)
         torque_sensor.relim()
         torque_sensor.autoscale_view()
 
@@ -712,9 +737,9 @@ def animate_tcp(i):
         temp_sensor.relim()
         temp_sensor.autoscale_view()
 
-# =================
-# 'Get' CSV Names
-# =================
+# ======================
+# 'Get' CSV + IDF Names
+# ======================
 
 # Get Load CSV log name
 def get_csv():
@@ -905,6 +930,21 @@ author.grid(row=2, column=0, padx=5, pady=5, sticky=NW)
 git_link = tk.Label(home_frame, text='Github Page', font=('Helveticaitalic', 15), fg="blue", cursor="hand2")
 git_link.grid(row=3, column=0, padx=5, pady=5, sticky=NW)
 git_link.bind("<Button-1>", lambda x: open_url("https://github.com/MattoScientisuto/SPARTA-TestBench"))
+
+ser_label = tk.Label(home_frame, text="Serial Ports Active: ", font=("Arial", 14))
+ser_label.grid(row=4, column=0, padx=5, pady=5, sticky=NW)
+
+act_status = tk.Label(home_frame, text="Linear Actuator: ", font=("Arial", 14))
+act_status.grid(row=5, column=0, sticky=NW)
+actser_status = tk.Label(home_frame, text=str(ser_running), font=("Arial", 14), background='#f05666', relief='groove')
+actser_status.grid(row=5, column=1, sticky=NW)
+tor_status = tk.Label(home_frame, text="Torque Sensor: ", font=("Arial", 14))
+tor_status.grid(row=6, column=0, sticky=NW)
+torser_status = tk.Label(home_frame, text=str(torser_running), font=("Arial", 14), background='#f05666', relief='groove')
+torser_status.grid(row=6, column=1, sticky=NW)
+
+ser_kill = tk.Button(home_frame, text="Kill Ports", command=kill_ports)
+ser_kill.grid(row=7, column=0, padx=5, pady=5, sticky=NW)
 
 cpt_var = tk.StringVar()
 vst_var = tk.StringVar()
@@ -1199,5 +1239,5 @@ ani = FuncAnimation(fig1, animate_load_cell, interval=500, cache_frame_data=Fals
 ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=500, cache_frame_data=False)
 ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
 plt.show()
-
+check_ports()
 root.mainloop()
