@@ -39,6 +39,7 @@ import sys
 import csv
 
 import serial
+import atexit
 
 from threading import Thread
 
@@ -200,18 +201,34 @@ def check_ports():
     global torser_running
     if actuator.isOpen() == True:
         ser_running = True
+        print('Linear Actuator Port Opened?: ', actuator.isOpen())
         switch_true(actser_status)
+    else:
+        tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
+
     if stepper.isOpen() == True:
         torser_running = True
+        print('Torque Motor Port Opened?: ', stepper.isOpen())
         switch_true(torser_status)
+    else:
+        tk.messagebox.showinfo("Error", "Torque Motor serial port is not opened!")
 
 def kill_ports():
     if actuator.isOpen() == True:
         actuator.close()
+        print("Linear Actuator Port Status: ", actuator.isOpen())
+        print("Linear Actuator port closed successfully!")
         switch_false(actser_status)
+    else:
+        tk.messagebox.showinfo("Error", "Linear Actuator serial port already closed")
+        
     if stepper.isOpen() == True:
         stepper.close()
+        print("Torque Motor Port Status: ", actuator.isOpen())
+        print("Torque Motor port closed successfully!")
         switch_false(torser_status)
+    else:
+        tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
 vst_step_pos = 45000
@@ -1240,4 +1257,21 @@ ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=500, cache_frame_data
 ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
 plt.show()
 check_ports()
+
+# Automatically closes serial ports as soon as the program is closed
+def exit_handler():
+    if actuator.isOpen() == True:
+        actuator.close()
+        print("Linear Actuator Port Status: ", actuator.isOpen())
+        print("Linear Actuator port closed successfully!")
+    else:
+        print("already closed")
+    if stepper.isOpen() == True:
+        stepper.close()
+        print("Torque Motor Port Status: ", actuator.isOpen())
+        print("Torque Motor port closed succesfully!")
+    else:
+        print("already closed")
+atexit.register(exit_handler)
+
 root.mainloop()

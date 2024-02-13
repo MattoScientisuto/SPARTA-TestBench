@@ -258,3 +258,7 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - Seems to be working well so far (no COM problems if you kill the ports manually with the button)
    * When the program starts up, the 2nd last line of code 'check_ports()' checks the status and will appear as true if successful
    - Might make it so you can re-activate as well 
+
+2-12-24
+  - Improved serial port closing process
+   - Now closes anytime you close the program in case you forget
