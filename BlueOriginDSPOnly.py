@@ -7,6 +7,9 @@
 # Last Updated: February 13th, 2024
 # ============================================ #
 
+# COM25 and 4800 baudrate = IMU
+# COM26 and 9600 baudrate = Stepper Motor
+
 from pyvium import Core
 from pyvium import Tools
 
@@ -29,7 +32,7 @@ from threading import Thread
 
 # ==================================
 # Vane Shear Setup
-stepper = serial.Serial('COM3', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial('COM26', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 sample_rate = 1655
 vst_duration = 15
 torque_csv = []
@@ -83,7 +86,7 @@ def read_torque_sensor():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("Dev3/ai0", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("Dev1/ai0", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.NEWTON_METERS)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
@@ -100,8 +103,8 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = torque - 1.1
-                print(true_torque)
+                true_torque = abs(torque - 1.1)
+                # print(true_torque)
                 lb_inch = (torque * (-42960)) - 8.2     # THIS IS A RANDOM GAIN I JUST SET TO HAVE IT RUNNING 
                                                         # (raw readings * gain) minus offset
                 now = dt.datetime.now()
