@@ -354,5 +354,3 @@ def full_op():
 # Driver Sequence
 
 full_op()
-open_stepper_port()
-go_vst()

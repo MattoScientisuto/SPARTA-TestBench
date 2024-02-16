@@ -1,0 +1,57 @@
+<!--
+Author: Matthew Duong (US 3223 Affiliate)
+SPARTA Test Bench 
+Blue Origin IPC Sequence
+
+Created: February 16th, 2024
+Last Updated: February 16th, 2024
+-->
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<experiment name="SPARTA" enabled='true' xmlns="http://www.blueorigin.com/remconfig">
+
+    <device_configuration>
+
+        <!-- Power up all devices + Micro-PC with 2 AMPS MAXIMUM -->
+        <!-- Assuming this means C1 is selected -->
+        <power channel='1' reset='auto' current_limit='2.0'/>
+
+        <!-- Connect to Micro-PC Python listener's static IP-->
+        <stream type='tcp' ip='10.132.6.122' port='50155' name='micro_pc'/>
+
+    </device_configuration>
+
+
+    <action name="power_on">
+        <output value='1'>
+            <power channel='1'/>
+        </output>
+
+        <message stream='micro_pc'>THE EMERGENCY ESCAPE ROCKET MOTOR HAS BEEN ENABLED ON THE CC!</message>
+        <timertrigger mode='enable' event='escape_enabled'/>
+    </action>
+
+    <action name="test_liftoff">
+        <message stream='micro_pc'>YO WE'RE LIFTING OFF!</message>
+
+        <timertrigger mode='enable' event='liftoff'/>
+    </action>
+
+    <action name="test_separation">
+        <message stream='micro_pc'>THE CC HAS SEPARATED FROM THE PM!</message>
+
+        <timertrigger mode='enable' event='separation'/>
+    </action>
+
+<!-- 
+    <action name="start_dsps">
+
+    </action>
+
+    <action name="start_vst">
+
+    </action>
+-->
+
+</experiment>

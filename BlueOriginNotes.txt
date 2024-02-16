@@ -1,0 +1,49 @@
+Blue Origin XML Notes:
+
+<experiment>
+
+
+    <device_configuration>
+
+
+        <power>:
+
+        PARAMETERS
+        1. select channel number (i think this would be C1, C2, etc)
+        2. reset OR manual mode : determines if a power channel will automatically re-enable pwer output if
+        - power channel output command remains enabled
+        - a delay of 100ms has elapsed since its most recent over-current event
+        - the sensed current draw on the power channel is within the allowable limit
+        - # of current limit trip events while the power channel output command has remained enabled is less than 5
+        3. limit: max amps (0.0 to 2.0)
+
+
+        <stream>:
+        Used for passing character values over stream connection (IPC, Arduino, Laptop)
+         - RS-232
+         - Serial (This probably would've been ideal but we're using ethernet)
+         - Ethernet (TCP, UDP)
+
+         PARAMETERS
+         1. type: serial, tcp, udp 
+         2. name
+         3. ip : this should be the MicroPC's static ip address
+          - I'm assuming this is the static ip we set through the Windows control panel (test using socket listener)
+         4. port : we'll just say 50155 , apparently this can just be anything free that doesn't interfere with standard/common ports
+
+
+    <action>
+
+
+        <message>
+        We'll use this to send indicator messages for the Python socket listener to receive and interpret
+         - this will allow us to distribute conditional commands for each component to run at specific flight conditions
+
+
+        <trigger>
+
+
+            <leveltrigger>
+
+
+            <timetrigger>
