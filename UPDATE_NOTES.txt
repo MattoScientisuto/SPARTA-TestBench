@@ -275,3 +275,7 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
  - Split Blue Origin sequence into DSP and VST files
   - DSP should be taking in data the whole time
   - VST is probably gonna be triggered at a certain point through XML
+
+ - Wrote work in progress IPC test XML for Blue Origin
+  - Currently has commands for power and message sending for sample flight events
+ - Added socket listener for python to receive and interpret ethernet messages
