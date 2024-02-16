@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence
 
 # Created: September 11th, 2023
-# Last Updated: February 13th, 2024
+# Last Updated: February 16th, 2024
 # ============================================ #
 
 # COM25 and 4800 baudrate = IMU
@@ -33,6 +33,9 @@ from threading import Thread
 # ==================================
 # Vane Shear Setup
 stepper = serial.Serial('COM26', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+def open_stepper_port():
+    stepper.open()
+    
 sample_rate = 1655
 vst_duration = 15
 torque_csv = []
@@ -285,6 +288,7 @@ def ivium_wait():
         time_now = dt.datetime.now().strftime("%H:%M:%S")
         print(f'Ivium still starting up at: {time_now}\nCheck again in 10 seconds...')
         time.sleep(10)
+        
 # Check if IMU LabView program is open
 def imu_wait():
     while True:
@@ -349,5 +353,6 @@ def full_op():
 # ===================================
 # Driver Sequence
 
-# full_op()
+full_op()
+open_stepper_port()
 go_vst()

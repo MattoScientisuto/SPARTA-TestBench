@@ -260,5 +260,18 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - Might make it so you can re-activate as well 
 
 2-12-24
-  - Improved serial port closing process
-   - Now closes anytime you close the program in case you forget
+ - Improved serial port closing process
+   - Now closes ports anytime you close the program in case you forget
+
+2-13-24
+ - Added VST rotation and DAQ commands to the Blue Origin sequence
+
+2-14-24
+ - Remade the IMU-P LabView executable 
+  - Trying to set a permanent COM port for it 'COM25'
+  * Most likely gonna have to keep them plugged in the same port to eliminate risk (TEST THIS)
+
+2-16-24
+ - Split Blue Origin sequence into DSP and VST files
+  - DSP should be taking in data the whole time
+  - VST is probably gonna be triggered at a certain point through XML
