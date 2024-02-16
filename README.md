@@ -14,7 +14,7 @@ This interface is being developed for my current intern project managed by NASA 
  - Tkinter
  - subprocess
  - psutil
-
+ - socket
 
 <h3>Start-up</h3>
 
