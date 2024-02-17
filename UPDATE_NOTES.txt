@@ -279,3 +279,5 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
  - Wrote work in progress IPC test XML for Blue Origin
   - Currently has commands for power and message sending for sample flight events
  - Added socket listener for python to receive and interpret ethernet messages
+
+ - Added Sequence of Events document for python cases
