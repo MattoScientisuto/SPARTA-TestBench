@@ -309,7 +309,7 @@ def start_ivium():
     ivium_wait()
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'Ivium successfully started at: {time_now}')
-# Start DSP VI
+# Start IMU VI
 def start_imu():  
     imu_path = os.path.join(os.path.dirname(__file__), 'start_IMU.bat')
     subprocess.call([imu_path])
