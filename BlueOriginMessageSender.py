@@ -1,11 +1,11 @@
 import socket
 import time
 
-HOST = '127.0.0.1'  # Loopback address
-PORT = 50155        # Port number your server is listening on
+HOST = '10.132.5.30'  # Loopback address
+PORT = 80        # Port number your server is listening on
 
 # Message to send
-message = ["escape", "liftoff", "meca", "separation",
+message = ["escapematt", "liftoff", "meca", "separation",
             "coast", "apogee", "touchdown", "safing", "end"]
  
 # Create a TCP socket

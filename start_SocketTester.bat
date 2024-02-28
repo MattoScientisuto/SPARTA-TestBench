@@ -1,2 +1,2 @@
-python "C:\Users\sparta\Desktop\SPARTA-TestBench\BlueOriginSocketTester.py"
+python "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginSocketTester.py"
 pause

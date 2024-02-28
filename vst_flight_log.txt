@@ -1,0 +1,6 @@
+Torque CSV set to: VST_16-45-47.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-27 16:45:48.283470
+Total time elapsed: 14.912 seconds
+VST End Timestamp: 2024-02-27 16:46:03.195424
+VST Run Completed!

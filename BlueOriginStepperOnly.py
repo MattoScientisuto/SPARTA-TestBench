@@ -19,9 +19,7 @@ from threading import Thread
 
 # ==================================
 # Vane Shear Setup
-stepper = serial.Serial('COM26', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
-def open_stepper_port():
-    stepper.open()
+stepper = serial.Serial('COM9', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1655
 vst_duration = 15
@@ -76,6 +74,7 @@ def read_torque_sensor():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
+        # BO= Dev1/ai0"
         ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("Dev1/ai0", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.NEWTON_METERS)
@@ -131,5 +130,4 @@ def go_vst():
 # ===================================
 # Driver Sequence
 
-open_stepper_port()
 go_vst()

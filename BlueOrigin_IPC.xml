@@ -1,69 +1,51 @@
-<!--
-Author: Matthew Duong (US 3223 Affiliate)
-SPARTA Test Bench 
-Blue Origin IPC Sequence
-
-Created: February 16th, 2024
-Last Updated: February 16th, 2024
--->
-
 <?xml version="1.0" encoding="UTF-8"?>
 
-<experiment name="SPARTA" enabled='true' xmlns="http://www.blueorigin.com/remconfig">
+<experiment name="SPARTA" sample-rate="100" enabled='true' xmlns="http://www.blueorigin.com/remconfig">
 
     <device_configuration>
-
-        <!-- Power up all devices + Micro-PC with 2 AMPS MAXIMUM -->
         <power channel='2' reset='auto' current_limit='2.0'/>
         <power channel='3' reset='auto' current_limit='2.0'/>
-
-        <!-- Connect to Micro-PC Python listener's static IP-->
-        <stream type='tcp' ip='10.132.6.122' port='50155' name='micro_pc'/>
-
+        <stream type='tcp' ip='10.132.5.30' port='80' name='micro_pc'/>
     </device_configuration>
 
 
-    <!-- LIST OF ACTIONS AND FLIGHT EVENT CASES -->
     <action name="power_on">
         <output value='1'>
             <power channel='2'/>
             <power channel='3'/>
         </output>
-        <!-- At this point, the PC should:
-          1. Start the DSP's batch via Task Scheduler
-          2. Start the socket event listener via Task Scheduler -->
-        <message stream='micro_pc'>Power On for Ch2 and Ch3</message>
+        <message stream='micro_pc'>escape_enabled</message>
         <timertrigger mode='enable' event='escape_enabled'/>
     </action>
 
+    <action name="escape_message">
+        <message stream='micro_pc'>escape_enabled1</message>
+        <timertrigger mode='enable' event='escape_enabled'/>
+    </action>
+
+    <action name="liftoff_message">
+        <message stream='micro_pc'>liftoff</message>
+        <timertrigger mode='enable' event='liftoff'/>
+    </action>
 
     <action name="meco_message">
         <message stream='micro_pc'>meco</message>
         <timertrigger mode='enable' event='meco'/>
     </action>
 
-
     <action name="separation_message">
         <message stream='micro_pc'>separation</message>
         <timertrigger mode='enable' event='separation'/>
     </action>
-
 
     <action name="coaststart_message">
         <message stream='micro_pc'>coast_start</message>
         <timertrigger mode='enable' event='coast_start'/>
     </action>
 
-
     <action name="safing_poweroff">
         <message stream='micro_pc'>safing</message>
         <timertrigger mode='enable' event='safing'/>
     </action>
-
-<!-- 
-    <action name="start_vst">
-
-    </action>
--->
 
 </experiment>
