@@ -5,8 +5,8 @@ HOST = '10.132.5.30'  # Loopback address
 PORT = 80        # Port number your server is listening on
 
 # Message to send
-message = ["escapematt", "liftoff", "meca", "separation",
-            "coast", "apogee", "touchdown", "safing", "end"]
+message = ["escape_enabled", "liftoff", "meco", "separation",
+            "coast_start", "apogee", "touchdown", "safing", "end"]
  
 # Create a TCP socket
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:

@@ -1,1 +1,0 @@
-python BlueOriginDSPOnly.py > console_log.txt

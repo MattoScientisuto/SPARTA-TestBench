@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: Vane Shear Only
 
 # Created: February 16th, 2024
-# Last Updated: February 16th, 2024
+# Last Updated: February 28th, 2024
 # ============================================ #
 
 import os
@@ -15,7 +15,10 @@ import serial
 import nidaqmx
 from nidaqmx.constants import BridgePhysicalUnits, ExcitationSource
 from nidaqmx.constants import AcquisitionType, TorqueUnits, BridgeConfiguration, AcquisitionType
+import sys
 from threading import Thread
+
+sys.stdout = open("console_log_vstflight.txt", "a")
 
 # ==================================
 # Vane Shear Setup
@@ -30,6 +33,9 @@ todays_date = date.today().strftime("%m-%d-%Y")
 
 # Data output directories for each component
 vst_dir = f'.\\data_output\\vst\\{todays_date}'
+
+todays_time = datetime.now().strftime("%H:%M:%S")
+print(f'====================================================\n START POINT OF SOCKET LISTENER LOG: {todays_date} at {todays_time}\n====================================================')
 
 # Get Torque CSV log name
 def get_torque_csv():
@@ -55,7 +61,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches]", "Torque [Raw Reading]"])
+        writer.writerow(["Timestamp (seconds)", "Torque [Raw Reading]"])
         file.close()
 
 def rotate_vst():
@@ -74,8 +80,9 @@ def read_torque_sensor():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        # BO= Dev1/ai0"
-        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("Dev1/ai0", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+
+        # BlueOrigin == "Dev1/ai0" REMEMBER TO CHANGE BACK LATER
+        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ1Mod1/ai1", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.NEWTON_METERS)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
@@ -92,12 +99,9 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = abs(torque - 1.1)
-                # print(true_torque)
-                lb_inch = (torque * (-42960)) - 8.2     # THIS IS A RANDOM GAIN I JUST SET TO HAVE IT RUNNING 
-                                                        # (raw readings * gain) minus offset
+                true_torque = abs(torque)
+
                 now = dt.datetime.now()
-                
                 # Calculate current time, starting from 0 seconds
                 # Then store in global timestamps list for plotting
                 elapsed_time = now - start_time
@@ -108,7 +112,7 @@ def read_torque_sensor():
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, lb_inch, true_torque])
+                writer.writerow([continued_timestamp, true_torque])
                 
             file.close()
 
@@ -129,5 +133,6 @@ def go_vst():
     
 # ===================================
 # Driver Sequence
-
+time_now = dt.datetime.now().strftime("%H:%M:%S")
+print(f'\n[{todays_date}, {time_now}] VST batch successfully started!')
 go_vst()

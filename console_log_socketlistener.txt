@@ -1,0 +1,187 @@
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py"  1>>"C:\Users\keith\OneDrive\Desktop\Bench_Repo\console_log_vstflight.txt" 2>&1 
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>pause
+Press any key to continue . . . ^C
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py"  1>>"C:\Users\keith\OneDrive\Desktop\Bench_Repo\console_log_vstflight.txt" 2>&1 
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>pause
+Press any key to continue . . . 
+Terminate batch job (Y/N)? 
+^C
+[02-28-2024, 15:41:18] Socket Listener batch successfully started!
+Server listening on 10.132.5.30:80
+[15:41:24] Connected to: ('10.132.5.30', 53817)
+[15:41:27] Received: escape_enabled
+[15:41:27] REACHED ESCAPE ENABLED!
+[15:41:30] Received: liftoff
+[15:41:33] Received: meco
+[15:41:33] REACHED MECO!
+[15:41:36] Received: separation
+[15:41:39] Received: coast_start
+[15:41:39] REACHED COAST_START!
+[15:41:39] Calling VST batch...
+Traceback (most recent call last):
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginSocketListener.py", line 73, in <module>
+    start_flightvst()
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginSocketListener.py", line 25, in start_flightvst
+    subprocess.call([fvst_path])
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 391, in call
+    return p.wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\subprocess.py", line 1588, in _wait
+    result = _winapi.WaitForSingleObject(self._handle,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+^CTraceback (most recent call last):
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginSocketListener.py", line 33, in <module>
+    server_socket.bind((HOST, PORT))
+OSError: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py"  1>>"C:\Users\keith\OneDrive\Desktop\Bench_Repo\console_log_vstflight.txt" 2>&1 
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>pause
+Press any key to continue . . . ^C
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py"  1>>"C:\Users\keith\OneDrive\Desktop\Bench_Repo\console_log_vstflight.txt" 2>&1 
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>pause
+Press any key to continue . . . ^C
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py"  1>>"C:\Users\keith\OneDrive\Desktop\Bench_Repo\console_log_vstflight.txt" 2>&1 
+Terminate batch job (Y/N)? ^C
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>pause
+Press any key to continue . . . 
+Terminate batch job (Y/N)? 
+^C
+[02-28-2024, 15:50:16] Socket Listener batch successfully started!
+Server listening on 10.132.5.30:80
+[15:50:18] Connected to: ('10.132.5.30', 53910)
+[15:50:21] Received: escape_enabled
+[15:50:21] REACHED ESCAPE ENABLED!
+[15:50:24] Received: liftoff
+[15:50:27] Received: meco
+[15:50:27] REACHED MECO!
+[15:50:30] Received: separation
+[15:50:33] Received: coast_start
+[15:50:33] REACHED COAST_START!
+[15:50:33] Calling VST batch...
+CTRL+C pressed. Exiting and saving console log.
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py"  1>>"C:\Users\keith\OneDrive\Desktop\Bench_Repo\console_log_vstflight.txt" 2>&1 
+
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>pause
+Press any key to continue . . . 
+Terminate batch job (Y/N)? 
+
+[02-28-2024, 15:52:44] Socket Listener batch successfully started!
+Server listening on 10.132.5.30:80
+[15:53:25] Connected to: ('10.132.5.162', 56490)
+[15:54:51] Received: liftoff
+[15:55:30] Received: meco
+[15:55:30] REACHED MECO!
+[15:55:34] Received: separation
+[15:55:40] Received: coast_start
+[15:55:40] REACHED COAST_START!
+[15:55:40] Calling VST batch...
+CTRL+C pressed. Exiting and saving console log.
+
+[02-28-2024, 16:07:16] Socket Listener batch successfully started!
+Server listening on 10.132.5.30:80
+[16:07:19] Connected to: ('10.132.5.30', 54323)
+[16:07:22] Received: escape_enabled
+[16:07:22] REACHED ESCAPE ENABLED!
+[16:07:25] Received: liftoff
+[16:07:25] CTRL C LIFTOFF
+Traceback (most recent call last):
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginSocketListener.py", line 54, in <module>
+    data = connection.recv(1024)
+           ^^^^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginSocketListener.py", line 47, in <module>
+    with connection:
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\socket.py", line 239, in __exit__
+    def __exit__(self, *args):
+
+KeyboardInterrupt
+^C
+C:\Users\keith\OneDrive\Desktop\Bench_Repo>"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py"  1>>"C:\Users\keith\OneDrive\Desktop\Bench_Repo\console_log_vstflight.txt" 2>&1 
+Traceback (most recent call last):
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginSocketListener.py", line 11, in <module>
+    sys.stdout = open("console_log_socketlistener.txt", "a")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'console_log_socketlistener.txt'
+
+[02-28-2024, 16:15:25] Socket Listener batch successfully started!
+Server listening on 10.132.5.30:80
+[16:15:30] Connected to: ('10.132.5.30', 54472)
+[16:15:33] Received: escape_enabled
+[16:15:33] REACHED ESCAPE ENABLED!
+[16:15:36] Received: liftoff
+[16:15:39] Received: meco
+[16:15:39] REACHED MECO!
+[16:15:42] Received: separation
+[16:15:45] Received: coast_start
+[16:15:45] REACHED COAST_START!
+[16:15:45] Calling VST batch...
+[16:16:23] Calling VST batch...
+[16:16:23] Received: apogeetouchdownsafingend
+
+[02-28-2024, 16:26:45] Socket Listener batch successfully started!
+Server listening on 10.132.5.30:80
+[16:26:50] Connected to: ('10.132.5.30', 54589)
+[16:26:53] Received: escape_enabled
+[16:26:53] REACHED ESCAPE ENABLED!
+[16:26:56] Received: liftoff
+[16:26:59] Received: meco
+[16:26:59] REACHED MECO!
+[16:27:02] Received: separation
+[16:27:05] Received: coast_start
+[16:27:05] REACHED COAST_START!
+[16:27:05] Calling VST batch...
+[16:27:08] Received: apogee
+[16:27:11] Received: touchdown
+[16:27:14] Received: safing
+[16:27:14] REACHED SAFING!
+[16:27:17] Received: end
+[16:27:45] Calling VST batch...
+
+[02-28-2024, 16:29:11] Socket Listener batch successfully started!
+Server listening on 10.132.5.30:80
+[16:29:23] Connected to: ('10.132.5.30', 54619)
+[16:29:26] Received: escape_enabled
+[16:29:26] REACHED ESCAPE ENABLED!
+[16:29:29] Received: liftoff
+[16:29:32] Received: meco
+[16:29:32] REACHED MECO!
+[16:29:35] Received: separation
+[16:29:38] Received: coast_start
+[16:29:38] REACHED COAST_START!
+[16:29:41] Received: apogee
+[16:29:44] Received: touchdown
+[16:29:47] Received: safing
+[16:29:47] REACHED SAFING!
+[16:29:50] Received: end
+[16:30:22] Calling VST batch...
+
+[02-28-2024, 16:40:21] Socket Listener batch successfully started!
+Server listening on 10.132.5.30:80
+[16:40:23] Connected to: ('10.132.5.30', 54790)
+[16:40:26] Received: escape_enabled
+[16:40:26] REACHED ESCAPE ENABLED!
+[16:40:29] Received: liftoff
+[16:40:32] Received: meco
+[16:40:32] REACHED MECO!
+[16:40:35] Received: separation
+[16:40:38] Received: coast_start
+[16:40:38] REACHED COAST_START!
+[16:40:41] Received: apogee
+[16:40:44] Received: touchdown
+[16:40:47] Received: safing
+[16:40:47] REACHED SAFING! TIME TO END THE LISTENING CYAA

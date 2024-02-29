@@ -1,0 +1,119 @@
+
+[02-28-2024, 15:06:24] VST batch successfully started!
+Torque CSV set to: VST_15-06-24.csv
+Exception in thread Thread-1 (read_torque_sensor):
+Traceback (most recent call last):
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1038, in _bootstrap_inner
+    self.run()
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 975, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py", line 94, in read_torque_sensor
+    torque = ai_task.read()     # Read current value
+             ^^^^^^^^^^^^^^
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\site-packages\nidaqmx\task.py", line 552, in read
+    _, samples_read = self._interpreter.read_analog_f64(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\site-packages\nidaqmx\_library_interpreter.py", line 3898, in read_analog_f64
+    self.check_for_error(error_code, samps_per_chan_read=samps_per_chan_read.value)
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\site-packages\nidaqmx\_library_interpreter.py", line 6025, in check_for_error
+    raise DaqReadError(extended_error_info, error_code, samps_per_chan_read)
+nidaqmx.errors.DaqReadError: The application is not able to keep up with the hardware acquisition.
+Increasing the buffer size, reading the data more frequently, or specifying a fixed number of samples to read instead of reading all available samples might correct the problem.
+Property: DAQmx_Read_RelativeTo
+Corresponding Value: DAQmx_Val_CurrReadPos
+Property: DAQmx_Read_Offset
+Corresponding Value: 0
+
+Task Name: _unnamedTask<0>
+
+Status Code: -200279
+Rotating forward...
+VST Start Timestamp: 2024-02-28 15:06:27.651296
+
+[02-28-2024, 15:41:41] VST batch successfully started!
+Torque CSV set to: VST_15-41-41.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 15:41:42.639718
+Total time elapsed: 29.799 seconds
+VST End Timestamp: 2024-02-28 15:42:12.439141
+VST Run Completed!
+
+[02-28-2024, 15:45:24] VST batch successfully started!
+Torque CSV set to: VST_15-45-24.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 15:45:25.332247
+Total time elapsed: 29.791 seconds
+VST End Timestamp: 2024-02-28 15:45:55.122944
+VST Run Completed!
+
+[02-28-2024, 15:49:17] VST batch successfully started!
+Torque CSV set to: VST_15-49-17.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 15:49:18.500015
+Total time elapsed: 29.799 seconds
+VST End Timestamp: 2024-02-28 15:49:48.299131
+VST Run Completed!
+
+[02-28-2024, 15:50:34] VST batch successfully started!
+Torque CSV set to: VST_15-50-34.csv
+Exception ignored in: <module 'threading' from 'C:\\Users\\keith\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\threading.py'>
+Traceback (most recent call last):
+  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1583, in _shutdown
+    lock.acquire()
+KeyboardInterrupt: 
+Rotating forward...
+VST Start Timestamp: 2024-02-28 15:50:35.348428
+Total time elapsed: 29.807 seconds
+VST End Timestamp: 2024-02-28 15:51:05.155338
+VST Run Completed!
+
+[02-28-2024, 15:55:43] VST batch successfully started!
+Torque CSV set to: VST_15-55-43.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 15:55:43.913411
+Total time elapsed: 29.854 seconds
+VST End Timestamp: 2024-02-28 15:56:13.767490
+VST Run Completed!
+
+[02-28-2024, 16:08:09] VST batch successfully started!
+Torque CSV set to: VST_16-08-09.csv
+
+[02-28-2024, 16:15:47] VST batch successfully started!
+Torque CSV set to: VST_16-15-47.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 16:15:49.007354
+Total time elapsed: 29.798 seconds
+VST End Timestamp: 2024-02-28 16:16:18.805525
+VST Run Completed!
+
+[02-28-2024, 16:27:07] VST batch successfully started!
+Torque CSV set to: VST_16-27-07.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 16:27:08.536409
+Total time elapsed: 29.793 seconds
+VST End Timestamp: 2024-02-28 16:27:38.329198
+VST Run Completed!
+
+[02-28-2024, 16:29:39] VST batch successfully started!
+Torque CSV set to: VST_16-29-39.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 16:29:39.861567
+Total time elapsed: 29.798 seconds
+VST End Timestamp: 2024-02-28 16:30:09.659101
+VST Run Completed!
+
+[02-28-2024, 16:40:39] VST batch successfully started!
+Torque CSV set to: VST_16-40-39.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 16:40:39.941181
+Total time elapsed: 29.801 seconds
+VST End Timestamp: 2024-02-28 16:41:09.742338
+VST Run Completed!
+
+[02-28-2024, 16:43:43] VST batch successfully started!
+Torque CSV set to: VST_16-43-43.csv
+Rotating forward...
+VST Start Timestamp: 2024-02-28 16:43:43.666091
+Total time elapsed: 14.910 seconds
+VST End Timestamp: 2024-02-28 16:43:58.575976
+VST Run Completed!

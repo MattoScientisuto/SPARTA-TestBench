@@ -1,2 +1,2 @@
-"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginStepperOnly.py" > "C:\Users\keith\OneDrive\Desktop\Bench_Repo\vst_flight_log.txt" 2>&1
+"C:\Users\keith\AppData\Local\Programs\Python\Python311\python.exe" "C:\Users\keith\OneDrive\Desktop\Bench_Repo\BlueOriginVST.py"
 pause
