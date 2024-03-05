@@ -305,3 +305,10 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
  - VST is threaded to avoid IPC message interference
   - VST runs independently while socket listener still receives further messages simultaneously
+
+2-29-24
+ - Updated VST acquisition and appending method
+  - Made it so during the actual data acquisition, we're just appending the values to two arrays
+  - After acquisition and rotation finishes, then we write to the CSV all at once with both arrays
+  * Gives less for the system to do during the actual acquisition
+   * Writing is most likely just O(1) but now it happens after the important portion of the operation to ensure maximum optimization
