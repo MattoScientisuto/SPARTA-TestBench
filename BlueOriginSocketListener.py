@@ -9,10 +9,10 @@ import sys
 from threading import Thread
 
 # Redirecting stdout to a file
-sys.stdout = open("console_log_socketlistener.txt", "a")
+# sys.stdout = open("console_log_socketlistener.txt", "a")
 
-HOST = '10.132.5.30'  # Loopback address
-PORT = 80        # Port number your server is listening on
+HOST = '0.0.0.0'  # Loopback address
+PORT = 80       # Port number your server is listening on
 todays_date = date.today().strftime("%m-%d-%Y")
 
 # Start IviumSoft.exe
@@ -35,7 +35,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
     server_socket.listen()
 
     todays_time = datetime.now().strftime("%H:%M:%S")
-    print(f'====================================================\n START POINT OF SOCKET LISTENER LOG: {todays_date} at {todays_time}\n====================================================')
+    print(f'===========================================================\n START POINT OF SOCKET LISTENER LOG: {todays_date} at {todays_time}\n===========================================================')
 
     print("Server listening on {}:{}".format(HOST, PORT))
 
@@ -56,7 +56,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             # This should only happen at the end of flight if it somehow
             # skips over the 'safing' trigger
             if not data:
+                sys.stdout.close()
                 break
+
             
             message = data.decode().strip()
             curr_time = datetime.now().strftime("%H:%M:%S")

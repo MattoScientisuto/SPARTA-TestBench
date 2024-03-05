@@ -185,3 +185,79 @@ Server listening on 10.132.5.30:80
 [16:40:44] Received: touchdown
 [16:40:47] Received: safing
 [16:40:47] REACHED SAFING! TIME TO END THE LISTENING CYAA
+====================================================
+ START POINT OF SOCKET LISTENER LOG: 02-28-2024 at 17:20:41
+====================================================
+Server listening on 10.132.5.30:80
+[17:23:02] Connected to: ('10.132.5.162', 56492)
+[17:24:08] Received: liftoff
+[17:24:43] Received: meco
+[17:24:43] REACHED MECO!
+[17:24:47] Received: separation
+[17:24:52] Received: coast_start
+[17:24:52] REACHED COAST_START!
+[17:24:52] Starting VST batch now!
+[17:26:40] Received: safing
+[17:26:40] REACHED SAFING! TIME TO END THE LISTENING CYAA
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 02-29-2024 at 10:06:16
+===========================================================
+Server listening on 10.132.5.30:80
+[10:06:20] Connected to: ('10.132.5.30', 50018)
+[10:06:23] Received: escape_enabled
+[10:06:23] REACHED ESCAPE ENABLED!
+[10:06:26] Received: liftoff
+[10:06:29] Received: meco
+[10:06:29] REACHED MECO!
+[10:06:32] Received: separation
+[10:06:35] Received: coast_start
+[10:06:35] REACHED COAST_START!
+[10:06:35] Starting VST batch now!
+[10:06:38] Received: apogee
+[10:06:41] Received: touchdown
+[10:06:44] Received: safing
+[10:06:44] REACHED SAFING! TIME TO END THE LISTENING CYAA
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 02-29-2024 at 13:26:46
+===========================================================
+Server listening on 10.132.5.30:80
+[13:27:28] Connected to: ('10.132.5.30', 60520)
+[13:27:31] Received: escape_enabled
+[13:27:31] REACHED ESCAPE ENABLED!
+[13:27:34] Received: liftoff
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 02-29-2024 at 13:28:00
+===========================================================
+Server listening on 10.132.5.30:80
+[13:28:14] Connected to: ('10.132.5.30', 60537)
+[13:28:17] Received: escape_enabled
+[13:28:17] REACHED ESCAPE ENABLED!
+[13:28:20] Received: liftoff
+[13:28:23] Received: meco
+[13:28:23] REACHED MECO!
+[13:28:26] Received: separation
+[13:28:29] Received: coast_start
+[13:28:29] REACHED COAST_START!
+[13:28:29] Starting VST batch now!
+[13:28:32] Received: apogee
+[13:28:35] Received: touchdown
+[13:28:38] Received: safing
+[13:28:38] REACHED SAFING! TIME TO END THE LISTENING CYAA
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 02-29-2024 at 14:00:04
+===========================================================
+Server listening on 10.132.5.30:80
+[14:04:03] Connected to: ('10.132.5.30', 58601)
+[14:04:06] Received: escape_enabled
+[14:04:06] REACHED ESCAPE ENABLED!
+[14:04:09] Received: liftoff
+[14:04:12] Received: meco
+[14:04:12] REACHED MECO!
+[14:04:15] Received: separation
+[14:04:18] Received: coast_start
+[14:04:18] REACHED COAST_START!
+[14:04:18] Starting VST batch now!
+[14:04:21] Received: apogee
+[14:04:24] Received: touchdown
+[14:04:27] Received: safing
+[14:04:27] REACHED SAFING! TIME TO END THE LISTENING CYAA

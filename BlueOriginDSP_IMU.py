@@ -41,7 +41,7 @@ dsp_idf2 = []
 current_directory = os.path.dirname(os.path.abspath(__file__))
 todays_date = date.today().strftime("%m-%d-%Y")
 todays_time = datetime.now().strftime("%H:%M:%S")
-print(f'====================================================\n START POINT OF DSP/IMU LOG: {todays_date} at {todays_time}\n====================================================')
+print(f'====================================================\n START POINT OF DSP LOG: {todays_date} at {todays_time}\n====================================================')
 
 # Data output directories for each component
 dsp_dir = f'.\\data_output\\dsp\\{todays_date}'
@@ -126,10 +126,10 @@ def scan_op():
     print(f"[CHANNEL 1] Scan started at: {time_now}")
     sys.stdout.flush()
     
-    time.sleep(3)
+    time.sleep(5)
     
     # Channel 2
-    dsp_methods2 = os.path.join(current_directory, 'dsp_settings', dsp_05method)
+    dsp_methods2 = os.path.join(current_directory, 'dsp_settings', dsp_001method)
     Core.IV_SelectChannel(2)
     Core.IV_readmethod(dsp_methods2)
     time.sleep(1)
@@ -167,8 +167,8 @@ def dsp_wait():
         if status == 1 and status2 == 1:
             return status
         
-        # Check in 10 second intervals
-        time.sleep(10)
+        # Check in 15 second intervals
+        time.sleep(15)
 # Check if IviumSoft is open yet
 def ivium_wait():
     while True:
@@ -188,7 +188,7 @@ def imu_wait():
         imu_status = "IMU_COM25Ver2.exe" in (i.name() for i in psutil.process_iter()) 
         
         if imu_status == True:
-            time.sleep(20)
+            time.sleep(5)
             return imu_status
             
         time_now = dt.datetime.now().strftime("%H:%M:%S")

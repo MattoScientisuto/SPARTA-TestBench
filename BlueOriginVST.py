@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: Vane Shear Only
 
 # Created: February 16th, 2024
-# Last Updated: February 28th, 2024
+# Last Updated: February 29th, 2024
 # ============================================ #
 
 import os
@@ -28,6 +28,9 @@ sample_rate = 1655
 vst_duration = 15
 torque_csv = []
 
+timestamp_storage = []
+torque_storage = []
+
 current_directory = os.path.dirname(os.path.abspath(__file__))
 todays_date = date.today().strftime("%m-%d-%Y")
 
@@ -35,7 +38,7 @@ todays_date = date.today().strftime("%m-%d-%Y")
 vst_dir = f'.\\data_output\\vst\\{todays_date}'
 
 todays_time = datetime.now().strftime("%H:%M:%S")
-print(f'====================================================\n START POINT OF SOCKET LISTENER LOG: {todays_date} at {todays_time}\n====================================================')
+print(f'====================================================\n START POINT OF VST LOG: {todays_date} at {todays_time}\n====================================================')
 
 # Get Torque CSV log name
 def get_torque_csv():
@@ -85,36 +88,27 @@ def read_torque_sensor():
         ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ1Mod1/ai1", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.NEWTON_METERS)
-        ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
-        ai_task.in_stream.input_buf_size = 5000
+        ai_task.timing.cfg_samp_clk_timing(rate=50,sample_mode=AcquisitionType.CONTINUOUS)
+        # ai_task.in_stream.input_buf_size = 5000
         
         ai_task.start()
         rotate_vst()
         start_time = dt.datetime.now()
         print(f"VST Start Timestamp: {start_time}")
-        
-        with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
-            writer = csv.writer(file)
-            last_timestamp = 0
 
-            for i in range(vst_samples):
-                torque = ai_task.read()     # Read current value
-                true_torque = abs(torque)
+        for i in range(vst_samples):
+            torque = ai_task.read()     # Read current value
+            true_torque = abs(torque)
 
-                now = dt.datetime.now()
-                # Calculate current time, starting from 0 seconds
-                # Then store in global timestamps list for plotting
-                elapsed_time = now - start_time
-                seconds = elapsed_time.total_seconds()
-                rounded_seconds = round(seconds, 3)
-
-                continued_timestamp = last_timestamp + rounded_seconds
-                
-                # Write current value to CSV
-                # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, true_torque])
-                
-            file.close()
+            now = dt.datetime.now()
+            # Calculate current time, starting from 0 seconds
+            # Then store in global timestamps list 
+            elapsed_time = now - start_time
+            seconds = elapsed_time.total_seconds()
+            rounded_seconds = round(seconds, 3)
+            
+            timestamp_storage.append(rounded_seconds)
+            torque_storage.append(true_torque)
 
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
@@ -122,6 +116,13 @@ def read_torque_sensor():
         print(f"VST End Timestamp: {end_time}")
         print('VST Run Completed!')
         stepper.close()
+        sys.stdout.close()
+
+    all_data = list(zip(timestamp_storage, torque_storage))
+    with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(all_data)
+        file.close()
 
 def torque_sensor_run():
     thread_vst = Thread(target=read_torque_sensor) 
