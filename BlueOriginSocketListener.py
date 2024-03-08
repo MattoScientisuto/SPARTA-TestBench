@@ -12,7 +12,7 @@ from threading import Thread
 # sys.stdout = open("console_log_socketlistener.txt", "a")
 
 HOST = '0.0.0.0'  # Loopback address
-PORT = 80       # Port number your server is listening on
+PORT = 3456       # Port number your server is listening on
 todays_date = date.today().strftime("%m-%d-%Y")
 
 # Start IviumSoft.exe

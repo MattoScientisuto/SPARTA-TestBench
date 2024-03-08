@@ -312,3 +312,13 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - After acquisition and rotation finishes, then we write to the CSV all at once with both arrays
   * Gives less for the system to do during the actual acquisition
    * Writing is most likely just O(1) but now it happens after the important portion of the operation to ensure maximum optimization
+
+3-8-24
+ - Added a new UDP Multicast listener
+  * HAS SUCCESSFULLY RECEIVED MESSAGES FROM WHITE ETHERNET WOOOOO
+   - Multicast has to be set at 224.132.6.1 and port 3456
+    - It's also not binding any IP addresses like the old TCP socket listener, which is how UDP works
+   - IPC main IP is 10.132.6.14
+   - Static IP on receiving MicroPC should be set to 10.132.6.XX (where XX can be anything but 14) (we have it at 17)
+
+  - Currently waiting on XML conflict and IPC software updates from Jed and Laki
