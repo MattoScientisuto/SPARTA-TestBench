@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence
 
 # Created: September 11th, 2023
-# Last Updated: February 28th, 2024
+# Last Updated: March 8th, 2024
 # ============================================ #
 
 # COM25 and 4800 baudrate = IMU

@@ -5,7 +5,7 @@
     <device_configuration>
         <power channel='2' reset='auto' current_limit='2.0'/>
         <power channel='3' reset='auto' current_limit='2.0'/>
-        <stream type='tcp' ip='10.132.5.30' port='80' name='micro_pc'/>
+        <stream type='udp' ip='10.132.6.17' port='3761' name='micro_pc'/>
     </device_configuration>
 
 

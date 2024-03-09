@@ -27,212 +27,48 @@ Corresponding Value: 0
 Task Name: _unnamedTask<0>
 
 Status Code: -200279
+
+====================================================
+ START POINT OF VST LOG: 03-08-2024 at 15:11:14
+====================================================
+
+[03-08-2024, 15:11:14] VST batch successfully started!
+Torque CSV set to: VST_15-11-14.csv
 Rotating forward...
-VST Start Timestamp: 2024-02-28 15:06:27.651296
-
-[02-28-2024, 15:41:41] VST batch successfully started!
-Torque CSV set to: VST_15-41-41.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 15:41:42.639718
-Total time elapsed: 29.799 seconds
-VST End Timestamp: 2024-02-28 15:42:12.439141
-VST Run Completed!
-
-[02-28-2024, 15:45:24] VST batch successfully started!
-Torque CSV set to: VST_15-45-24.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 15:45:25.332247
-Total time elapsed: 29.791 seconds
-VST End Timestamp: 2024-02-28 15:45:55.122944
-VST Run Completed!
-
-[02-28-2024, 15:49:17] VST batch successfully started!
-Torque CSV set to: VST_15-49-17.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 15:49:18.500015
-Total time elapsed: 29.799 seconds
-VST End Timestamp: 2024-02-28 15:49:48.299131
-VST Run Completed!
-
-[02-28-2024, 15:50:34] VST batch successfully started!
-Torque CSV set to: VST_15-50-34.csv
-Exception ignored in: <module 'threading' from 'C:\\Users\\keith\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\threading.py'>
-Traceback (most recent call last):
-  File "C:\Users\keith\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1583, in _shutdown
-    lock.acquire()
-KeyboardInterrupt: 
-Rotating forward...
-VST Start Timestamp: 2024-02-28 15:50:35.348428
-Total time elapsed: 29.807 seconds
-VST End Timestamp: 2024-02-28 15:51:05.155338
-VST Run Completed!
-
-[02-28-2024, 15:55:43] VST batch successfully started!
-Torque CSV set to: VST_15-55-43.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 15:55:43.913411
-Total time elapsed: 29.854 seconds
-VST End Timestamp: 2024-02-28 15:56:13.767490
-VST Run Completed!
-
-[02-28-2024, 16:08:09] VST batch successfully started!
-Torque CSV set to: VST_16-08-09.csv
-
-[02-28-2024, 16:15:47] VST batch successfully started!
-Torque CSV set to: VST_16-15-47.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 16:15:49.007354
-Total time elapsed: 29.798 seconds
-VST End Timestamp: 2024-02-28 16:16:18.805525
-VST Run Completed!
-
-[02-28-2024, 16:27:07] VST batch successfully started!
-Torque CSV set to: VST_16-27-07.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 16:27:08.536409
-Total time elapsed: 29.793 seconds
-VST End Timestamp: 2024-02-28 16:27:38.329198
-VST Run Completed!
-
-[02-28-2024, 16:29:39] VST batch successfully started!
-Torque CSV set to: VST_16-29-39.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 16:29:39.861567
-Total time elapsed: 29.798 seconds
-VST End Timestamp: 2024-02-28 16:30:09.659101
-VST Run Completed!
-
-[02-28-2024, 16:40:39] VST batch successfully started!
-Torque CSV set to: VST_16-40-39.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 16:40:39.941181
-Total time elapsed: 29.801 seconds
-VST End Timestamp: 2024-02-28 16:41:09.742338
-VST Run Completed!
-
-[02-28-2024, 16:43:43] VST batch successfully started!
-Torque CSV set to: VST_16-43-43.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 16:43:43.666091
-Total time elapsed: 14.910 seconds
-VST End Timestamp: 2024-02-28 16:43:58.575976
-VST Run Completed!
-====================================================
- START POINT OF SOCKET LISTENER LOG: 02-28-2024 at 17:27:23
-====================================================
-
-[02-28-2024, 17:27:23] VST batch successfully started!
-Torque CSV set to: VST_17-27-23.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-28 17:27:38.659660
-Total time elapsed: 16.240 seconds
-VST End Timestamp: 2024-02-28 17:27:54.899628
-VST Run Completed!
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 10:06:37
-====================================================
-
-[02-29-2024, 10:06:37] VST batch successfully started!
-Torque CSV set to: VST_10-06-37.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-29 10:06:41.310560
-Total time elapsed: 14.910 seconds
-VST End Timestamp: 2024-02-29 10:06:56.220565
-VST Run Completed!
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 10:36:49
-====================================================
-
-[02-29-2024, 10:36:49] VST batch successfully started!
-Torque CSV set to: VST_10-36-49.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-29 10:37:05.443575
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 13:07:56
-====================================================
-
-[02-29-2024, 13:07:56] VST batch successfully started!
-Torque CSV set to: VST_13-07-56.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-29 13:08:01.084294
-Total time elapsed: 15.228 seconds
-VST End Timestamp: 2024-02-29 13:08:16.312188
-VST Run Completed!
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 13:12:16
-====================================================
-
-[02-29-2024, 13:12:16] VST batch successfully started!
-Torque CSV set to: VST_13-12-16.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-29 13:12:17.637408
-Total time elapsed: 15.580 seconds
-VST End Timestamp: 2024-02-29 13:12:33.217791
-VST Run Completed!
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 13:16:35
-====================================================
-
-[02-29-2024, 13:16:35] VST batch successfully started!
-Torque CSV set to: VST_13-16-35.csv
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 13:19:18
-====================================================
-
-[02-29-2024, 13:19:18] VST batch successfully started!
-Torque CSV set to: VST_13-19-18.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-29 13:19:19.366683
-Total time elapsed: 15.465 seconds
-VST End Timestamp: 2024-02-29 13:19:34.831602
-VST Run Completed!
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 13:21:15
-====================================================
-
-[02-29-2024, 13:21:15] VST batch successfully started!
-Torque CSV set to: VST_13-21-15.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-29 13:21:16.540552
-Total time elapsed: 15.407 seconds
-VST End Timestamp: 2024-02-29 13:21:31.947182
-VST Run Completed!
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 13:22:39
-====================================================
-
-[02-29-2024, 13:22:39] VST batch successfully started!
-Torque CSV set to: VST_13-22-39.csv
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 13:24:34
-====================================================
-
-[02-29-2024, 13:24:34] VST batch successfully started!
-Torque CSV set to: VST_13-24-34.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-29 13:24:35.304620
-Total time elapsed: 15.403 seconds
-VST End Timestamp: 2024-02-29 13:24:50.707255
-VST Run Completed!
-====================================================
- START POINT OF VST LOG: 02-29-2024 at 13:28:30
-====================================================
-
-[02-29-2024, 13:28:30] VST batch successfully started!
-Torque CSV set to: VST_13-28-30.csv
-Rotating forward...
-VST Start Timestamp: 2024-02-29 13:28:31.001416
+VST Start Timestamp: 2024-03-08 15:11:17.935031
 Total time elapsed: 15.410 seconds
-VST End Timestamp: 2024-02-29 13:28:46.411464
+VST End Timestamp: 2024-03-08 15:11:33.345037
 VST Run Completed!
 ====================================================
- START POINT OF VST LOG: 02-29-2024 at 14:04:19
+ START POINT OF VST LOG: 03-08-2024 at 15:21:47
 ====================================================
 
-[02-29-2024, 14:04:19] VST batch successfully started!
-Torque CSV set to: VST_14-04-19.csv
+[03-08-2024, 15:21:47] VST batch successfully started!
+Torque CSV set to: VST_15-21-47.csv
 Rotating forward...
-VST Start Timestamp: 2024-02-29 14:04:20.115982
-Total time elapsed: 15.411 seconds
-VST End Timestamp: 2024-02-29 14:04:35.526586
+VST Start Timestamp: 2024-03-08 15:21:48.436496
+Total time elapsed: 15.400 seconds
+VST End Timestamp: 2024-03-08 15:22:03.836474
+VST Run Completed!
+====================================================
+ START POINT OF VST LOG: 03-08-2024 at 15:32:41
+====================================================
+
+[03-08-2024, 15:32:41] VST batch successfully started!
+Torque CSV set to: VST_15-32-41.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-08 15:32:45.034756
+Total time elapsed: 15.398 seconds
+VST End Timestamp: 2024-03-08 15:33:00.432609
+VST Run Completed!
+====================================================
+ START POINT OF VST LOG: 03-08-2024 at 15:50:51
+====================================================
+
+[03-08-2024, 15:50:51] VST batch successfully started!
+Torque CSV set to: VST_15-50-51.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-08 15:50:55.557688
+Total time elapsed: 15.403 seconds
+VST End Timestamp: 2024-03-08 15:51:10.961033
 VST Run Completed!

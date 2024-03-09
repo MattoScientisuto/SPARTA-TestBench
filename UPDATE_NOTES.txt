@@ -321,4 +321,17 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - IPC main IP is 10.132.6.14
    - Static IP on receiving MicroPC should be set to 10.132.6.XX (where XX can be anything but 14) (we have it at 17)
 
-  - Currently waiting on XML conflict and IPC software updates from Jed and Laki
+  - RECEIVED FIX FROM JED!
+   - Turns out 3456 and 3458 are occupied ports used by the main flight logger
+    - Changed the port to 3761 and all is working now
+  
+  - TEST RESULT WITH TWO DSPS AND FLIGHT SIM RUNNING:
+   - VST can take in data properly now without falling behind
+   - DSP can take in data properly
+   - IMU is most likely fine BUT
+    - SUUUPER inconsistent with 'incorrect baudrate'
+    - Have to ask keith about it next week
+
+  - Fixed XML stream element 
+   - changed IP to 10.132.6.17 and port 3761
+   - renamed to SPARTA_IPC.xml
