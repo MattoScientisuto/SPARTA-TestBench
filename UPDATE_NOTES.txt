@@ -338,6 +338,15 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
 3-11-24
   - Removed old batch and python files (LoadCellCalibration and GUI_Bench)
+
   - Updated DSP delay times 
    - shorter because the new PC is much faster
+
   - Changed file paths for batch files to match new PC
+
+  - IMU inconsistencies fixed
+   - just have to plug the RS-232 into the port with the green tape 
+
+  - Added exit handler for the DSP_IMU script
+   - might not even needed cuz I tested it by unplugging the power while it was running and on start up it saved the logs
+   - might need to test with further conditions

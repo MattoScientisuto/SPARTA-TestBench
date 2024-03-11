@@ -30,6 +30,8 @@ from nidaqmx.constants import BridgePhysicalUnits, ExcitationSource
 from nidaqmx.constants import AcquisitionType, TorqueUnits, BridgeConfiguration, AcquisitionType
 from threading import Thread
 
+import atexit
+
 sys.stdout = open("console_log_dspimu.txt", "a")
 
 # ==================================
@@ -217,7 +219,7 @@ def full_op():
 
     # Power up Ivium and IMU
     start_ivium()
-    # start_imu()
+    start_imu()
 
     Core.IV_open()
     time.sleep(1)
@@ -243,8 +245,15 @@ def full_op():
         print(f'DSP Sweep on both channels completed at: {time_now}\n\n===\n')
         time.sleep(1)
         
-    Core.IV_close()
     
+
+def exit_handler():
+    time_now = dt.datetime.now().strftime("%H:%M:%S")
+    print(f'[{time_now}] Closing out')
+    Core.IV_close()
+    sys.stdout.close()
+atexit.register(exit_handler)
+
 # ===================================
 # Driver Sequence
 

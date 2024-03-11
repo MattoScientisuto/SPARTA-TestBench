@@ -22,7 +22,7 @@ sys.stdout = open("console_log_vstflight.txt", "a")
 
 # ==================================
 # Vane Shear Setup
-stepper = serial.Serial('COM9', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial('COM4', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1655
 vst_duration = 15
