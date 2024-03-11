@@ -338,3 +338,6 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
 3-11-24
   - Removed old batch and python files (LoadCellCalibration and GUI_Bench)
+  - Updated DSP delay times 
+   - shorter because the new PC is much faster
+  - Changed file paths for batch files to match new PC

@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence
 
 # Created: September 11th, 2023
-# Last Updated: March 8th, 2024
+# Last Updated: March 11th, 2024
 # ============================================ #
 
 # COM25 and 4800 baudrate = IMU
@@ -126,7 +126,7 @@ def scan_op():
     print(f"[CHANNEL 1] Scan started at: {time_now}")
     sys.stdout.flush()
     
-    time.sleep(5)
+    time.sleep(2)
     
     # Channel 2
     dsp_methods2 = os.path.join(current_directory, 'dsp_settings', dsp_001method)
@@ -167,15 +167,15 @@ def dsp_wait():
         if status == 1 and status2 == 1:
             return status
         
-        # Check in 15 second intervals
-        time.sleep(15)
+        # Check in 10 second intervals
+        time.sleep(10)
 # Check if IviumSoft is open yet
 def ivium_wait():
     while True:
         ivium_status = "IviumSoft.exe" in (i.name() for i in psutil.process_iter()) 
         
         if ivium_status == True:
-            time.sleep(20)
+            time.sleep(10)
             return ivium_status
             
         time_now = dt.datetime.now().strftime("%H:%M:%S")
@@ -217,7 +217,7 @@ def full_op():
 
     # Power up Ivium and IMU
     start_ivium()
-    start_imu()
+    # start_imu()
 
     Core.IV_open()
     time.sleep(1)

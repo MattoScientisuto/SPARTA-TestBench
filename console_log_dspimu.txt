@@ -52,3 +52,16 @@ DSP Sweep on both channels completed at: 15:52:36
 [CHANNEL 2] Device selected:  (0, 'P33101')
 [CHANNEL 2] IDF replaced with:  P33101_03-08-2024_15-52-37.idf
 [CHANNEL 1] Scan started at: 15:52:37
+====================================================
+ START POINT OF DSP LOG: 03-11-2024 at 14:20:28
+====================================================
+
+[03-11-2024, 14:20:28] Main DSP & IMU batch successfully started!
+Ivium successfully started at: 14:20:48
+IMU Executable successfully started at: 14:20:54
+
+[CHANNEL 1] Device selected:  (0, '')
+[CHANNEL 1] IDF set to:  _03-11-2024_14-21-02.idf
+[CHANNEL 2] Device selected:  (0, '')
+[CHANNEL 2] IDF set to:  _03-11-2024_14-21-02.idf
+[CHANNEL 1] Scan started at: 14:21:02
