@@ -335,3 +335,6 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Fixed XML stream element 
    - changed IP to 10.132.6.17 and port 3761
    - renamed to SPARTA_IPC.xml
+
+3-11-24
+  - Removed old batch and python files (LoadCellCalibration and GUI_Bench)
