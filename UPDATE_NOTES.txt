@@ -350,3 +350,7 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Added exit handler for the DSP_IMU script
    - might not even needed cuz I tested it by unplugging the power while it was running and on start up it saved the logs
    - might need to test with further conditions
+
+3-15-24
+  - Added new Arduino base commands code from Firgelli Automation for the new Feedback Linear Actuator
+   - Includes the essential commands for calibration
