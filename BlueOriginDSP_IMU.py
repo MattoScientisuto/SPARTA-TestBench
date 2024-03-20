@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence
 
 # Created: September 11th, 2023
-# Last Updated: March 11th, 2024
+# Last Updated: March 20th, 2024
 # ============================================ #
 
 # COM25 and 4800 baudrate = IMU
@@ -15,7 +15,6 @@ from pyvium import Tools
 
 import os
 import sys
-import csv
 
 from datetime import date, datetime
 import datetime as dt
@@ -24,13 +23,7 @@ import time
 import subprocess
 import psutil
 
-import serial
-import nidaqmx
-from nidaqmx.constants import BridgePhysicalUnits, ExcitationSource
-from nidaqmx.constants import AcquisitionType, TorqueUnits, BridgeConfiguration, AcquisitionType
 from threading import Thread
-
-import atexit
 
 sys.stdout = open("console_log_dspimu.txt", "a")
 
@@ -44,7 +37,7 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 todays_date = date.today().strftime("%m-%d-%Y")
 todays_time = datetime.now().strftime("%H:%M:%S")
 print(f'====================================================\n START POINT OF DSP LOG: {todays_date} at {todays_time}\n====================================================')
-
+sys.stdout.flush()
 # Data output directories for each component
 dsp_dir = f'.\\data_output\\dsp\\{todays_date}'
 
@@ -84,6 +77,8 @@ def get_dsp_idf():
     else:
         dsp_idf2[0] = input2
         print("[CHANNEL 2] IDF replaced with: ", input2)
+
+    sys.stdout.flush()
 
 # EIS230724140245.imf = 0.01V for samples < 1.0% water
 # EIS230724135821.imf = 0.5V for samples >= 1.0% water
@@ -138,18 +133,20 @@ def scan_op():
     Core.IV_startmethod(dsp_methods2)
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f"[CHANNEL 2] Scan started at: {time_now}")
+    sys.stdout.flush()
 
 # After the scanning finishes, user can save the data to the output folder
 def save_idf():
     Core.IV_SelectChannel(1)
     dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
     print("[CHANNEL 1] IDF saved: ", Core.IV_savedata(dsp_output))
-    
+    sys.stdout.flush()
     time.sleep(1)
     
     Core.IV_SelectChannel(2)
     dsp_output2 = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf2[0])
     print("[CHANNEL 2] IDF saved: ", Core.IV_savedata(dsp_output2))
+    sys.stdout.flush()
 
 # Check if IMU LabView program is open yet
 def dsp_wait():
@@ -204,6 +201,7 @@ def start_ivium():
     ivium_wait()
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'Ivium successfully started at: {time_now}')
+    sys.stdout.flush()
 # Start IMU VI
 def start_imu():  
     imu_path = os.path.join(os.path.dirname(__file__), 'start_IMU.bat')
@@ -211,6 +209,7 @@ def start_imu():
     imu_wait()
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'IMU Executable successfully started at: {time_now}\n')
+    sys.stdout.flush()
 
 def full_op():
 
@@ -234,25 +233,20 @@ def full_op():
         scan_op()
         
         print('Pre-wait DSP check 12-second-delay started')
+        sys.stdout.flush()
         time.sleep(12)
         print('Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!')
+        sys.stdout.flush()
 
         status = dsp_wait()
         print(f'All Devices Statuses: {status}, Idle & ready to restart!')
-        
+        sys.stdout.flush()
+
         save_idf()
         time_now = dt.datetime.now().strftime("%H:%M:%S")
         print(f'DSP Sweep on both channels completed at: {time_now}\n\n===\n')
+        sys.stdout.flush()
         time.sleep(1)
-        
-    
-
-def exit_handler():
-    time_now = dt.datetime.now().strftime("%H:%M:%S")
-    print(f'[{time_now}] Closing out')
-    Core.IV_close()
-    sys.stdout.close()
-atexit.register(exit_handler)
 
 # ===================================
 # Driver Sequence

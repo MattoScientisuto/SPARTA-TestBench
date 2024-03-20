@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: Vane Shear Only
 
 # Created: February 16th, 2024
-# Last Updated: February 29th, 2024
+# Last Updated: March 20th, 2024
 # ============================================ #
 
 import os
@@ -56,6 +56,8 @@ def get_torque_csv():
         torque_csv[0] = input
         print("Torque CSV replaced with:", input)
     
+    sys.stdout.flush()
+
     # If today's date doesn't have an output folder yet, make one
     # Otherwise, continue
     if not os.path.exists(vst_dir):
@@ -68,10 +70,11 @@ def get_torque_csv():
         file.close()
 
 def rotate_vst():
-    stepper.write(f'@0N{vst_duration * 15000}\r'.encode())
+    stepper.write(f'@0N{vst_duration * 1500}\r'.encode())
     stepper.write('@0G\r'.encode())   
     stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
+    sys.stdout.flush()
 
 def read_torque_sensor():
     global total_time
@@ -95,7 +98,7 @@ def read_torque_sensor():
         rotate_vst()
         start_time = dt.datetime.now()
         print(f"VST Start Timestamp: {start_time}")
-
+        sys.stdout.flush()
         with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
             writer = csv.writer(file)
 
@@ -117,6 +120,7 @@ def read_torque_sensor():
             print("Total time elapsed: {:.3f} seconds".format(total_time))
             print(f"VST End Timestamp: {end_time}")
             print('VST Run Completed!')
+            sys.stdout.flush()
             stepper.close()
             file.close()
             sys.stdout.close()
@@ -134,4 +138,5 @@ def go_vst():
 # Driver Sequence
 time_now = dt.datetime.now().strftime("%H:%M:%S")
 print(f'\n[{todays_date}, {time_now}] VST batch successfully started!')
+sys.stdout.flush()
 go_vst()

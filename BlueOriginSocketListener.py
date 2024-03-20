@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: IPC UDP Listener
 
 # Created: February 16th, 2024
-# Last Updated: March 8th, 2024
+# Last Updated: March 20th, 2024
 # ============================================ #
 
 import socket
@@ -54,37 +54,41 @@ sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 todays_time = datetime.now().strftime("%H:%M:%S")
 print(f'===========================================================\n START POINT OF SOCKET LISTENER LOG: {todays_date} at {todays_time}\n===========================================================')
+sys.stdout.flush()
 
 # Receive/respond loop
 while True:
     print('\nWaiting to receive flight event...')
     data, address = sock.recvfrom(1024)
+    sys.stdout.flush()
 
     message = data.decode('utf-8')
     curr_time = datetime.now().strftime("%H:%M:%S")
     print('Received {} bytes from {}'.format(len(data), address))
     print(f'[{curr_time}] Received: {message}')
+    sys.stdout.flush()
     
     if message == "escape_enabled":
         curr_time = datetime.now().strftime("%H:%M:%S")
         print(f'[{curr_time}] REACHED ESCAPE ENABLED!')
+        sys.stdout.flush()
     if message == "meco":
         curr_time = datetime.now().strftime("%H:%M:%S")
         print(f'[{curr_time}] REACHED MECO!')
+        sys.stdout.flush()
     if message == "coast_start":
         curr_time = datetime.now().strftime("%H:%M:%S")
         print(f'[{curr_time}] REACHED COAST_START!')
         print(f'[{curr_time}] Starting VST batch now!')
+        sys.stdout.flush()
         thread_flightvst()
 
-    # Once the flight reaches 'safing', we can safely break,
+    # Once the flight reaches 'drogue_chutes', we can safely break,
     # close out, and save our event logging
     if message == "drogue_chutes":
         curr_time = datetime.now().strftime("%H:%M:%S")
         print(f'[{curr_time}] REACHED DROGUE CHUTES! TIME TO END THE LISTENING CYAA')
+        sys.stdout.flush()
         sys.stdout.close()
         sock.close()
         break
-
-# Close the socket
-

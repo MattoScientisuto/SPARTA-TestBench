@@ -148,3 +148,85 @@ Waiting to receive flight event...
 Received 6 bytes from ('10.132.6.14', 3761)
 [15:00:17] Received: safing
 [15:00:17] REACHED SAFING! TIME TO END THE LISTENING CYAA
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-20-2024 at 10:40:30
+===========================================================
+
+Waiting to receive flight event...
+Received 7 bytes from ('10.132.6.14', 3761)
+[10:44:58] Received: liftoff
+
+Waiting to receive flight event...
+Received 4 bytes from ('10.132.6.14', 3761)
+[10:47:12] Received: meco
+[10:47:12] REACHED MECO!
+
+Waiting to receive flight event...
+Received 10 bytes from ('10.132.6.14', 3761)
+[10:47:27] Received: separation
+
+Waiting to receive flight event...
+Received 11 bytes from ('10.132.6.14', 3761)
+[10:47:48] Received: coast_start
+[10:47:48] REACHED COAST_START!
+[10:47:48] Starting VST batch now!
+
+Waiting to receive flight event...
+Received 13 bytes from ('10.132.6.14', 3761)
+[10:53:11] Received: drogue_chutes
+[10:53:11] REACHED DROGUE CHUTES! TIME TO END THE LISTENING CYAA
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-20-2024 at 11:43:49
+===========================================================
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-20-2024 at 11:45:56
+===========================================================
+
+Waiting to receive flight event...
+Received 7 bytes from ('10.132.6.14', 3761)
+[11:50:24] Received: liftoff
+
+Waiting to receive flight event...
+Received 4 bytes from ('10.132.6.14', 3761)
+[11:52:39] Received: meco
+[11:52:39] REACHED MECO!
+
+Waiting to receive flight event...
+Received 10 bytes from ('10.132.6.14', 3761)
+[11:52:54] Received: separation
+
+Waiting to receive flight event...
+Received 11 bytes from ('10.132.6.14', 3761)
+[11:53:14] Received: coast_start
+[11:53:14] REACHED COAST_START!
+[11:53:14] Starting VST batch now!
+
+Waiting to receive flight event...
+Received 13 bytes from ('10.132.6.14', 3761)
+[11:58:38] Received: drogue_chutes
+[11:58:38] REACHED DROGUE CHUTES! TIME TO END THE LISTENING CYAA
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-20-2024 at 13:14:12
+===========================================================
+
+Waiting to receive flight event...
+Received 7 bytes from ('10.132.6.14', 3761)
+[13:17:52] Received: liftoff
+
+Waiting to receive flight event...
+Received 4 bytes from ('10.132.6.14', 3761)
+[13:20:07] Received: meco
+[13:20:07] REACHED MECO!
+
+Waiting to receive flight event...
+Received 10 bytes from ('10.132.6.14', 3761)
+[13:20:22] Received: separation
+
+Waiting to receive flight event...
+Received 11 bytes from ('10.132.6.14', 3761)
+[13:20:42] Received: coast_start
+[13:20:42] REACHED COAST_START!
+[13:20:42] Starting VST batch now!
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-20-2024 at 13:45:59
+===========================================================

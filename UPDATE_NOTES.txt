@@ -363,3 +363,12 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - Needs to end before the power is cut off or else the log will not save
 
   - VST_17-02-05.csv is the one successful full run
+
+3-20-24
+  - Added sys.out flushes to every print sequence in all Blue Origin scripts 
+   - This appends the print outputs in real time instead of waiting until the script and file closes
+   * We cannot risk the file or script not ending properly with the power cutoff and not logging any timestamps
+
+  - Added a service start batch for 'NI Device Loader' / 'nidevldu' service
+   - NI Device Loader has been very inconsistent turning on at PC startup
+   - If it isn't started, the VST will not be able to rotate or log any data because the DAQ isn't connected properly
