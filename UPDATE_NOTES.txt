@@ -372,3 +372,5 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Added a service start batch for 'NI Device Loader' / 'nidevldu' service
    - NI Device Loader has been very inconsistent turning on at PC startup
    - If it isn't started, the VST will not be able to rotate or log any data because the DAQ isn't connected properly
+
+  - Reset the console_log texts to only show the runs that were legit

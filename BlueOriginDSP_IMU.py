@@ -166,8 +166,8 @@ def dsp_wait():
         if status == 1 and status2 == 1:
             return status
         
-        # Check in 10 second intervals
-        time.sleep(10)
+        # Check in 5 second intervals
+        time.sleep(5)
 # Check if IviumSoft is open yet
 def ivium_wait():
     while True:
