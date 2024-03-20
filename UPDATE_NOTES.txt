@@ -354,3 +354,12 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 3-15-24
   - Added new Arduino base commands code from Firgelli Automation for the new Feedback Linear Actuator
    - Includes the essential commands for calibration
+
+3-19-24
+  - Reverted Blue Origin VST back to appending to CSV in real time
+   - Can't risk the monitoring not finishing and not having any data at all
+
+  - Changed Blue Origin SocketListener to end on 'drogue_chutes'
+   - Needs to end before the power is cut off or else the log will not save
+
+  - VST_17-02-05.csv is the one successful full run

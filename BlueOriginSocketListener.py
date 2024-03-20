@@ -79,11 +79,12 @@ while True:
 
     # Once the flight reaches 'safing', we can safely break,
     # close out, and save our event logging
-    if message == "safing":
+    if message == "drogue_chutes":
         curr_time = datetime.now().strftime("%H:%M:%S")
-        print(f'[{curr_time}] REACHED SAFING! TIME TO END THE LISTENING CYAA')
+        print(f'[{curr_time}] REACHED DROGUE CHUTES! TIME TO END THE LISTENING CYAA')
+        sys.stdout.close()
+        sock.close()
         break
 
 # Close the socket
-sys.stdout.close()
-sock.close()
+

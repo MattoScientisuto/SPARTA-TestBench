@@ -22,10 +22,10 @@ sys.stdout = open("console_log_vstflight.txt", "a")
 
 # ==================================
 # Vane Shear Setup
-stepper = serial.Serial('COM4', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial('COM3', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1655
-vst_duration = 15
+vst_duration = 40
 torque_csv = []
 
 timestamp_storage = []
@@ -64,11 +64,11 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Raw Reading]"])
+        writer.writerow(["Timestamp (seconds)", "Torque [Raw Reading]", "Torque [Absolute Value]"])
         file.close()
 
 def rotate_vst():
-    stepper.write(f'@0N{vst_duration * 1500}\r'.encode())
+    stepper.write(f'@0N{vst_duration * 15000}\r'.encode())
     stepper.write('@0G\r'.encode())   
     stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
@@ -85,7 +85,7 @@ def read_torque_sensor():
         # Then choose the units + sample rate + acquisition type
 
         # BlueOrigin == "Dev1/ai0" REMEMBER TO CHANGE BACK LATER
-        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ1Mod1/ai1", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("Dev1/ai3", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.NEWTON_METERS)
         ai_task.timing.cfg_samp_clk_timing(rate=50,sample_mode=AcquisitionType.CONTINUOUS)
@@ -96,33 +96,31 @@ def read_torque_sensor():
         start_time = dt.datetime.now()
         print(f"VST Start Timestamp: {start_time}")
 
-        for i in range(vst_samples):
-            torque = ai_task.read()     # Read current value
-            true_torque = abs(torque)
+        with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
+            writer = csv.writer(file)
 
-            now = dt.datetime.now()
-            # Calculate current time, starting from 0 seconds
-            # Then store in global timestamps list 
-            elapsed_time = now - start_time
-            seconds = elapsed_time.total_seconds()
-            rounded_seconds = round(seconds, 3)
+            for i in range(vst_samples):
+                torque = ai_task.read()     # Read current value
+                true_torque = abs(torque)
+
+                now = dt.datetime.now()
+                # Calculate current time, starting from 0 seconds
+                # Then store in global timestamps list 
+                elapsed_time = now - start_time
+                seconds = elapsed_time.total_seconds()
+                rounded_seconds = round(seconds, 3)
+                
+                writer.writerow([rounded_seconds, torque, true_torque])
+
+            end_time = dt.datetime.now() 
+            total_time = (end_time - start_time).total_seconds()
+            print("Total time elapsed: {:.3f} seconds".format(total_time))
+            print(f"VST End Timestamp: {end_time}")
+            print('VST Run Completed!')
+            stepper.close()
+            file.close()
+            sys.stdout.close()
             
-            timestamp_storage.append(rounded_seconds)
-            torque_storage.append(true_torque)
-
-        end_time = dt.datetime.now() 
-        total_time = (end_time - start_time).total_seconds()
-        print("Total time elapsed: {:.3f} seconds".format(total_time))
-        print(f"VST End Timestamp: {end_time}")
-        print('VST Run Completed!')
-        stepper.close()
-        sys.stdout.close()
-
-    all_data = list(zip(timestamp_storage, torque_storage))
-    with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(all_data)
-        file.close()
 
 def torque_sensor_run():
     thread_vst = Thread(target=read_torque_sensor) 
