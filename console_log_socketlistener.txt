@@ -267,3 +267,28 @@ Received 13 bytes from ('10.132.6.14', 3761)
 ===========================================================
  START POINT OF SOCKET LISTENER LOG: 03-20-2024 at 16:11:45
 ===========================================================
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-20-2024 at 16:25:37
+===========================================================
+
+Waiting to receive flight event...
+Received 7 bytes from ('10.132.6.14', 3761)
+[16:29:04] Received: liftoff
+
+Waiting to receive flight event...
+Received 4 bytes from ('10.132.6.14', 3761)
+[16:31:19] Received: meco
+[16:31:19] REACHED MECO!
+
+Waiting to receive flight event...
+Received 10 bytes from ('10.132.6.14', 3761)
+[16:31:33] Received: separation
+
+Waiting to receive flight event...
+Received 11 bytes from ('10.132.6.14', 3761)
+[16:31:54] Received: coast_start
+[16:31:54] REACHED COAST_START!
+[16:31:54] Starting VST batch now!
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-21-2024 at 12:59:53
+===========================================================

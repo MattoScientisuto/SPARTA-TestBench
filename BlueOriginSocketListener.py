@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: IPC UDP Listener
 
 # Created: February 16th, 2024
-# Last Updated: March 20th, 2024
+# Last Updated: March 21th, 2024
 # ============================================ #
 
 import socket
@@ -21,9 +21,11 @@ sys.stdout = open("console_log_socketlistener.txt", "a")
 
 todays_date = date.today().strftime("%m-%d-%Y")
 
-# Start IviumSoft.exe
 def start_flightvst():
     fvst_path = os.path.join(os.path.dirname(__file__), 'start_BlueOriginVST.bat')
+    subprocess.call([fvst_path])
+def start_finalflightvst():
+    fvst_path = os.path.join(os.path.dirname(__file__), 'start_BlueOriginFinalVST.bat')
     subprocess.call([fvst_path])
 
 # Threading the VST batch file so it won't halt 
@@ -31,6 +33,9 @@ def start_flightvst():
 # IPC signals while it's still rotating/running.
 def thread_flightvst():
     thread_vst = Thread(target=start_flightvst) 
+    thread_vst.start()
+def thread_finalflightvst():
+    thread_vst = Thread(target=start_finalflightvst) 
     thread_vst.start()
 
 # Set up the socket
@@ -72,10 +77,12 @@ while True:
         curr_time = datetime.now().strftime("%H:%M:%S")
         print(f'[{curr_time}] REACHED ESCAPE ENABLED!')
         sys.stdout.flush()
+
     if message == "meco":
         curr_time = datetime.now().strftime("%H:%M:%S")
         print(f'[{curr_time}] REACHED MECO!')
         sys.stdout.flush()
+
     if message == "coast_start":
         curr_time = datetime.now().strftime("%H:%M:%S")
         print(f'[{curr_time}] REACHED COAST_START!')
@@ -83,11 +90,15 @@ while True:
         sys.stdout.flush()
         thread_flightvst()
 
-    # Once the flight reaches 'drogue_chutes', we can safely break,
-    # close out, and save our event logging
-    if message == "drogue_chutes":
+    if message == "safing":
         curr_time = datetime.now().strftime("%H:%M:%S")
-        print(f'[{curr_time}] REACHED DROGUE CHUTES! TIME TO END THE LISTENING CYAA')
+        print(f'[{curr_time}] REACHED SAFING!')
+        print(f'[{curr_time}] Starting final VST batch now!')
+        sys.stdout.flush()
+        thread_finalflightvst()
+
+        curr_time = datetime.now().strftime("%H:%M:%S")
+        print(f'[{curr_time}] FINAL VST HAS FINISHED, PEACE OUT!')
         sys.stdout.flush()
         sys.stdout.close()
         sock.close()

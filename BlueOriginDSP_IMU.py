@@ -211,11 +211,21 @@ def start_imu():
     print(f'IMU Executable successfully started at: {time_now}\n')
     sys.stdout.flush()
 
+def start_groundvst():
+    fvst_path = os.path.join(os.path.dirname(__file__), 'start_BlueOriginGroundVST.bat')
+    subprocess.call([fvst_path])
+def thread_groundvst():
+    time_now = dt.datetime.now().strftime("%H:%M:%S")
+    print(f'[{time_now}] Starting Ground VST batch...')
+    sys.stdout.flush()
+    thread_vst = Thread(target=start_groundvst) 
+    thread_vst.start()
+
 def full_op():
 
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'\n[{todays_date}, {time_now}] Main DSP & IMU batch successfully started!')
-
+    thread_groundvst()
     # Power up Ivium and IMU
     start_ivium()
     start_imu()

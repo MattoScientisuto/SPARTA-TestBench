@@ -374,3 +374,10 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - If it isn't started, the VST will not be able to rotate or log any data because the DAQ isn't connected properly
 
   - Reset the console_log texts to only show the runs that were legit
+
+3-21-24
+  - Added Ground and Final Landing VST batches
+   - One initial run before liftoff
+   - One during the safing period before the ship powers down
+
+  - Changed main lunar gravity VSTs to run 3 times

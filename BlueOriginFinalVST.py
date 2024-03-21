@@ -1,9 +1,9 @@
 # ============================================ #
 # Author: Matthew Duong (US 3223 Affiliate)
 # SPARTA Test Bench 
-# Blue Origin DSP Sequence: Vane Shear Only
+# Blue Origin DSP Sequence: Final Vane Shear
 
-# Created: February 16th, 2024
+# Created: March 21th, 2024
 # Last Updated: March 21th, 2024
 # ============================================ #
 
@@ -37,7 +37,7 @@ todays_date = date.today().strftime("%m-%d-%Y")
 vst_dir = f'.\\data_output\\vst\\{todays_date}'
 
 todays_time = datetime.now().strftime("%H:%M:%S")
-print(f'====================================================\n START POINT OF LUNAR GRAVITY VST LOG: {todays_date} at {todays_time}\n====================================================')
+print(f'====================================================\n START POINT OF LANDING VST LOG: {todays_date} at {todays_time}\n====================================================')
 
 # Get Torque CSV log name
 def get_torque_csv():
@@ -75,24 +75,17 @@ def rotate_vst():
     print('Rotating forward...')
     sys.stdout.flush()
 
-def read_torque_sensor():
+def final_landing_vst():
     global total_time
-    global run_counter
 
     vst_samples = int(sample_rate * vst_duration)
     
     with nidaqmx.Task() as ai_task:
          
-        # Setup the NI cDAQ-9174 + DAQ 9237 module
-        # Specify the DAQ port (find using NI-MAX)
-        # Then choose the units + sample rate + acquisition type
-
-        # BlueOrigin == "Dev1/ai0" REMEMBER TO CHANGE BACK LATER
         ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("Dev1/ai3", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.NEWTON_METERS)
         ai_task.timing.cfg_samp_clk_timing(rate=50,sample_mode=AcquisitionType.CONTINUOUS)
-        # ai_task.in_stream.input_buf_size = 5000
         
         ai_task.start()
         rotate_vst()
@@ -103,12 +96,10 @@ def read_torque_sensor():
             writer = csv.writer(file)
 
             for i in range(vst_samples):
-                torque = ai_task.read()     # Read current value
+                torque = ai_task.read()
                 true_torque = abs(torque)
 
                 now = dt.datetime.now()
-                # Calculate current time, starting from 0 seconds
-                # Then store in global timestamps list 
                 elapsed_time = now - start_time
                 seconds = elapsed_time.total_seconds()
                 rounded_seconds = round(seconds, 3)
@@ -121,18 +112,12 @@ def read_torque_sensor():
             print(f"VST End Timestamp: {end_time}")
             print('VST Run Completed!\n')
             sys.stdout.flush()
-            run_counter+=1
             file.close()
-
-            if run_counter == 3:
-                stepper.close()
-                sys.stdout.close()
-            else:
-                time.sleep(2)
-                go_vst()
+            stepper.close()
+            sys.stdout.close()
 
 def torque_sensor_run():
-    thread_vst = Thread(target=read_torque_sensor) 
+    thread_vst = Thread(target=final_landing_vst) 
     thread_vst.start()
 
 def go_vst():
@@ -142,6 +127,6 @@ def go_vst():
 # ===================================
 # Driver Sequence
 time_now = dt.datetime.now().strftime("%H:%M:%S")
-print(f'\n[{todays_date}, {time_now}] VST batch successfully started!')
+print(f'\n[{todays_date}, {time_now}] Landing VST batch successfully started!')
 sys.stdout.flush()
 go_vst()
