@@ -425,7 +425,7 @@ def read_torque_sensor():
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
         ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ2Mod1/ai1", units=TorqueUnits.INCH_POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
-                                                                    voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
+                                                                    voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.INCH_POUNDS)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
         ai_task.in_stream.input_buf_size = 5000

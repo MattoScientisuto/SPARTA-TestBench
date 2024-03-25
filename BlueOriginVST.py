@@ -65,7 +65,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Raw Reading]", "Torque [Absolute Value]"])
+        writer.writerow(["Timestamp (seconds)", "Torque (inch-lb) [Raw Reading]", "Torque (inch-lb) [Absolute Value]"])
         file.close()
 
 def rotate_vst():
@@ -88,10 +88,10 @@ def read_torque_sensor():
         # Then choose the units + sample rate + acquisition type
 
         # BlueOrigin == "Dev1/ai0" REMEMBER TO CHANGE BACK LATER
-        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("Dev1/ai3", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
-                                                                    voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
-                                                                    physical_units=BridgePhysicalUnits.NEWTON_METERS)
-        ai_task.timing.cfg_samp_clk_timing(rate=50,sample_mode=AcquisitionType.CONTINUOUS)
+        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("Dev1/ai3", units=TorqueUnits.INCH_POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+                                                                    voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0, 
+                                                                    physical_units=BridgePhysicalUnits.INCH_POUNDS)
+        ai_task.timing.cfg_samp_clk_timing(rate=1600,sample_mode=AcquisitionType.CONTINUOUS)
         # ai_task.in_stream.input_buf_size = 5000
         
         ai_task.start()

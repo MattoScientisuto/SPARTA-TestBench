@@ -251,3 +251,75 @@ Total time elapsed: 29.780 seconds
 VST End Timestamp: 2024-03-21 14:49:11.541643
 VST Run Completed!
 
+============================================================================================================
+VST 03-25-2024 at 10:41:34
+======================================================
+ START POINT OF GROUND VST LOG: 03-25-2024 at 10:41:34
+======================================================
+
+[03-25-2024, 10:41:34] Ground VST batch successfully started!
+Torque CSV set to: VST_10-41-34_03-25-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-25 10:42:01.862360
+Total time elapsed: 29.778 seconds
+VST End Timestamp: 2024-03-25 10:42:31.639914
+VST Run Completed!
+
+=============================================================
+ START POINT OF LUNAR GRAVITY VST LOG: 03-25-2024 at 10:48:12
+=============================================================
+
+[03-25-2024, 10:48:12] VST batch successfully started!
+Torque CSV set to: VST_10-48-12_03-25-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-25 10:48:14.180932
+Total time elapsed: 29.776 seconds
+VST End Timestamp: 2024-03-25 10:48:43.956848
+VST Run Completed!
+
+Torque CSV replaced with: VST_10-48-45_03-25-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-25 10:48:46.058035
+Total time elapsed: 29.773 seconds
+VST End Timestamp: 2024-03-25 10:49:15.831019
+VST Run Completed!
+
+Torque CSV replaced with: VST_10-49-17_03-25-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-25 10:49:17.933872
+Total time elapsed: 29.776 seconds
+VST End Timestamp: 2024-03-25 10:49:47.709531
+VST Run Completed!
+
+Torque CSV replaced with: VST_10-49-49_03-25-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-25 10:49:49.809406
+Total time elapsed: 29.786 seconds
+VST End Timestamp: 2024-03-25 10:50:19.595352
+VST Run Completed!
+
+Torque CSV replaced with: VST_10-50-21_03-25-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-25 10:50:21.696209
+Total time elapsed: 29.779 seconds
+VST End Timestamp: 2024-03-25 10:50:51.475692
+VST Run Completed!
+
+Torque CSV replaced with: VST_10-50-53_03-25-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-25 10:50:53.571118
+Total time elapsed: 29.786 seconds
+VST End Timestamp: 2024-03-25 10:51:23.356962
+VST Run Completed!
+
+=======================================================
+ START POINT OF LANDING VST LOG: 03-25-2024 at 10:55:34
+=======================================================
+
+[03-25-2024, 10:55:34] Landing VST batch successfully started!
+Torque CSV set to: VST_10-55-34_03-25-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-03-25 10:55:35.392702
+Total time elapsed: 29.782 seconds
+VST End Timestamp: 2024-03-25 10:56:05.174202
+VST Run Completed!
