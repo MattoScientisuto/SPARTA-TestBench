@@ -1152,4 +1152,234 @@ DSP Sweep on both channels completed at: 16:32:37
 [CHANNEL 1] Scan started at: 16:32:39
 [CHANNEL 2] Scan started at: 16:32:42
 Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!====================================================
+ START POINT OF DSP LOG: 03-21-2024 at 14:16:44
+====================================================
+
+[03-21-2024, 14:16:44] Main DSP & IMU batch successfully started!
+[14:16:44] Starting Ground VST batch...
+Ivium successfully started at: 14:16:55
+IMU Executable successfully started at: 14:17:00
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF set to:  P28659_03-21-2024_14-17-12.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF set to:  P33101_03-21-2024_14-17-12.idf
+[CHANNEL 1] Scan started at: 14:17:13
+[CHANNEL 2] Scan started at: 14:17:16
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-17-12.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-17-12.idf')
+DSP Sweep on both channels completed at: 14:19:18
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-19-19.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-19-19.idf
+[CHANNEL 1] Scan started at: 14:19:20
+[CHANNEL 2] Scan started at: 14:19:23
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-19-19.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-19-19.idf')
+DSP Sweep on both channels completed at: 14:21:31
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-21-32.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-21-32.idf
+[CHANNEL 1] Scan started at: 14:21:33
+[CHANNEL 2] Scan started at: 14:21:36
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-21-32.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-21-32.idf')
+DSP Sweep on both channels completed at: 14:23:37
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-23-38.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-23-39.idf
+[CHANNEL 1] Scan started at: 14:23:39
+[CHANNEL 2] Scan started at: 14:23:43
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-23-38.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-23-39.idf')
+DSP Sweep on both channels completed at: 14:25:44
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-25-45.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-25-45.idf
+[CHANNEL 1] Scan started at: 14:25:46
+[CHANNEL 2] Scan started at: 14:25:49
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-25-45.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-25-45.idf')
+DSP Sweep on both channels completed at: 14:27:50
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-27-51.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-27-51.idf
+[CHANNEL 1] Scan started at: 14:27:52
+[CHANNEL 2] Scan started at: 14:27:55
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-27-51.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-27-51.idf')
+DSP Sweep on both channels completed at: 14:29:56
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-29-57.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-29-57.idf
+[CHANNEL 1] Scan started at: 14:29:58
+[CHANNEL 2] Scan started at: 14:30:02
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+====================================================
+ START POINT OF DSP LOG: 03-21-2024 at 14:34:07
+====================================================
+
+[03-21-2024, 14:34:07] Main DSP & IMU batch successfully started!
+[14:34:07] Starting Ground VST batch...
+Ivium successfully started at: 14:34:17
+IMU Executable successfully started at: 14:34:22
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF set to:  P28659_03-21-2024_14-34-34.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF set to:  P33101_03-21-2024_14-34-34.idf
+[CHANNEL 1] Scan started at: 14:34:35
+[CHANNEL 2] Scan started at: 14:34:38
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-34-34.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-34-34.idf')
+DSP Sweep on both channels completed at: 14:36:40
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-36-41.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-36-41.idf
+[CHANNEL 1] Scan started at: 14:36:42
+[CHANNEL 2] Scan started at: 14:36:45
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-36-41.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-36-41.idf')
+DSP Sweep on both channels completed at: 14:38:52
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-38-53.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-38-54.idf
+[CHANNEL 1] Scan started at: 14:38:54
+[CHANNEL 2] Scan started at: 14:38:58
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-38-53.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-38-54.idf')
+DSP Sweep on both channels completed at: 14:41:06
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-41-07.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-41-07.idf
+[CHANNEL 1] Scan started at: 14:41:08
+[CHANNEL 2] Scan started at: 14:41:11
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-41-07.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-41-07.idf')
+DSP Sweep on both channels completed at: 14:43:18
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-43-19.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-43-19.idf
+[CHANNEL 1] Scan started at: 14:43:20
+[CHANNEL 2] Scan started at: 14:43:23
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-43-19.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-43-19.idf')
+DSP Sweep on both channels completed at: 14:45:25
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-45-26.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-45-26.idf
+[CHANNEL 1] Scan started at: 14:45:27
+[CHANNEL 2] Scan started at: 14:45:30
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+All Devices Statuses: 1, Idle & ready to restart!
+[CHANNEL 1] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P28659_03-21-2024_14-45-26.idf')
+[CHANNEL 2] IDF saved:  (0, 'C:\\Users\\Bob Anderson\\Desktop\\Bench_Repo\\data_output\\dsp\\03-21-2024\\P33101_03-21-2024_14-45-26.idf')
+DSP Sweep on both channels completed at: 14:47:33
+
+===
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF replaced with:  P28659_03-21-2024_14-47-34.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF replaced with:  P33101_03-21-2024_14-47-34.idf
+[CHANNEL 1] Scan started at: 14:47:35
+[CHANNEL 2] Scan started at: 14:47:38
+Pre-wait DSP check 12-second-delay started
+Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!
+====================================================
+ START POINT OF DSP LOG: 03-25-2024 at 10:09:44
+====================================================
+
+[03-25-2024, 10:09:44] Main DSP & IMU batch successfully started!
+[10:09:44] Starting Ground VST batch...
+Ivium successfully started at: 10:09:54
+IMU Executable successfully started at: 10:09:59
+
+[CHANNEL 1] Device selected:  (0, 'P28659')
+[CHANNEL 1] IDF set to:  P28659_03-25-2024_10-10-11.idf
+[CHANNEL 2] Device selected:  (0, 'P33101')
+[CHANNEL 2] IDF set to:  P33101_03-25-2024_10-10-11.idf
+[CHANNEL 1] Scan started at: 10:10:12
+[CHANNEL 2] Scan started at: 10:10:15
+Pre-wait DSP check 12-second-delay started
 Pre-wait DSP check delay ended, start periodically checking DSP Channels 1 and 2 for completion!

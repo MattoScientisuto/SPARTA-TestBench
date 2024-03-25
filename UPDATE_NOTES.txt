@@ -371,6 +371,8 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   - Added a service start batch for 'NI Device Loader' / 'nidevldu' service
    - NI Device Loader has been very inconsistent turning on at PC startup
+    - Most of the time it does, but there are times where it doesn't start on its own
+    - This batch acts as a failsafe
    - If it isn't started, the VST will not be able to rotate or log any data because the DAQ isn't connected properly
 
   - Reset the console_log texts to only show the runs that were legit
@@ -379,5 +381,8 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Added Ground and Final Landing VST batches
    - One initial run before liftoff
    - One during the safing period before the ship powers down
+  - Also includes an XML update
+   - 'safing' triggers the final VST first
+   - Simultaneously, it triggers a 50 second delay before power is cut off to finish the run first
 
-  - Changed main lunar gravity VSTs to run 3 times
+  - Changed main lunar gravity VSTs to run 6 times

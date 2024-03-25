@@ -37,7 +37,7 @@ todays_date = date.today().strftime("%m-%d-%Y")
 vst_dir = f'.\\data_output\\vst\\{todays_date}'
 
 todays_time = datetime.now().strftime("%H:%M:%S")
-print(f'====================================================\n START POINT OF LANDING VST LOG: {todays_date} at {todays_time}\n====================================================')
+print(f'=======================================================\n START POINT OF LANDING VST LOG: {todays_date} at {todays_time}\n=======================================================')
 
 # Get Torque CSV log name
 def get_torque_csv():

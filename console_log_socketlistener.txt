@@ -292,3 +292,65 @@ Received 11 bytes from ('10.132.6.14', 3761)
 ===========================================================
  START POINT OF SOCKET LISTENER LOG: 03-21-2024 at 12:59:53
 ===========================================================
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-21-2024 at 14:16:43
+===========================================================
+
+Waiting to receive flight event...
+Received 7 bytes from ('10.132.6.14', 3761)
+[14:21:07] Received: liftoff
+
+Waiting to receive flight event...
+Received 4 bytes from ('10.132.6.14', 3761)
+[14:23:22] Received: meco
+[14:23:22] REACHED MECO!
+
+Waiting to receive flight event...
+Received 10 bytes from ('10.132.6.14', 3761)
+[14:23:37] Received: separation
+
+Waiting to receive flight event...
+Received 11 bytes from ('10.132.6.14', 3761)
+[14:23:57] Received: coast_start
+[14:23:57] REACHED COAST_START!
+[14:23:57] Starting VST batch now!
+
+Waiting to receive flight event...
+Received 13 bytes from ('10.132.6.14', 3761)
+[14:29:21] Received: drogue_chutes
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-21-2024 at 14:34:06
+===========================================================
+
+Waiting to receive flight event...
+Received 7 bytes from ('10.132.6.14', 3761)
+[14:38:29] Received: liftoff
+
+Waiting to receive flight event...
+Received 4 bytes from ('10.132.6.14', 3761)
+[14:40:44] Received: meco
+[14:40:44] REACHED MECO!
+
+Waiting to receive flight event...
+Received 10 bytes from ('10.132.6.14', 3761)
+[14:40:59] Received: separation
+
+Waiting to receive flight event...
+Received 11 bytes from ('10.132.6.14', 3761)
+[14:41:19] Received: coast_start
+[14:41:19] REACHED COAST_START!
+[14:41:19] Starting VST batch now!
+
+Waiting to receive flight event...
+Received 13 bytes from ('10.132.6.14', 3761)
+[14:46:43] Received: drogue_chutes
+
+Waiting to receive flight event...
+Received 6 bytes from ('10.132.6.14', 3761)
+[14:48:41] Received: safing
+[14:48:41] REACHED SAFING!
+[14:48:41] Starting final VST batch now!
+[14:48:41] FINAL VST HAS FINISHED, PEACE OUT!
+===========================================================
+ START POINT OF SOCKET LISTENER LOG: 03-25-2024 at 10:09:43
+===========================================================

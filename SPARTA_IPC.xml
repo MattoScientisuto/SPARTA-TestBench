@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<experiment name="SPARTA" sample-rate="100" enabled='true' xmlns="http://www.blueorigin.com/remconfig">
-
+<experiment name="SPARTA" enabled='true' xmlns="http://www.blueorigin.com/remconfig">
+    
     <device_configuration>
+    <!-- Power Channels 2 and 3 : 5V and 12V respectively  -->
         <power channel='2' reset='auto' current_limit='2.0'/>
         <power channel='3' reset='auto' current_limit='2.0'/>
+    <!-- MicroPC's static IP for message sending and receiving -->
         <stream type='udp' ip='10.132.6.17' port='3761' name='micro_pc'/>
     </device_configuration>
 
-
+    <!-- On 'escape_enabled', turn power on for both channels 2 and 3 -->
     <action name="power_on">
         <output value='1'>
             <power channel='2'/>
             <power channel='3'/>
         </output>
-        <message stream='micro_pc'>escape_enabled</message>
         <timertrigger mode='enable' event='escape_enabled'/>
     </action>
 
+    <!-- These ones don't really matter until 'coast_start', they're just here as extra time verifiers
+    to see if everything was in sync with the IPC -->
     <action name="liftoff_message">
         <message stream='micro_pc'>liftoff</message>
         <timertrigger mode='enable' event='liftoff'/>
@@ -33,14 +36,30 @@
         <timertrigger mode='enable' event='separation'/>
     </action>
 
+    <!-- On 'coast_start', send the message for MicroPC to start the main 6 VST runs -->
     <action name="coaststart_message">
         <message stream='micro_pc'>coast_start</message>
         <timertrigger mode='enable' event='coast_start'/>
     </action>
+    
+    <action name="drogue_chutesmessage">
+        <message stream='micro_pc'>drogue_chutes</message>
+        <timertrigger mode='enable' event='drogue_chutes'/>
+    </action>
 
-    <action name="safing_poweroff">
+    <!-- On 'safing', run a final VST -->
+    <action name="safing_finalvst">
         <message stream='micro_pc'>safing</message>
         <timertrigger mode='enable' event='safing'/>
+    </action> 
+
+    <!-- Then shut off both power channels after it finishes -->
+    <action name="safing_poweroff">
+        <timertrigger mode='enable' event='safing' delay='50.0'/>
+        <output value='0'>
+            <power channel='2'/>
+            <power channel='3'/>
+        </output>
     </action>
 
 </experiment>
