@@ -394,3 +394,8 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   * Rated output: 1.5mV/V nominal
   * Safe overload: 150% of the rated output
+
+  - Made some annotations on the potentiometer provided code
+   - I understand how it works a little better now
+   - Found the official wiring diagram (https://www.firgelliauto.com/blogs/tutorials/potentiometer-feedback-linear-actuator-with-arduino)
+    - Also includes code (gonna try using the first block with some modifications to make position dynamic)
