@@ -399,3 +399,30 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - I understand how it works a little better now
    - Found the official wiring diagram (https://www.firgelliauto.com/blogs/tutorials/potentiometer-feedback-linear-actuator-with-arduino)
     - Also includes code (gonna try using the first block with some modifications to make position dynamic)
+
+3-26-24
+  - Have a working Arduino sketch for the potentiometer
+   - Not in great shape yet, just kinda works
+
+   - Getting commands from python seem to have a huge delay
+   - Reading line by line so far causes the DAQ to not be able to keep up immediately
+    - weird because it should be reading one line at a time, same as the DAQ
+     - probably some for loop inconsistencies (look into this)
+
+   - wiring setup is suuper scuffed right now
+    - basically just wiring it same as before except with the three potentiometer wires
+     - White: ground
+     - Blue: 5V power
+     - Yellow: Analog signal
+    - they should be in the same slot as the current 5V and ground in the arduino
+     - for some reason didn't work with breadboard jumper cables
+
+   - Need to get the distance calculation correct too
+    - right now it's very close but goes over and under a litle too much
+    - need to re-read the analog min and max
+
+   - In retrospect, the speed is probably a good idea because it'll affect position
+    - BUT might not need it:
+     - maybe I can send a position from python to the Arduino for it to calculate and move there and stop once it reaches it
+     * Look back at the older provided code from Firgelli, it could help
+  
