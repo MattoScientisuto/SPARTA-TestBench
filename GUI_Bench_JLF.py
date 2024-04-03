@@ -623,6 +623,8 @@ def dsp_wait():
         # Retrieve data points
         for i in range(num_datapoints[1]):
             data_item = Core.IV_getdata(i)
+
+            # Filter out the initial unknown value it always reads
             if(data_item[3] == 1e-12):
                 continue
             else:
@@ -632,10 +634,7 @@ def dsp_wait():
             n_zi = -(data_item[2])
             absolZ.append(math.log10(math.sqrt((zr**2) + (n_zi**2))))
 
-            print(frequencies)
-            print(absolZ)
-        # Check in 1 second intervals
-        time.sleep(1)
+        time.sleep(1.0)
 
 # Start the scan operation using the selected preset method
 def scan_op(method):
@@ -749,16 +748,29 @@ fig3.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=1
 
 # DSP Plot
 #region
-fig4 = Figure(figsize=(9.0,4.5), dpi=100)
+fig4 = Figure(figsize=(9.0,6), dpi=100)
 fig4.subplots_adjust(left=0.19, bottom=0.15)
 dsp_plot = fig4.add_subplot(111)
 
 # Labels Setup
-dsp_line, = dsp_plot.plot([], [], linestyle='solid', linewidth='2', color='blue')
+dsp_line, = dsp_plot.plot([], [], linestyle='solid', linewidth='2', color='#426d9e')
 dsp_plot.set_title('Dielectric Spectrometer', weight='bold')  
-dsp_plot.set_xlabel('10log(frequency) /Hz')
-dsp_plot.set_ylabel('10log|Z| /ohm')
+dsp_plot.set_xlabel('10log(frequency) /Hz', fontsize=15)
+dsp_plot.set_ylabel('10log|Z| /ohm', fontsize=15)
+dsp_plot.set_xlim(0,5.1)
+dsp_plot.set_ylim(-1.1,8)
 dsp_plot.grid()
+
+zone1_y = 4.3
+zone2_y = 2.5
+zone3_y = 0.5
+dsp_plot.axhline(y=zone1_y, color='black', linestyle='--', linewidth=2.5)
+dsp_plot.axhline(y=zone2_y, color='black', linestyle='--', linewidth=2.5)
+dsp_plot.axhline(y=zone3_y, color='black', linestyle='--', linewidth=2.5)
+dsp_plot.text(4.7, 6.2, 'Zone 4', color='r', ha='center', va='center')
+dsp_plot.text(4.7, 3.45, 'Zone 3', color='b', ha='center', va='center')
+dsp_plot.text(4.7, 1.4, 'Zone 2', color='g', ha='center', va='center')
+dsp_plot.text(4.7, -0.5, 'Zone 1', color='purple', ha='center', va='center')
 
 fig4.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 
@@ -1335,7 +1347,7 @@ canvas4.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
 ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
 ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
-ani4 = FuncAnimation(fig4, animate_dsp, interval=1000, cache_frame_data=False)
+ani4 = FuncAnimation(fig4, animate_dsp, interval=100, cache_frame_data=False)
 
 plt.show()
 check_ports()

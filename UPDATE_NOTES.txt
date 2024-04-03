@@ -428,3 +428,7 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   
 4-3-24
   - Added DSP live plot to field bench interface
+   - Added wet zone horizontal lines to help determine water content
+
+  - Since Bob requested to be able to load in existing files, I might make a separate window opener to handle all of that
+  - Might be a little too complicated to do on a live plot that's meant to just take in one
