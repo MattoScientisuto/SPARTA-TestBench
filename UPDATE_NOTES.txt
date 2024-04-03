@@ -426,3 +426,5 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
      - maybe I can send a position from python to the Arduino for it to calculate and move there and stop once it reaches it
      * Look back at the older provided code from Firgelli, it could help
   
+4-3-24
+  - Added DSP live plot to field bench interface

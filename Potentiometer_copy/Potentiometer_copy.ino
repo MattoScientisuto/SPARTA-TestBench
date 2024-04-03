@@ -32,12 +32,14 @@ void loop() {
     switch (command) {
       case 'W':
         actuatorExtend();
+        Serial.read(); // Read and discard any remaining bytes
         break;
       case 's':  // Lowercase 's' for stop command
         actuatorStop();
         break;
       case 'C':
         actuatorRetract();
+        Serial.read(); // Read and discard any remaining bytes
         break;
       default:
         // Handle unknown command
@@ -45,14 +47,13 @@ void loop() {
     }
 
     // Clear the serial buffer
-    while (Serial.available() > 0) {
-      Serial.read(); // Read and discard any remaining bytes
-    }
+    // while (Serial.available() > 0) {
+    //   Serial.read(); // Read and discard any remaining bytes
+    // }
   }
 
   // Read potentiometer and print current position
   pos = readPotentiometer();
-  Serial.print("Current Position: ");
   Serial.println(pos);
 }
 

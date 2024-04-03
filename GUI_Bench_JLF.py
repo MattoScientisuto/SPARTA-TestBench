@@ -8,7 +8,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: February 6th, 2024
+# Last Updated: April 3rd, 2024
 # ============================================ #
 
 #region
@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from matplotlib.ticker import ScalarFormatter
 
 import nidaqmx
 from nidaqmx.constants import BridgePhysicalUnits, RTDType, ExcitationSource, TemperatureUnits, ResistanceConfiguration
@@ -37,6 +38,7 @@ from pyvium import Tools
 import os
 import sys
 import csv
+import math
 
 import serial
 import atexit
@@ -66,6 +68,7 @@ aio_frame = Frame(root, width=200, height=root.winfo_height())
 cpt_frame = Frame(root, width=200, height=root.winfo_height())
 vst_frame = Frame(root, width=200, height=root.winfo_height())
 dsp_frame = Frame(root, width=200, height=root.winfo_height())
+dspplot_frame = Frame(root, width=200, height=root.winfo_height())
 tcp_frame = Frame(root, width=200, height=root.winfo_height())
 
 min_w = 50 # Minimum width of the frame
@@ -118,6 +121,7 @@ def show_page(page):
     cpt_frame.grid_forget()
     vst_frame.grid_forget()
     dsp_frame.grid_forget()
+    dspplot_frame.grid_forget()
     tcp_frame.grid_forget()
 
     # Show the selected page
@@ -141,7 +145,8 @@ def show_page(page):
 
     elif page == "DSP":
         # root.geometry('650x740')
-        dsp_frame.grid(row=0, column=1, sticky=N)   
+        dsp_frame.grid(row=0, column=1, sticky=N)
+        dspplot_frame.grid(row=0, column=2, sticky=N)   
     
     elif page == "TCP":
         # root.geometry('650x740')
@@ -185,8 +190,8 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
-actuator = serial.Serial('COM22', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM4', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+# actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
+# stepper = serial.Serial('COM3', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 ser_running = False
 torser_running = False
 
@@ -199,19 +204,19 @@ def switch_false(device):
 def check_ports():
     global ser_running
     global torser_running
-    if actuator.isOpen() == True:
-        ser_running = True
-        print('Linear Actuator Port Opened?: ', actuator.isOpen())
-        switch_true(actser_status)
-    else:
-        tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
+    # if actuator.isOpen() == True:
+    #     ser_running = True
+    #     print('Linear Actuator Port Opened?: ', actuator.isOpen())
+    #     switch_true(actser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
 
-    if stepper.isOpen() == True:
-        torser_running = True
-        print('Torque Motor Port Opened?: ', stepper.isOpen())
-        switch_true(torser_status)
-    else:
-        tk.messagebox.showinfo("Error", "Torque Motor serial port is not opened!")
+    # if stepper.isOpen() == True:
+    #     torser_running = True
+    #     print('Torque Motor Port Opened?: ', stepper.isOpen())
+    #     switch_true(torser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "Torque Motor serial port is not opened!")
 
 def kill_ports():
     if actuator.isOpen() == True:
@@ -222,30 +227,30 @@ def kill_ports():
     else:
         tk.messagebox.showinfo("Error", "Linear Actuator serial port already closed")
         
-    if stepper.isOpen() == True:
-        stepper.close()
-        print("Torque Motor Port Status: ", actuator.isOpen())
-        print("Torque Motor port closed successfully!")
-        switch_false(torser_status)
-    else:
-        tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
+    # if stepper.isOpen() == True:
+    #     stepper.close()
+    #     print("Torque Motor Port Status: ", actuator.isOpen())
+    #     print("Torque Motor port closed successfully!")
+    #     switch_false(torser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
 vst_step_pos = 45000
-def go_to():
-    stepper.write(f'@0N{vst_step_pos}\r'.encode())
-    stepper.write('@0G\r'.encode())   
-    stepper.write('@0F\r'.encode())   
-    print('Rotating forward...')
-def step_stop():
-    stepper.write('@0.\r'.encode())
-    stepper.write('@0F\r'.encode())
-    print('Rotation stopped!')
-def reset():
-    stepper.write('@0P0\r'.encode())
-    stepper.write('@0G\r'.encode())
-    stepper.write('@0F\r'.encode())
-    print('Resetting position...')
+# def go_to():
+#     stepper.write(f'@0N{vst_step_pos}\r'.encode())
+#     stepper.write('@0G\r'.encode())   
+#     stepper.write('@0F\r'.encode())   
+#     print('Rotating forward...')
+# def step_stop():
+#     stepper.write('@0.\r'.encode())
+#     stepper.write('@0F\r'.encode())
+#     print('Rotation stopped!')
+# def reset():
+#     stepper.write('@0P0\r'.encode())
+#     stepper.write('@0G\r'.encode())
+#     stepper.write('@0F\r'.encode())
+#     print('Resetting position...')
 
 # Write command for Linear Actuator    
 def digitalWrite(command):
@@ -256,6 +261,7 @@ def digitalWrite(command):
 csv_list = []
 torque_csv = []
 dsp_idf = []
+dsp_csv = []
 tcp_csv = []
 
 # Directory adjusts to any PC
@@ -330,7 +336,7 @@ def read_load_cell():
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
         ai_task.ai_channels.add_ai_force_bridge_two_point_lin_chan("cDAQ2Mod1/ai0", units=ForceUnits.POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
-                                                                    voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=2.5, nominal_bridge_resistance=350.0, 
+                                                                    voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.POUNDS)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
         ai_task.in_stream.input_buf_size = 2000
@@ -550,14 +556,21 @@ dsp_001method = 'EIS230724140245.imf'
 dsp_05method = 'EIS230724135821.imf'
 current_method = ''
 
+# Initialize empty lists to store data points
+    # It sucks having to clear the lists every while iteration,
+    # but this ensures that there are no duplicate frequency
+    # data appendages.
+    # If this wasn't going to be a live plot, then we could just
+    # have it execute IV_getdata() at the very end to append all
+    # 26 frequency points in one go.   
+frequencies = []    # x-values
+absolZ = []         # y-values
+
 # Start IviumSoft
 def start_ivium():
     # Start IviumSoft.exe
     ivium_path = os.path.join(os.path.dirname(__file__), 'start_ivium.bat')
     subprocess.call([ivium_path])
-    time.sleep(3)
-    time_now = dt.datetime.now().strftime("%H:%M:%S")
-    print(f'Ivium opened at: {time_now}')
 
 # Connect to DSP
 def connect_dsp():
@@ -588,20 +601,41 @@ def connect_dsp():
 
 # Check if DSP is finished
 def dsp_wait():
+
     while True:
-        # Channel 1
-        # Core.IV_SelectChannel(1)
         status = Core.IV_getdevicestatus()
-        
-        time.sleep(0.5)
-        
+
         # Check if the channel is done
         if status == 1:
+            with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_csv[0]}', 'a', newline='') as file:
+                writer = csv.writer(file)
+                for i in range(len(frequencies)):
+                    writer.writerow([frequencies[i], absolZ[i]])
+                file.close()
             return status
         
-        # Check in 10 second intervals
-        print('Not done yet, wait another 10 seconds...')
-        time.sleep(10)
+        # Get the number of data points
+        num_datapoints = Core.IV_Ndatapoints()
+        
+        frequencies.clear()
+        absolZ.clear()
+
+        # Retrieve data points
+        for i in range(num_datapoints[1]):
+            data_item = Core.IV_getdata(i)
+            if(data_item[3] == 1e-12):
+                continue
+            else:
+                frequencies.append(math.log10(data_item[3]))
+
+            zr = data_item[1]
+            n_zi = -(data_item[2])
+            absolZ.append(math.log10(math.sqrt((zr**2) + (n_zi**2))))
+
+            print(frequencies)
+            print(absolZ)
+        # Check in 1 second intervals
+        time.sleep(1)
 
 # Start the scan operation using the selected preset method
 def scan_op(method):
@@ -713,6 +747,23 @@ temp_sensor.grid()
 fig3.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 #endregion
 
+# DSP Plot
+#region
+fig4 = Figure(figsize=(9.0,4.5), dpi=100)
+fig4.subplots_adjust(left=0.19, bottom=0.15)
+dsp_plot = fig4.add_subplot(111)
+
+# Labels Setup
+dsp_line, = dsp_plot.plot([], [], linestyle='solid', linewidth='2', color='blue')
+dsp_plot.set_title('Dielectric Spectrometer', weight='bold')  
+dsp_plot.set_xlabel('10log(frequency) /Hz')
+dsp_plot.set_ylabel('10log|Z| /ohm')
+dsp_plot.grid()
+
+fig4.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
+
+#endregion
+
 # ==================
 # Animate Functions
 # ==================
@@ -753,6 +804,20 @@ def animate_tcp(i):
         tcp_line.set_data(x,y)
         temp_sensor.relim()
         temp_sensor.autoscale_view()
+
+# DSP Animate Function  
+def animate_dsp(i):
+    global dsp_running
+    global dsp_csv
+
+    if dsp_csv and dsp_running is True:
+
+        x = frequencies
+        y = absolZ                         
+        
+        dsp_line.set_data(x,y)
+        dsp_plot.relim()
+        dsp_plot.autoscale_view()
 
 # ======================
 # 'Get' CSV + IDF Names
@@ -817,6 +882,7 @@ def get_torque_csv():
 # Get DSP IDF log name
 def get_dsp_idf():
     global dsp_idf
+    global dsp_csv
     
     Core.IV_open()
     status = Core.IV_getdevicestatus()
@@ -831,16 +897,20 @@ def get_dsp_idf():
         serial = (Core.IV_readSN())
         if len(dsp_entry.get()) == 0:
             input = f'{serial[1]}_{todays_date}_{curr_time}.idf'
+            plot_input = f'{serial[1]}_{todays_date}_{curr_time}_PLOT.csv'
         else:
             input = dsp_entry.get() + '.idf'
+            plot_input = dsp_entry.get() + '_PLOT.csv'
         
         # If the list of idfs is empty, append
         # Otherwise, replace the current stored idf
         if len(dsp_idf) == 0:
             dsp_idf.append(input)
+            dsp_csv.append(plot_input)
             print("DSP IDF set to:", input)
         else:
             dsp_idf[0] = input
+            dsp_csv[0] = plot_input
             print("DSP IDF replaced with:", input)
         log_update(curr_log3)
         
@@ -848,6 +918,12 @@ def get_dsp_idf():
         # Otherwise, continue
         if not os.path.exists(dsp_dir):
             os.makedirs(dsp_dir)
+
+        # Create the csv file and write the column titles
+        with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_csv[0]}', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["10log(frequency) /Hz", "10log|Z| /ohm"])
+            file.close()
 
 # Get TCP CSV log name
 def get_tcp_csv():
@@ -897,9 +973,9 @@ def set_vst_dur():
         print("VST Duration set to:", vst_duration)
     print(vst_step_pos)
 
-# =========================================
-# Load Cell + Torque Sensor Run Operations
-# =========================================
+# ===========================
+# Thread Running Operations
+# ===========================
 
 # Run all load cell operations (read, log, plot)    
 def load_cell_run():
@@ -1116,8 +1192,8 @@ rot_dial.grid(row=5, column=0)
 rot_dur = tk.Label(vst_frame, text='{:.2f}'.format(vst_duration), font=("Arial", 14), background='#15eb80', relief='groove')
 rot_dur.grid(row=5, column=1, sticky=W, pady=2)
 
-reset_pos = tk.Button(vst_frame, text='Reset Motor Position', command=reset)
-reset_pos.grid(row=5, column=2, sticky=W)
+# reset_pos = tk.Button(vst_frame, text='Reset Motor Position', command=reset)
+# reset_pos.grid(row=5, column=2, sticky=W)
 
 running2 = tk.Label(vst_frame, text="Currently Running: ", font=("Arial Bold", 10))
 running2.grid(row=6, column=0, pady=2)
@@ -1250,11 +1326,17 @@ canvas2.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 canvas3 = FigureCanvasTkAgg(fig3, master=tcp_frame)
 canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=58)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
+
+canvas4 = FigureCanvasTkAgg(fig4, master=dspplot_frame)
+canvas4.get_tk_widget().grid(row=0, column=0, padx=50, pady=50)
+canvas4.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 #endregion
 
-ani = FuncAnimation(fig1, animate_load_cell, interval=500, cache_frame_data=False)
-ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=500, cache_frame_data=False)
+ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
+ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
 ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
+ani4 = FuncAnimation(fig4, animate_dsp, interval=1000, cache_frame_data=False)
+
 plt.show()
 check_ports()
 

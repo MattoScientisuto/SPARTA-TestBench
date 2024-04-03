@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: Vane Shear Only
 
 # Created: February 16th, 2024
-# Last Updated: March 21th, 2024
+# Last Updated: April 3rd, 2024
 # ============================================ #
 
 import os
@@ -128,7 +128,7 @@ def read_torque_sensor():
                 stepper.close()
                 sys.stdout.close()
             else:
-                time.sleep(2)
+                time.sleep(5)
                 go_vst()
 
 def torque_sensor_run():
