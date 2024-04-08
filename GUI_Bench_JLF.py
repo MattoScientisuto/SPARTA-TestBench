@@ -717,7 +717,7 @@ load_cell = fig1.add_subplot(111)
 # Labels Setup
 load_line, = load_cell.plot([], [], linestyle='solid', linewidth='2')
 load_cell.set_title('Load Cell', weight='bold')  
-load_cell.set_xlabel('Force (Newtons)')
+load_cell.set_xlabel('Force (Pounds)')
 load_cell.set_ylabel('Depth (cm)')
 load_cell.invert_yaxis()
 load_cell.grid()
@@ -764,7 +764,7 @@ fig3.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=1
 fig4 = Figure(figsize=(9.0,3.9), dpi=100)
 fig4.subplots_adjust(left=0.19, bottom=0.15)
 dsp_plot = fig4.add_subplot(111)
-fig5 = Figure(figsize=(9.0,3.5), dpi=100)
+fig5 = Figure(figsize=(9.0,3.8), dpi=100)
 fig5.subplots_adjust(left=0.19, bottom=0.15)
 dsp_plot2 = fig5.add_subplot(111)
 # Labels Setup
@@ -777,7 +777,7 @@ dsp_plot.set_ylim(-1.1,8)
 dsp_plot.grid()
 dsp_pline, = dsp_plot2.plot([], [], linestyle='solid', linewidth='2', color='#1c27ff')
 dsp_plot2.set_title('DSP Phase Angle', weight='bold')  
-dsp_plot2.set_xlabel('Frequency (Hz)', fontsize=15)
+dsp_plot2.set_xlabel('10log(frequency) /Hz', fontsize=15)
 dsp_plot2.set_ylabel('-phase /degrees', fontsize=15)
 dsp_plot2.set_xlim(0,5.1)
 dsp_plot2.set_ylim(0,80)
@@ -897,7 +897,7 @@ def get_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp", "Depth [cm]", "Force [Newtons]", "Force [Raw Reading]"])
+        writer.writerow(["Timestamp", "Depth [cm]", "Force [Pounds]", "Force [Raw Reading]"])
         file.close()
 
 # Get Torque CSV log name
@@ -1377,31 +1377,46 @@ def save_plot(figu):
                                              filetypes=[("PNG files", "*.png"), ("All files", "*.*")])
     if filepath:
         figu.savefig(filepath)
+save_icon = ImageTk.PhotoImage(Image.open('.\\gui_images\\floppy-icon.png').resize((40,40)), Image.Resampling.LANCZOS)
 
-
+# CPT
 canvas = FigureCanvasTkAgg(fig1, master=cpt_frame)
 canvas.get_tk_widget().grid(row=8, column=0, columnspan=3, padx=30, pady=20)
 canvas.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
+save_cpt = tk.Button(cpt_frame, image=save_icon, command=lambda: save_plot(fig1))
+save_cpt.place(relx=0.06, rely=0.965, anchor=tk.SW)  
 
+# VST
 canvas2 = FigureCanvasTkAgg(fig2, master=vst_frame)
 canvas2.get_tk_widget().grid(row=8, column=0, columnspan=3, padx=30, pady=26)
 canvas2.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
+save_vst = tk.Button(vst_frame, image=save_icon, command=lambda: save_plot(fig2))
+save_vst.place(relx=0.07, rely=0.958, anchor=tk.SW)  
 
+# TCP
 canvas3 = FigureCanvasTkAgg(fig3, master=tcp_frame)
 canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=58)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
+save_tcp = tk.Button(tcp_frame, image=save_icon, command=lambda: save_plot(fig3))
+save_tcp.place(relx=0.07, rely=0.915, anchor=tk.SW)  
 
+# DSP Wet Zones
 canvas4 = FigureCanvasTkAgg(fig4, master=dspplot_frame)
 canvas4.get_tk_widget().grid(row=0, column=0, padx=50, pady=5)
 canvas4.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
-save_wet = tk.Button(dspplot_frame, text="Save Wet Zones Plot", command=lambda: save_plot(fig2))
-save_wet.place(relx=0.06, rely=0.505, anchor=tk.SW)  
+save_wetz = tk.Button(dspplot_frame, image=save_icon, command=lambda: save_plot(fig4))
+save_wetz.place(relx=0.06, rely=0.488, anchor=tk.SW)  
+
+# DSP Phase Angle
 canvas5 = FigureCanvasTkAgg(fig5, master=dspplot_frame)
 canvas5.get_tk_widget().grid(row=1, column=0, padx=50, pady=5)
 canvas5.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
+save_phase = tk.Button(dspplot_frame, image=save_icon, command=lambda: save_plot(fig5))
+save_phase.place(relx=0.06, rely=0.98, anchor=tk.SW)  
 
 #endregion
 
+# Plots Animations
 ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
 ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
 ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)

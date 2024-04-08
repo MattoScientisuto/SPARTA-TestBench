@@ -435,3 +435,5 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
 4-8-24
   - Added Phase Angle plot for DSP
+
+  - Added save image buttons for each separate plot
