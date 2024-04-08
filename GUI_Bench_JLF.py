@@ -8,11 +8,12 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: April 3rd, 2024
+# Last Updated: April 8th, 2024
 # ============================================ #
 
 #region
 from tkinter import *
+from tkinter import filedialog
 import tkinter as tk
 from PIL import Image, ImageTk
 import webbrowser
@@ -262,6 +263,7 @@ csv_list = []
 torque_csv = []
 dsp_idf = []
 dsp_csv = []
+dsp_pcsv = []
 tcp_csv = []
 
 # Directory adjusts to any PC
@@ -565,6 +567,7 @@ current_method = ''
     # 26 frequency points in one go.   
 frequencies = []    # x-values
 absolZ = []         # y-values
+phase = []          # y phase values
 
 # Start IviumSoft
 def start_ivium():
@@ -607,10 +610,16 @@ def dsp_wait():
 
         # Check if the channel is done
         if status == 1:
+            # Write to zone and phase angle files
             with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_csv[0]}', 'a', newline='') as file:
                 writer = csv.writer(file)
                 for i in range(len(frequencies)):
                     writer.writerow([frequencies[i], absolZ[i]])
+                file.close()
+            with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_pcsv[0]}', 'a', newline='') as file:
+                writer = csv.writer(file)
+                for i in range(len(frequencies)):
+                    writer.writerow([frequencies[i], phase[i]])
                 file.close()
             return status
         
@@ -619,6 +628,7 @@ def dsp_wait():
         
         frequencies.clear()
         absolZ.clear()
+        phase.clear()
 
         # Retrieve data points
         for i in range(num_datapoints[1]):
@@ -632,7 +642,10 @@ def dsp_wait():
 
             zr = data_item[1]
             n_zi = -(data_item[2])
+
+            # Equations for the plot taken from Keith's excel file
             absolZ.append(math.log10(math.sqrt((zr**2) + (n_zi**2))))
+            phase.append(math.degrees(math.atan(n_zi / zr)))
 
         time.sleep(1.0)
 
@@ -746,33 +759,44 @@ temp_sensor.grid()
 fig3.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 #endregion
 
-# DSP Plot
+# DSP Plots
 #region
-fig4 = Figure(figsize=(9.0,6), dpi=100)
+fig4 = Figure(figsize=(9.0,3.9), dpi=100)
 fig4.subplots_adjust(left=0.19, bottom=0.15)
 dsp_plot = fig4.add_subplot(111)
-
+fig5 = Figure(figsize=(9.0,3.5), dpi=100)
+fig5.subplots_adjust(left=0.19, bottom=0.15)
+dsp_plot2 = fig5.add_subplot(111)
 # Labels Setup
-dsp_line, = dsp_plot.plot([], [], linestyle='solid', linewidth='2', color='#426d9e')
-dsp_plot.set_title('Dielectric Spectrometer', weight='bold')  
+dsp_line, = dsp_plot.plot([], [], linestyle='solid', linewidth='2', color='#7200c9')
+dsp_plot.set_title('DSP Wet Zones', weight='bold')  
 dsp_plot.set_xlabel('10log(frequency) /Hz', fontsize=15)
 dsp_plot.set_ylabel('10log|Z| /ohm', fontsize=15)
 dsp_plot.set_xlim(0,5.1)
 dsp_plot.set_ylim(-1.1,8)
 dsp_plot.grid()
+dsp_pline, = dsp_plot2.plot([], [], linestyle='solid', linewidth='2', color='#1c27ff')
+dsp_plot2.set_title('DSP Phase Angle', weight='bold')  
+dsp_plot2.set_xlabel('Frequency (Hz)', fontsize=15)
+dsp_plot2.set_ylabel('-phase /degrees', fontsize=15)
+dsp_plot2.set_xlim(0,5.1)
+dsp_plot2.set_ylim(0,80)
+dsp_plot2.grid()
 
+# Wet Zones
 zone1_y = 4.3
 zone2_y = 2.5
 zone3_y = 0.5
-dsp_plot.axhline(y=zone1_y, color='black', linestyle='--', linewidth=2.5)
-dsp_plot.axhline(y=zone2_y, color='black', linestyle='--', linewidth=2.5)
-dsp_plot.axhline(y=zone3_y, color='black', linestyle='--', linewidth=2.5)
+dsp_plot.axhline(y=zone1_y, color='black', linestyle='--', linewidth=1.5)
+dsp_plot.axhline(y=zone2_y, color='black', linestyle='--', linewidth=1.5)
+dsp_plot.axhline(y=zone3_y, color='black', linestyle='--', linewidth=1.5)
 dsp_plot.text(4.7, 6.2, 'Zone 4', color='r', ha='center', va='center')
 dsp_plot.text(4.7, 3.45, 'Zone 3', color='b', ha='center', va='center')
 dsp_plot.text(4.7, 1.4, 'Zone 2', color='g', ha='center', va='center')
 dsp_plot.text(4.7, -0.5, 'Zone 1', color='purple', ha='center', va='center')
 
 fig4.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
+fig5.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 
 #endregion
 
@@ -830,6 +854,19 @@ def animate_dsp(i):
         dsp_line.set_data(x,y)
         dsp_plot.relim()
         dsp_plot.autoscale_view()
+# DSP Phase Animate Function  
+def animate_dsp_phase(i):
+    global dsp_running
+    global dsp_pcsv
+
+    if dsp_pcsv and dsp_running is True:
+
+        x = frequencies
+        y = phase                         
+        
+        dsp_pline.set_data(x,y)
+        dsp_plot2.relim()
+        dsp_plot2.autoscale_view()
 
 # ======================
 # 'Get' CSV + IDF Names
@@ -895,10 +932,10 @@ def get_torque_csv():
 def get_dsp_idf():
     global dsp_idf
     global dsp_csv
+    global dsp_pcsv
     
     Core.IV_open()
     status = Core.IV_getdevicestatus()
-    print(status)
 
     # If DSP isn't connected to Ivium yet, do not let it proceed
     # or else it will close the program
@@ -909,20 +946,24 @@ def get_dsp_idf():
         serial = (Core.IV_readSN())
         if len(dsp_entry.get()) == 0:
             input = f'{serial[1]}_{todays_date}_{curr_time}.idf'
-            plot_input = f'{serial[1]}_{todays_date}_{curr_time}_PLOT.csv'
+            zplot_input = f'{serial[1]}_{todays_date}_{curr_time}_ZONEPLOT.csv'
+            pplot_input = f'{serial[1]}_{todays_date}_{curr_time}_PHASEPLOT.csv'
         else:
             input = dsp_entry.get() + '.idf'
-            plot_input = dsp_entry.get() + '_PLOT.csv'
+            zplot_input = dsp_entry.get() + '_ZONEPLOT.csv'
+            pplot_input = dsp_entry.get() + '_PHASEPLOT.csv'
         
         # If the list of idfs is empty, append
         # Otherwise, replace the current stored idf
         if len(dsp_idf) == 0:
             dsp_idf.append(input)
-            dsp_csv.append(plot_input)
+            dsp_csv.append(zplot_input)
+            dsp_pcsv.append(pplot_input)
             print("DSP IDF set to:", input)
         else:
             dsp_idf[0] = input
-            dsp_csv[0] = plot_input
+            dsp_csv[0] = zplot_input
+            dsp_pcsv[0] = pplot_input
             print("DSP IDF replaced with:", input)
         log_update(curr_log3)
         
@@ -935,6 +976,10 @@ def get_dsp_idf():
         with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_csv[0]}', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["10log(frequency) /Hz", "10log|Z| /ohm"])
+            file.close()
+        with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_pcsv[0]}', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["10log(frequency) /Hz", "phase /degrees"])
             file.close()
 
 # Get TCP CSV log name
@@ -1327,6 +1372,13 @@ tcp_folder.grid(row=5, column=2)
 # Plots for every page
 # =======================
 #region
+def save_plot(figu):
+    filepath = filedialog.asksaveasfilename(defaultextension='.png',
+                                             filetypes=[("PNG files", "*.png"), ("All files", "*.*")])
+    if filepath:
+        figu.savefig(filepath)
+
+
 canvas = FigureCanvasTkAgg(fig1, master=cpt_frame)
 canvas.get_tk_widget().grid(row=8, column=0, columnspan=3, padx=30, pady=20)
 canvas.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
@@ -1340,14 +1392,21 @@ canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=58)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 
 canvas4 = FigureCanvasTkAgg(fig4, master=dspplot_frame)
-canvas4.get_tk_widget().grid(row=0, column=0, padx=50, pady=50)
-canvas4.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
+canvas4.get_tk_widget().grid(row=0, column=0, padx=50, pady=5)
+canvas4.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
+save_wet = tk.Button(dspplot_frame, text="Save Wet Zones Plot", command=lambda: save_plot(fig2))
+save_wet.place(relx=0.06, rely=0.505, anchor=tk.SW)  
+canvas5 = FigureCanvasTkAgg(fig5, master=dspplot_frame)
+canvas5.get_tk_widget().grid(row=1, column=0, padx=50, pady=5)
+canvas5.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
+
 #endregion
 
 ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
 ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
 ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
-ani4 = FuncAnimation(fig4, animate_dsp, interval=100, cache_frame_data=False)
+ani4 = FuncAnimation(fig4, animate_dsp, interval=1000, cache_frame_data=False)
+ani5 = FuncAnimation(fig5, animate_dsp_phase, interval=1000, cache_frame_data=False)
 
 plt.show()
 check_ports()

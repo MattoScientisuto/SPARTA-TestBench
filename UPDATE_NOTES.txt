@@ -432,3 +432,6 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   - Since Bob requested to be able to load in existing files, I might make a separate window opener to handle all of that
   - Might be a little too complicated to do on a live plot that's meant to just take in one
+
+4-8-24
+  - Added Phase Angle plot for DSP
