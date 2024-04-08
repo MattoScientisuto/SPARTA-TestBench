@@ -435,5 +435,16 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
 4-8-24
   - Added Phase Angle plot for DSP
+   - X is still frequency
 
   - Added save image buttons for each separate plot
+
+  - Merged CPT, VST and TCP frames together
+   - They can't all fit together evenly when using grid
+   - Kinda just took the ooga booga route and used place with exact coordinates to squeeze them together
+  
+   - The TCP plot is using a ton of y-padding to place it at the same level as the CPT and VST
+    - This makes the individual TCP page scuffed but I doubt we're gonna be needing the individual pages for much of anything 
+
+  ===
+  - Added delay on starting Ivium with Blue Origin

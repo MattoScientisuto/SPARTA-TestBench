@@ -101,7 +101,7 @@ def fill():
     if expanded: # If the frame is expanded
         # Show a text, and remove the image
         home_b.config(text='Home',image=home,font=(0,15), relief='raised')
-        aio_b.config(text='All\nComponents',image='',font=(0,15), relief='raised')
+        aio_b.config(text='CPT VST\n& TCP',image='',font=(0,15), relief='raised')
         cpt_b.config(text='Cone\nPenetrator',image='',font=(0,15), relief='raised')
         vst_b.config(text='Vane Shear\nTester',image='',font=(0,15), relief='raised')
         dsp_b.config(text='Dielectric\nSpectrometer',image='',font=(0,15), relief='raised')
@@ -124,33 +124,30 @@ def show_page(page):
     dsp_frame.grid_forget()
     dspplot_frame.grid_forget()
     tcp_frame.grid_forget()
+    # AIO page uses place and not grid, so it uses place_forget()
+    for frame in [cpt_frame, vst_frame, tcp_frame]:
+        frame.place_forget()
 
     # Show the selected page
     if page == "Home":
-        # root.geometry('650x740')
         home_frame.grid(row=0, column=1, sticky=N)
 
     elif page == "AIO":
-        # root.geometry('1500x740')
-        cpt_frame.grid(row=0, column=1, sticky=N)   
-        vst_frame.grid(row=0, column=2, sticky=N) 
-        # tcp_frame.grid(row=0, column=3, sticky=N) 
+        cpt_frame.place(relx=0.023, rely=0)
+        vst_frame.place(relx=0.351, rely=0)
+        tcp_frame.place(relx=0.67, rely=0)
         
     elif page == "CPT":
-        # root.geometry('650x740')
         cpt_frame.grid(row=0, column=1, sticky=N)   
 
     elif page == "VST":
-        # root.geometry('650x740')
         vst_frame.grid(row=0, column=1, sticky=N)   
 
     elif page == "DSP":
-        # root.geometry('650x740')
         dsp_frame.grid(row=0, column=1, sticky=N)
         dspplot_frame.grid(row=0, column=2, sticky=N)   
     
     elif page == "TCP":
-        # root.geometry('650x740')
         tcp_frame.grid(row=0, column=1, sticky=N)   
 
 # Define the icons to be shown and resize it
@@ -169,7 +166,7 @@ frame.grid_propagate(False)
 
 # Make the buttons with the icons to be shown
 home_b = Button(frame,image=home,bg='orange',relief='flat', command=lambda: show_page("Home"))
-aio_b = Button(frame,image=aio,bg='orange',relief='flat',   command=lambda: show_page("AIO"))
+aio_b = Button(frame,image=aio,bg='#9fcbf5',relief='flat',   command=lambda: show_page("AIO"))
 cpt_b = Button(frame,image=cpt,bg='orange',relief='flat',   command=lambda: show_page("CPT"))
 vst_b = Button(frame,image=vst,bg='orange',relief='flat',   command=lambda: show_page("VST"))
 dsp_b = Button(frame,image=dsp,bg='orange',relief='flat',   command=lambda: show_page("DSP"))
@@ -178,9 +175,9 @@ tcp_b = Button(frame,image=tcp,bg='orange',relief='flat',   command=lambda: show
 # Put them on the frame
 home_b.grid(row=0,column=0, pady=15)
 aio_b.grid(row=1,column=0, pady=15)
-cpt_b.grid(row=2,column=0, pady=15)
-vst_b.grid(row=3,column=0, pady=15)
-dsp_b.grid(row=4,column=0, pady=15)
+dsp_b.grid(row=2,column=0, pady=15)
+cpt_b.grid(row=3,column=0, pady=15)
+vst_b.grid(row=4,column=0, pady=15)
 tcp_b.grid(row=5,column=0, pady=15)
 
 # Bind to the frame, if entered or left
@@ -1109,7 +1106,7 @@ cpt_test = tk.Label(cpt_frame, text='Cone Penetrator', font=("Arial", 18))
 cpt_test.grid(row=0,column=0, padx=5, pady=6)
 
 set_csv = tk.Label(cpt_frame, text="Set load log name: ", font=("Arial", 10)).grid(row=1, column=0, padx=3, pady=3)
-entry = tk.Entry(cpt_frame, textvariable=cpt_var)
+entry = tk.Entry(cpt_frame, width=15, textvariable=cpt_var)
 entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
 dep_var = tk.StringVar()
@@ -1180,8 +1177,8 @@ act_nstop.grid(row=3, column=2, sticky=W)
 
 jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite('W'))
 jog_up = tk.Button(cpt_frame, text="Jog Up", bg="#cfe1ff", command=lambda: digitalWrite('C'))
-jog_down.grid(row=4, column=3, sticky=W)
-jog_up.grid(row=3, column=3, sticky=W)
+jog_down.place(relx=0.86, rely=0.19)
+jog_up.place(relx=0.86, rely=0.153)
 
 act_estop = tk.Button(cpt_frame, text="Stop Operation", bg="#ffcdc9", command=cpt_estop)
 act_estop.grid(row=4, column=2, sticky=W)
@@ -1214,12 +1211,12 @@ vst_test.grid(row=0,column=0, padx=5, pady=6)
 
 set_tcsv = tk.Label(vst_frame, text="Set torque log name:", font=("Arial", 10))
 set_tcsv.grid(row=1, column=0, padx=3, pady=3)
-torque_entry = tk.Entry(vst_frame, textvariable=vst_var)
+torque_entry = tk.Entry(vst_frame, width=15,textvariable=vst_var)
 torque_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 
 vst_dur = tk.Label(vst_frame, text="Set rotation duration (seconds):", font=("Arial", 10))
 vst_dur.grid(row=2, column=0, padx=3, pady=3)
-ttime_entry = tk.Entry(vst_frame)
+ttime_entry = tk.Entry(vst_frame, width=15)
 ttime_entry.grid(row=2, column=1, padx=3, pady=3, sticky=W)
 
 csv_torque_button = tk.Button(vst_frame, text="Set Name", command=get_torque_csv)
@@ -1342,7 +1339,7 @@ tcp_test.grid(row=0,column=0, padx=5, pady=6, columnspan=2)
 
 set_tcp_csv = tk.Label(tcp_frame, text="Set TCP log name:", font=("Arial", 10))
 set_tcp_csv.grid(row=1, column=0, padx=3, pady=3)
-tcp_entry = tk.Entry(tcp_frame)
+tcp_entry = tk.Entry(tcp_frame, width=15)
 tcp_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 csv_tcp_button = tk.Button(tcp_frame, text="Set Name", command=get_tcp_csv)
 csv_tcp_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
@@ -1384,7 +1381,7 @@ canvas = FigureCanvasTkAgg(fig1, master=cpt_frame)
 canvas.get_tk_widget().grid(row=8, column=0, columnspan=3, padx=30, pady=20)
 canvas.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 save_cpt = tk.Button(cpt_frame, image=save_icon, command=lambda: save_plot(fig1))
-save_cpt.place(relx=0.06, rely=0.965, anchor=tk.SW)  
+save_cpt.place(relx=0.069, rely=0.965, anchor=tk.SW)  
 
 # VST
 canvas2 = FigureCanvasTkAgg(fig2, master=vst_frame)
@@ -1395,10 +1392,10 @@ save_vst.place(relx=0.07, rely=0.958, anchor=tk.SW)
 
 # TCP
 canvas3 = FigureCanvasTkAgg(fig3, master=tcp_frame)
-canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=58)
+canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=90)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 save_tcp = tk.Button(tcp_frame, image=save_icon, command=lambda: save_plot(fig3))
-save_tcp.place(relx=0.07, rely=0.915, anchor=tk.SW)  
+save_tcp.place(relx=0.07, rely=0.885, anchor=tk.SW)  
 
 # DSP Wet Zones
 canvas4 = FigureCanvasTkAgg(fig4, master=dspplot_frame)

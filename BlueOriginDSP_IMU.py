@@ -197,6 +197,7 @@ def imu_wait():
 # Start IviumSoft.exe
 def start_ivium():
     ivium_path = os.path.join(os.path.dirname(__file__), 'start_ivium.bat')
+    time.sleep(5)
     subprocess.call([ivium_path])
     ivium_wait()
     time_now = dt.datetime.now().strftime("%H:%M:%S")
