@@ -858,7 +858,7 @@ def animate_tcp(i):
     if tcp_csv and tcp_running is True:
         data = pd.read_csv(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', sep=",")
         x = data['Timestamp (seconds)'] 
-        y = data['Temperature [Fahrenheit]']                             
+        y = data['Temperature [Celsius]']                             
         
         tcp_line.set_data(x,y)
         temp_sensor.relim()
@@ -1029,7 +1029,7 @@ def get_tcp_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Temperature [Fahrenheit]"])
+        writer.writerow(["Timestamp (seconds)", "Temperature [Celsius]"])
         file.close()
         
 # ========================
@@ -1107,15 +1107,15 @@ git_link.bind("<Button-1>", lambda x: open_url("https://github.com/MattoScientis
 ser_label = tk.Label(home_frame, text="Serial Ports Active: ", font=("Arial", 14))
 ser_label.grid(row=4, column=0, padx=5, pady=5, sticky=NW)
 
-act_status = tk.Label(home_frame, text="Linear Actuator: ", font=("Arial", 14))
+act_status = tk.Label(home_frame, text="Linear Actuator: ", padx=5, font=("Arial", 14))
 act_status.grid(row=5, column=0, sticky=NW)
 actser_status = tk.Label(home_frame, text=str(ser_running), font=("Arial", 14), background='#f05666', relief='groove')
 actser_status.grid(row=5, column=1, sticky=NW)
-tcph_status = tk.Label(home_frame, text="TCP Heater: ", font=("Arial", 14))
+tcph_status = tk.Label(home_frame, text="TCP Heater: ", padx=5, font=("Arial", 14))
 tcph_status.grid(row=6, column=0, sticky=NW)
 tcphser_status = tk.Label(home_frame, text=str(ser_running), font=("Arial", 14), background='#f05666', relief='groove')
 tcphser_status.grid(row=6, column=1, sticky=NW)
-tor_status = tk.Label(home_frame, text="Torque Sensor: ", font=("Arial", 14))
+tor_status = tk.Label(home_frame, text="Torque Sensor: ", padx=5, font=("Arial", 14))
 tor_status.grid(row=7, column=0, sticky=NW)
 torser_status = tk.Label(home_frame, text=str(torser_running), font=("Arial", 14), background='#f05666', relief='groove')
 torser_status.grid(row=7, column=1, sticky=NW)
@@ -1397,25 +1397,29 @@ heat_text.grid(row=2, column=0, padx=3, pady=6)
 heat_dropdown = tk.OptionMenu(tcp_frame, heating_var, *heat_options, command=update_heatdur)
 heat_dropdown.grid(row=2, column=1, pady=6, sticky=W)
 
-
 run_tcp_button = tk.Button(tcp_frame, text="Run Temperature Sensor", command=tcp_run)
-run_tcp_button.grid(row=2, column=2, padx=3, pady=3, sticky=W)
+run_tcp_button.grid(row=3, column=2, padx=3, pady=3, sticky=W)
 
 log4 = tk.Label(tcp_frame, text="Logging to: ", font=("Arial", 10))
 log4.grid(row=3, column=0)
 curr_log4 = tk.Label(tcp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log4.grid(row=3, column=1, sticky=W, pady=2)
 
+stop_tcp_button = tk.Button(tcp_frame, text="Stop Temperature Sensor", background="#ffcdc9", command=stop_tcp)
+stop_tcp_button.grid(row=4, column=2, padx=3, pady=3, sticky=W)
+stop_tcp_heat = tk.Button(tcp_frame, text="Stop Heating", command=lambda: tcpWrite(0, 'C'))
+stop_tcp_heat.grid(row=2, column=2)
+
 running4 = tk.Label(tcp_frame, text="Currently Running: ", font=("Arial Bold", 10))
 running4.grid(row=4, column=0, pady=2)
 temp_running = tk.Label(tcp_frame, text=str(tcp_running), font=("Arial", 14), background='#f05666', relief='groove')
 temp_running.grid(row=4, column=1, sticky=W, pady=2)
 
-stop_tcp_button = tk.Button(tcp_frame, text="Stop Temperature Sensor", command=stop_tcp)
-stop_tcp_button.grid(row=4, column=2, padx=3, pady=3, sticky=W)
-
 tcp_folder = tk.Button(tcp_frame, image=folders, command=lambda:open_folder('.\\data_output\\tcp'))
 tcp_folder.grid(row=5, column=2)
+
+elapsed_time_label = tk.Label(tcp_frame, text="0")
+elapsed_time_label.grid(row=0, column=2)
 
 #endregion
 
@@ -1449,7 +1453,7 @@ canvas3 = FigureCanvasTkAgg(fig3, master=tcp_frame)
 canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=80)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 save_tcp = tk.Button(tcp_frame, image=save_icon, command=lambda: save_plot(fig3))
-save_tcp.place(relx=0.07, rely=0.885, anchor=tk.SW)  
+save_tcp.place(relx=0.07, rely=0.897, anchor=tk.SW)  
 
 # DSP Wet Zones
 canvas4 = FigureCanvasTkAgg(fig4, master=dspplot_frame)
