@@ -448,3 +448,11 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   ===
   - Added delay on starting Ivium with Blue Origin
+
+4-9-24
+  - Added RTD channel for the TCP
+   - Currently trying to figure out how to apply the calibration profile using python
+  
+  - Added new Arduino Uno and script for turning the TCP heater on/off
+   - Using a Crydom solid state relay with 5 volts from the Arduino
+   - Currently have 10-50 second options for heating

@@ -189,9 +189,13 @@ frame.grid_propagate(False)
 
 # ========================================================================
 # actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
+tcp_heater = serial.Serial('COM8', baudrate=9600, timeout=1)
 # stepper = serial.Serial('COM3', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 ser_running = False
+tcph_running = False
 torser_running = False
+
+tcp_duration = 0
 
 def switch_true(device):
     device.config(text='True', background='#15eb80')
@@ -201,13 +205,22 @@ def switch_false(device):
 
 def check_ports():
     global ser_running
+    global tcph_running
     global torser_running
+
     # if actuator.isOpen() == True:
     #     ser_running = True
     #     print('Linear Actuator Port Opened?: ', actuator.isOpen())
     #     switch_true(actser_status)
     # else:
     #     tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
+
+    if tcp_heater.isOpen() == True:
+        tcph_running = True
+        print('TCP Heater Port Opened?: ', tcp_heater.isOpen())
+        switch_true(tcphser_status)
+    else:
+        tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
 
     # if stepper.isOpen() == True:
     #     torser_running = True
@@ -224,6 +237,14 @@ def kill_ports():
         switch_false(actser_status)
     else:
         tk.messagebox.showinfo("Error", "Linear Actuator serial port already closed")
+
+    if tcp_heater.isOpen() == True:
+        tcp_heater.close()
+        print("TCP Heater Port Status: ", tcp_heater.isOpen())
+        print("TCP Heater port closed successfully!")
+        switch_false(tcphser_status)
+    else:
+        tk.messagebox.showinfo("Error", "TCP Heater serial port already closed")
         
     # if stepper.isOpen() == True:
     #     stepper.close()
@@ -251,9 +272,15 @@ vst_step_pos = 45000
 #     print('Resetting position...')
 
 # Write command for Linear Actuator    
-def digitalWrite(command):
-    actuator.write(command.encode())
-    print('Command sent:', command)
+def digitalWrite(device, command):
+    device.write(command.encode())
+    print(f'Command sent:', command)
+
+def tcpWrite(duration, command):
+    global tcp_duration
+    data = f"{command},{duration}\n".encode()
+    tcp_heater.write(data)
+    print('Command sent:', data.decode().strip())
 
 # Arrays for CSV names
 csv_list = []
@@ -499,11 +526,12 @@ def reset_vst_nums():
 # Temperature Read
 def read_tcp():
     global tcp_running
-    
+
     with nidaqmx.Task() as ai_task:
-        ai_task.ai_channels.add_ai_rtd_chan(physical_channel='cDAQ2Mod3/ai2', min_val=0.0, max_val=100.0, units=TemperatureUnits.DEG_F, rtd_type=RTDType.PT_3750, resistance_config=ResistanceConfiguration.THREE_WIRE, current_excit_source=ExcitationSource.INTERNAL, current_excit_val=1.0e-3, r_0=100.0)
-        
+        ai_task.ai_channels.add_ai_rtd_chan(physical_channel='cDAQ2Mod2/ai0', min_val=0.0, max_val=100.0, units=TemperatureUnits.DEG_C, rtd_type=RTDType.PT_3750, resistance_config=ResistanceConfiguration.THREE_WIRE, current_excit_source=ExcitationSource.INTERNAL, current_excit_val=1.0e-3, r_0=100.0)
+
         ai_task.start()
+        tcpWrite(tcp_duration, 'H')
         tcp_running = True
         switch_true(temp_running)
         start_time = dt.datetime.now()
@@ -514,9 +542,7 @@ def read_tcp():
 
             while tcp_running:
                 temp = ai_task.read()     # Read current value
-                true_temp = temp * -1   # Inversion (raw readings come negative for some reason)
-                temp_f = (temp * (-42960)) - 11.0     # THIS IS A RANDOM GAIN I JUST SET TO HAVE IT RUNNING 
-                                                      # (raw readings * gain) minus offset
+                true_temp = (temp)
                 now = dt.datetime.now()
                 
                 # Calculate current time, starting from 0 seconds
@@ -750,7 +776,7 @@ temp_sensor = fig3.add_subplot(111)
 tcp_line, = temp_sensor.plot([], [], linestyle='solid', linewidth='2', color='purple')
 temp_sensor.set_title('Thermal Conductivity Probe', weight='bold')  
 temp_sensor.set_xlabel('Time Elapsed (seconds)')
-temp_sensor.set_ylabel('Degrees (Fahrenheit)')
+temp_sensor.set_ylabel('Degrees (Celsius)')
 temp_sensor.grid()
 
 fig3.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
@@ -1085,13 +1111,17 @@ act_status = tk.Label(home_frame, text="Linear Actuator: ", font=("Arial", 14))
 act_status.grid(row=5, column=0, sticky=NW)
 actser_status = tk.Label(home_frame, text=str(ser_running), font=("Arial", 14), background='#f05666', relief='groove')
 actser_status.grid(row=5, column=1, sticky=NW)
+tcph_status = tk.Label(home_frame, text="TCP Heater: ", font=("Arial", 14))
+tcph_status.grid(row=6, column=0, sticky=NW)
+tcphser_status = tk.Label(home_frame, text=str(ser_running), font=("Arial", 14), background='#f05666', relief='groove')
+tcphser_status.grid(row=6, column=1, sticky=NW)
 tor_status = tk.Label(home_frame, text="Torque Sensor: ", font=("Arial", 14))
-tor_status.grid(row=6, column=0, sticky=NW)
+tor_status.grid(row=7, column=0, sticky=NW)
 torser_status = tk.Label(home_frame, text=str(torser_running), font=("Arial", 14), background='#f05666', relief='groove')
-torser_status.grid(row=6, column=1, sticky=NW)
+torser_status.grid(row=7, column=1, sticky=NW)
 
 ser_kill = tk.Button(home_frame, text="Kill Ports", command=kill_ports)
-ser_kill.grid(row=7, column=0, padx=5, pady=5, sticky=NW)
+ser_kill.grid(row=8, column=0, padx=5, pady=5, sticky=NW)
 
 cpt_var = tk.StringVar()
 vst_var = tk.StringVar()
@@ -1172,18 +1202,18 @@ def cpt_estop():
     global cpt_estop_flag
     cpt_estop_flag = True
     
-act_nstop = tk.Button(cpt_frame, text="Actuator Stop", bg="#fcf5b6", command=lambda: digitalWrite('s'))
+act_nstop = tk.Button(cpt_frame, text="Actuator Stop", bg="#fcf5b6", command=lambda: digitalWrite(actuator,'s'))
 act_nstop.grid(row=3, column=2, sticky=W)
 
-jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite('W'))
-jog_up = tk.Button(cpt_frame, text="Jog Up", bg="#cfe1ff", command=lambda: digitalWrite('C'))
+jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'W'))
+jog_up = tk.Button(cpt_frame, text="Jog Up", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'C'))
 jog_down.place(relx=0.86, rely=0.19)
 jog_up.place(relx=0.86, rely=0.153)
 
 act_estop = tk.Button(cpt_frame, text="Stop Operation", bg="#ffcdc9", command=cpt_estop)
 act_estop.grid(row=4, column=2, sticky=W)
 
-act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite('C'))
+act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite(actuator, 'C'))
 act_reset.grid(row=5, column=2, sticky=tk.W)
 
 newt = tk.Label(cpt_frame, text="Greatest Force (Newton): ", font=("Arial Bold", 10))
@@ -1344,6 +1374,30 @@ tcp_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 csv_tcp_button = tk.Button(tcp_frame, text="Set Name", command=get_tcp_csv)
 csv_tcp_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
 
+heating_var = tk.StringVar()
+def update_heatdur(heating_dur):
+    global tcp_duration
+    selected = heating_dur
+    if selected == '10 seconds':
+        tcp_duration = 10000
+    elif selected == '20 seconds':
+        tcp_duration = 20000
+    elif selected == '30 seconds':
+        tcp_duration = 30000
+    elif selected == '40 seconds':
+        tcp_duration = 40000
+    elif selected == '50 seconds':
+        tcp_duration = 50000
+    print(f'Selected {selected} heating duration!') 
+    print(tcp_duration)
+
+heat_options = ['10 seconds', '20 seconds', '30 seconds', '40 seconds', '50 seconds']
+heat_text = tk.Label(tcp_frame, text="Select heating duration: ", font=("Arial", 10))
+heat_text.grid(row=2, column=0, padx=3, pady=6)
+heat_dropdown = tk.OptionMenu(tcp_frame, heating_var, *heat_options, command=update_heatdur)
+heat_dropdown.grid(row=2, column=1, pady=6, sticky=W)
+
+
 run_tcp_button = tk.Button(tcp_frame, text="Run Temperature Sensor", command=tcp_run)
 run_tcp_button.grid(row=2, column=2, padx=3, pady=3, sticky=W)
 
@@ -1392,7 +1446,7 @@ save_vst.place(relx=0.07, rely=0.958, anchor=tk.SW)
 
 # TCP
 canvas3 = FigureCanvasTkAgg(fig3, master=tcp_frame)
-canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=90)
+canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=80)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 save_tcp = tk.Button(tcp_frame, image=save_icon, command=lambda: save_plot(fig3))
 save_tcp.place(relx=0.07, rely=0.885, anchor=tk.SW)  
@@ -1430,13 +1484,22 @@ def exit_handler():
         print("Linear Actuator Port Status: ", actuator.isOpen())
         print("Linear Actuator port closed successfully!")
     else:
-        print("already closed")
+        print("Linear Actuator already closed")
+
+    if tcp_heater.isOpen() == True:
+        tcp_heater.close()
+        print("TCP Heater Port Status: ", tcp_heater.isOpen())
+        print("TCP Heater port closed successfully!")
+    else:
+        print("TCP Heater already closed")
+
     if stepper.isOpen() == True:
         stepper.close()
-        print("Torque Motor Port Status: ", actuator.isOpen())
+        print("Torque Motor Port Status: ", stepper.isOpen())
         print("Torque Motor port closed succesfully!")
     else:
-        print("already closed")
+        print("Torque Motor already closed")
+
 atexit.register(exit_handler)
 
 root.mainloop()
