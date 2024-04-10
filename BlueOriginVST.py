@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: Vane Shear Only
 
 # Created: February 16th, 2024
-# Last Updated: April 3rd, 2024
+# Last Updated: April 9th, 2024
 # ============================================ #
 
 import os
@@ -121,15 +121,17 @@ def read_torque_sensor():
             print(f"VST End Timestamp: {end_time}")
             print('VST Run Completed!\n')
             sys.stdout.flush()
-            run_counter+=1
             file.close()
+            run_counter+=1
 
             if run_counter == 6:
                 stepper.close()
                 sys.stdout.close()
+                sys.exit()
             else:
-                time.sleep(5)
-                go_vst()
+                time.sleep(3)
+
+    go_vst()
 
 def torque_sensor_run():
     thread_vst = Thread(target=read_torque_sensor) 
@@ -145,3 +147,9 @@ time_now = dt.datetime.now().strftime("%H:%M:%S")
 print(f'\n[{todays_date}, {time_now}] VST batch successfully started!')
 sys.stdout.flush()
 go_vst()
+# while run_counter < 7:
+#     go_vst()
+#     time.sleep(3)
+
+# stepper.close()
+# sys.stdout.close()

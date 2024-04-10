@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: Ground Vane Shear
 
 # Created: March 21th, 2024
-# Last Updated: March 21th, 2024
+# Last Updated: April 9th, 2024
 # ============================================ #
 
 import os
@@ -26,7 +26,7 @@ from threading import Thread
 stepper = serial.Serial('COM3', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1600
-vst_duration = 15
+vst_duration = 30
 run_counter = 0
 torque_csv = []
 
