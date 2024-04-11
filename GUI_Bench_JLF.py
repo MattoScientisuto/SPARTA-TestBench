@@ -188,9 +188,9 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
-# actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
+actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
 tcp_heater = serial.Serial('COM8', baudrate=9600, timeout=1)
-# stepper = serial.Serial('COM3', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial('COM10', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 ser_running = False
 tcph_running = False
 torser_running = False
@@ -208,12 +208,12 @@ def check_ports():
     global tcph_running
     global torser_running
 
-    # if actuator.isOpen() == True:
-    #     ser_running = True
-    #     print('Linear Actuator Port Opened?: ', actuator.isOpen())
-    #     switch_true(actser_status)
-    # else:
-    #     tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
+    if actuator.isOpen() == True:
+        ser_running = True
+        print('Linear Actuator Port Opened?: ', actuator.isOpen())
+        switch_true(actser_status)
+    else:
+        tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
 
     if tcp_heater.isOpen() == True:
         tcph_running = True
@@ -222,12 +222,12 @@ def check_ports():
     else:
         tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
 
-    # if stepper.isOpen() == True:
-    #     torser_running = True
-    #     print('Torque Motor Port Opened?: ', stepper.isOpen())
-    #     switch_true(torser_status)
-    # else:
-    #     tk.messagebox.showinfo("Error", "Torque Motor serial port is not opened!")
+    if stepper.isOpen() == True:
+        torser_running = True
+        print('Torque Motor Port Opened?: ', stepper.isOpen())
+        switch_true(torser_status)
+    else:
+        tk.messagebox.showinfo("Error", "Torque Motor serial port is not opened!")
 
 def kill_ports():
     if actuator.isOpen() == True:
@@ -246,36 +246,37 @@ def kill_ports():
     else:
         tk.messagebox.showinfo("Error", "TCP Heater serial port already closed")
         
-    # if stepper.isOpen() == True:
-    #     stepper.close()
-    #     print("Torque Motor Port Status: ", actuator.isOpen())
-    #     print("Torque Motor port closed successfully!")
-    #     switch_false(torser_status)
-    # else:
-    #     tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
+    if stepper.isOpen() == True:
+        stepper.close()
+        print("Torque Motor Port Status: ", actuator.isOpen())
+        print("Torque Motor port closed successfully!")
+        switch_false(torser_status)
+    else:
+        tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
 vst_step_pos = 45000
-# def go_to():
-#     stepper.write(f'@0N{vst_step_pos}\r'.encode())
-#     stepper.write('@0G\r'.encode())   
-#     stepper.write('@0F\r'.encode())   
-#     print('Rotating forward...')
-# def step_stop():
-#     stepper.write('@0.\r'.encode())
-#     stepper.write('@0F\r'.encode())
-#     print('Rotation stopped!')
-# def reset():
-#     stepper.write('@0P0\r'.encode())
-#     stepper.write('@0G\r'.encode())
-#     stepper.write('@0F\r'.encode())
-#     print('Resetting position...')
+def go_to():
+    stepper.write(f'@0N{vst_step_pos}\r'.encode())
+    stepper.write('@0G\r'.encode())   
+    stepper.write('@0F\r'.encode())   
+    print('Rotating forward...')
+def step_stop():
+    stepper.write('@0.\r'.encode())
+    stepper.write('@0F\r'.encode())
+    print('Rotation stopped!')
+def reset():
+    stepper.write('@0P0\r'.encode())
+    stepper.write('@0G\r'.encode())
+    stepper.write('@0F\r'.encode())
+    print('Resetting position...')
 
 # Write command for Linear Actuator    
 def digitalWrite(device, command):
     device.write(command.encode())
     print(f'Command sent:', command)
 
+# Write command for TCP Heater
 def tcpWrite(duration, command):
     global tcp_duration
     data = f"{command},{duration}\n".encode()
@@ -306,6 +307,7 @@ r_count=1
 
 ran_num=0
 vst_ran_num=0
+tcp_ran_num=0
 
 lc_running = False
 ts_running = False
@@ -316,6 +318,7 @@ dsp_connected = False
 
 cpt_estop_flag = False
 vst_estop_flag = False
+tcp_estop_flag = False
 
 # Time elapsed (at the end of this method) will be the total 
 total_time = 0
@@ -338,12 +341,16 @@ def newton_update():
     curr_newt.config(text='{:.3f}'.format(max(strain_data)), background='white')
 
 def count_update(device):
-    global vst_ran_num
     global ran_num
+    global vst_ran_num
+    global tcp_ran_num
+
     if device == ran_counter:
         device.config(text=f"{ran_num}")
     elif device == ran_counter2:
         device.config(text=f"{vst_ran_num}")
+    elif device == ran_counter3:
+        device.config(text=f"{tcp_ran_num}")
 
 # Load Cell Read       
 def read_load_cell():
@@ -375,7 +382,7 @@ def read_load_cell():
         
         ai_task.start()
         
-        digitalWrite('W')
+        digitalWrite(actuator, 'W')
 
         lc_running = True
         switch_true(load_running)
@@ -428,7 +435,7 @@ def read_load_cell():
         lc_running = False
         switch_false(load_running)
         newton_update()
-        digitalWrite('s')
+        digitalWrite(actuator, 's')
         ran_num+=1
         count_update(ran_counter)
         print('CPT Run Completed!')
@@ -481,9 +488,8 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = torque 
-                lb_inch = (torque * (-42960)) - 8.2     # THIS IS A RANDOM GAIN I JUST SET TO HAVE IT RUNNING 
-                                                        # (raw readings * gain) minus offset
+                true_torque = torque * (-1) 
+
                 now = dt.datetime.now()
                 
                 # Calculate current time, starting from 0 seconds
@@ -496,7 +502,7 @@ def read_torque_sensor():
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, lb_inch, true_torque])
+                writer.writerow([continued_timestamp, true_torque, torque])
                 
                 # If E-STOP condition is flagged:
                 if vst_estop_flag:
@@ -526,6 +532,7 @@ def reset_vst_nums():
 # Temperature Read
 def read_tcp():
     global tcp_running
+    global tcp_ran_num
 
     with nidaqmx.Task() as ai_task:
         ai_task.ai_channels.add_ai_rtd_chan(physical_channel='cDAQ2Mod2/ai0', min_val=0.0, max_val=100.0, units=TemperatureUnits.DEG_C, rtd_type=RTDType.PT_3750, resistance_config=ResistanceConfiguration.THREE_WIRE, current_excit_source=ExcitationSource.INTERNAL, current_excit_val=1.0e-3, r_0=100.0)
@@ -537,8 +544,15 @@ def read_tcp():
         start_time = dt.datetime.now()
         
         with open(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'a', newline='') as file:
-            print(tcp_csv[0])
             writer = csv.writer(file)
+
+            # Check if this is the first run of the current log file
+            if tcp_ran_num >= 1:
+                existing_data = pd.read_csv(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', sep=',')
+                last_timestamp = existing_data['Timestamp (seconds)'].iloc[-1]
+            # If not, last timestamp shouldn't be taken from the previous
+            else:
+                last_timestamp = 0
 
             while tcp_running:
                 temp = ai_task.read()     # Read current value
@@ -550,8 +564,10 @@ def read_tcp():
                 elapsed_time = now - start_time
                 seconds = elapsed_time.total_seconds()
                 rounded_seconds = round(seconds, 3)
+
+                continued_timestamp = last_timestamp + rounded_seconds
                 
-                writer.writerow([rounded_seconds, true_temp])
+                writer.writerow([continued_timestamp, true_temp])
                 file.flush()
                 
             file.close()    
@@ -560,8 +576,16 @@ def read_tcp():
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         print('TCP Run Completed!')
+        tcp_ran_num+=1
+        count_update(ran_counter3)
         tk.messagebox.showinfo("TCP Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
-            
+
+def reset_tcp_nums():
+    global tcp_ran_num
+    tcp_ran_num = 0
+    count_update(ran_counter3)
+    tk.messagebox.showinfo("TCP", f"Current TCP Run Count: {tcp_ran_num}")
+
 def stop_tcp():
     global tcp_running
     tcp_running = False
@@ -787,7 +811,7 @@ fig3.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=1
 fig4 = Figure(figsize=(9.0,3.9), dpi=100)
 fig4.subplots_adjust(left=0.19, bottom=0.15)
 dsp_plot = fig4.add_subplot(111)
-fig5 = Figure(figsize=(9.0,3.8), dpi=100)
+fig5 = Figure(figsize=(9.0,3.6), dpi=100)
 fig5.subplots_adjust(left=0.19, bottom=0.15)
 dsp_plot2 = fig5.add_subplot(111)
 # Labels Setup
@@ -1418,8 +1442,15 @@ temp_running.grid(row=4, column=1, sticky=W, pady=2)
 tcp_folder = tk.Button(tcp_frame, image=folders, command=lambda:open_folder('.\\data_output\\tcp'))
 tcp_folder.grid(row=5, column=2)
 
+ran_label3 = tk.Label(tcp_frame, text="Current run count: ", font=("Arial Bold", 10))
+ran_label3.grid(row=7, column=0, pady=2)
+ran_counter3 = tk.Label(tcp_frame, text='0', font=("Arial", 14), background='#e0e0e0', relief='ridge')
+ran_counter3.grid(row=7, column=1, sticky=W, pady=2)
+counts_reset3 = tk.Button(tcp_frame, text='Reset Run Count', command=reset_tcp_nums)
+counts_reset3.grid(row=7, column=2, sticky=W)
+
 elapsed_time_label = tk.Label(tcp_frame, text="0")
-elapsed_time_label.grid(row=0, column=2)
+elapsed_time_label.grid(row=6, column=2)
 
 #endregion
 
@@ -1450,17 +1481,17 @@ save_vst.place(relx=0.07, rely=0.958, anchor=tk.SW)
 
 # TCP
 canvas3 = FigureCanvasTkAgg(fig3, master=tcp_frame)
-canvas3.get_tk_widget().grid(row=6, column=0, columnspan=3, padx=30, pady=80)
+canvas3.get_tk_widget().grid(row=8, column=0, columnspan=3, padx=30, pady=26)
 canvas3.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE) 
 save_tcp = tk.Button(tcp_frame, image=save_icon, command=lambda: save_plot(fig3))
-save_tcp.place(relx=0.07, rely=0.897, anchor=tk.SW)  
+save_tcp.place(relx=0.07, rely=0.958, anchor=tk.SW)  
 
 # DSP Wet Zones
 canvas4 = FigureCanvasTkAgg(fig4, master=dspplot_frame)
 canvas4.get_tk_widget().grid(row=0, column=0, padx=50, pady=5)
 canvas4.get_tk_widget().config(borderwidth=2, relief=tk.GROOVE)
 save_wetz = tk.Button(dspplot_frame, image=save_icon, command=lambda: save_plot(fig4))
-save_wetz.place(relx=0.06, rely=0.488, anchor=tk.SW)  
+save_wetz.place(relx=0.06, rely=0.497, anchor=tk.SW)  
 
 # DSP Phase Angle
 canvas5 = FigureCanvasTkAgg(fig5, master=dspplot_frame)

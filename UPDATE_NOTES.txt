@@ -461,3 +461,7 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - Fixed DAQ task bug on the 6 runs of VST at lunar gravity
     - Now it actually allows the channel to finish its task before another VST run starts again
     - Before, it would halt because it would try starting when its resources were occupied
+
+4-11-24
+  - Added continuous run count feature to TCP
+   - functions exactly like how it does on CPT and VST to continously write to one file until the count is reset
