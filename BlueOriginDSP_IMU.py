@@ -126,7 +126,7 @@ def scan_op():
     time.sleep(2)
     
     # Channel 2
-    dsp_methods2 = os.path.join(current_directory, 'dsp_settings', dsp_001method)
+    dsp_methods2 = os.path.join(current_directory, 'dsp_settings', dsp_05method)
     Core.IV_SelectChannel(2)
     Core.IV_readmethod(dsp_methods2)
     time.sleep(1)

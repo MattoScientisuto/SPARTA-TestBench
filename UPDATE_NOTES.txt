@@ -479,3 +479,7 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Added DSP pre-treatment and scanning indicators
    - For now, it's just based on a sleep timer
    - Maybe will change later if I can get pre-treatment live data or return statuses from Ivium
+
+   ===
+   - Changed Channel 2 Blue Origin DSP to 0.5V method
+    - gives a better reading since it's on the dry side
