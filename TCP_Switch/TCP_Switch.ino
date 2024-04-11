@@ -4,7 +4,6 @@ int delayDuration = 0; // variable to store the delay duration
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Connected");
   pinMode(relayPin, OUTPUT);
 }
 
@@ -18,10 +17,12 @@ void loop() {
 
     if (command == "H") {
       digitalWrite(relayPin, HIGH);
+      Serial.println("HEATING");
       delayDuration = param.toInt(); // Store the delay duration
     } 
     else if (command == "C") {
       digitalWrite(relayPin, LOW);
+      Serial.println("STOPPED");
     }
   }
 

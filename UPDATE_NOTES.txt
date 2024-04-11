@@ -465,3 +465,13 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 4-11-24
   - Added continuous run count feature to TCP
    - functions exactly like how it does on CPT and VST to continously write to one file until the count is reset
+
+  - Added TCP heating indicator function, which gives visual cues to when the heating is running or stopped
+   - The 'Start Heating' will run for the selected duration and stop on its own
+    - BUT if the user needs to stop it abruptly, it will be able to handle it
+    - Thread timers is a new feature I learned:
+     - It'll start a non-sleeping timer and has a status embedded into it
+     - If the timer runs out on its own, it will execute whatever function is attached to it (e.g. stop heating)
+     - If the user stops it, the timer will be killed, and the manual stop function will send the stop code
+     
+  - Updated TCP Arduino to send out start and stop codes (HEATING, STOPPED) for Python to know when to update visual cues

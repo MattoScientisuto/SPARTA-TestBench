@@ -8,10 +8,9 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: April 8th, 2024
+# Last Updated: April 11th, 2024
 # ============================================ #
 
-#region
 from tkinter import *
 from tkinter import filedialog
 import tkinter as tk
@@ -21,6 +20,7 @@ import webbrowser
 from datetime import date, datetime
 import datetime as dt
 import time
+import select
 
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -44,10 +44,10 @@ import math
 import serial
 import atexit
 
+import threading
 from threading import Thread
 
 import subprocess
-#endregion
 
 root = Tk()
 root.title('SPARTA Test Bench')
@@ -538,7 +538,6 @@ def read_tcp():
         ai_task.ai_channels.add_ai_rtd_chan(physical_channel='cDAQ2Mod2/ai0', min_val=0.0, max_val=100.0, units=TemperatureUnits.DEG_C, rtd_type=RTDType.PT_3750, resistance_config=ResistanceConfiguration.THREE_WIRE, current_excit_source=ExcitationSource.INTERNAL, current_excit_val=1.0e-3, r_0=100.0)
 
         ai_task.start()
-        tcpWrite(tcp_duration, 'H')
         tcp_running = True
         switch_true(temp_running)
         start_time = dt.datetime.now()
@@ -590,7 +589,48 @@ def stop_tcp():
     global tcp_running
     tcp_running = False
     switch_false(temp_running)
+
+heating_timer = None
+def start_heating(tcp_duration):
+    global heating_timer
+
+    if tcp_duration == 0:
+        tk.messagebox.showinfo("Error", 'Please select a heating duration first!')
+    else:
+        # Send the heating command to the Arduino
+        tcpWrite(tcp_duration, 'H')
+
+        # Get the confirmation message from the Arduino that heating started
+        message = tcp_heater.readline().decode('utf-8').rstrip() 
+        if message == 'HEATING':
+            print(message)
+
+            # Start the timer for the heating duration
+            
+            heating_timer = threading.Timer(tcp_duration / 1000, stop_heating)
+            heating_timer.start()
+
+def stop_heating():
+    # Send the stop heating command to the Arduino
+    tcpWrite(0, 'C')
+    tk.messagebox.showinfo("TCP", 'Heating has been manually stopped!')
+    # Get the confirmation message from the Arduino that heating stopped
+    message = tcp_heater.readline().decode('utf-8').rstrip() 
+    if message == 'STOPPED':
+        print(message)
+
+# Command for the actual button used to stop the heating manually
+def handle_manual_stop():
+    global heating_timer
     
+    # Stop the heating abruptly if the thread timer is still running
+    if heating_timer and heating_timer.is_alive():
+        # Cancel the timer then send the stop code
+        heating_timer.cancel()
+        stop_heating()
+    else:
+        tk.messagebox.showinfo("Error", 'TCP is currently not heating!')
+      
 # ================ #
 #   DSP READING
 # ================ #
@@ -1104,7 +1144,11 @@ def dsp_run(method):
 def tcp_run():
     thread_tcp = Thread(target=read_tcp) 
     thread_tcp.start()
-    
+
+def heating_run():
+    thread_heating = Thread(target=lambda: start_heating(tcp_duration))   
+    thread_heating.start()
+
 # ===================
 #       Frames
 # ===================
@@ -1392,11 +1436,11 @@ tcp_test = tk.Label(tcp_frame, text='Thermal Conductivity Probe', font=("Arial",
 tcp_test.grid(row=0,column=0, padx=5, pady=6, columnspan=2)
 
 set_tcp_csv = tk.Label(tcp_frame, text="Set TCP log name:", font=("Arial", 10))
-set_tcp_csv.grid(row=1, column=0, padx=3, pady=3)
+set_tcp_csv.grid(row=1, column=0, padx=3, pady=2)
 tcp_entry = tk.Entry(tcp_frame, width=15)
-tcp_entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
+tcp_entry.grid(row=1, column=1, padx=3, pady=2, sticky=W)
 csv_tcp_button = tk.Button(tcp_frame, text="Set Name", command=get_tcp_csv)
-csv_tcp_button.grid(row=1, column=2, padx=3, pady=3, sticky=W)
+csv_tcp_button.grid(row=1, column=2, padx=3, pady=2, sticky=W)
 
 heating_var = tk.StringVar()
 def update_heatdur(heating_dur):
@@ -1413,34 +1457,40 @@ def update_heatdur(heating_dur):
     elif selected == '50 seconds':
         tcp_duration = 50000
     print(f'Selected {selected} heating duration!') 
-    print(tcp_duration)
 
 heat_options = ['10 seconds', '20 seconds', '30 seconds', '40 seconds', '50 seconds']
 heat_text = tk.Label(tcp_frame, text="Select heating duration: ", font=("Arial", 10))
-heat_text.grid(row=2, column=0, padx=3, pady=6)
+heat_text.grid(row=2, column=0, padx=3, pady=3)
 heat_dropdown = tk.OptionMenu(tcp_frame, heating_var, *heat_options, command=update_heatdur)
-heat_dropdown.grid(row=2, column=1, pady=6, sticky=W)
+heat_dropdown.grid(row=2, column=1, pady=3, sticky=W)
 
-run_tcp_button = tk.Button(tcp_frame, text="Run Temperature Sensor", command=tcp_run)
-run_tcp_button.grid(row=3, column=2, padx=3, pady=3, sticky=W)
+start_tcp_heat = tk.Button(tcp_frame, text="Start Heating", background="#ff9c6b", command=heating_run)
+start_tcp_heat.grid(row=2, column=2)
 
 log4 = tk.Label(tcp_frame, text="Logging to: ", font=("Arial", 10))
 log4.grid(row=3, column=0)
 curr_log4 = tk.Label(tcp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
-curr_log4.grid(row=3, column=1, sticky=W, pady=2)
+curr_log4.grid(row=3, column=1, sticky=W, pady=1)
 
-stop_tcp_button = tk.Button(tcp_frame, text="Stop Temperature Sensor", background="#ffcdc9", command=stop_tcp)
-stop_tcp_button.grid(row=4, column=2, padx=3, pady=3, sticky=W)
-stop_tcp_heat = tk.Button(tcp_frame, text="Stop Heating", command=lambda: tcpWrite(0, 'C'))
-stop_tcp_heat.grid(row=2, column=2)
+stop_tcp_heat = tk.Button(tcp_frame, text="Stop Heating", background="#a7ddf2", command=handle_manual_stop)
+stop_tcp_heat.grid(row=3, column=2)
+
+tcp_currheat = tk.Label(tcp_frame, text="Currently Heating: ", font=("Arial Bold", 10))
+tcp_currheat.grid(row=4, column=0, pady=2)
+elapsed_time_label = tk.Label(tcp_frame, text='0', font=("Arial", 14), background='#f05666', relief='groove')
+elapsed_time_label.grid(row=4, column=1, sticky=W, pady=2)
+run_tcp_button = tk.Button(tcp_frame, text="Run Temperature Sensor", command=tcp_run)
+run_tcp_button.grid(row=4, column=2, padx=3, pady=3, sticky=W)
 
 running4 = tk.Label(tcp_frame, text="Currently Running: ", font=("Arial Bold", 10))
-running4.grid(row=4, column=0, pady=2)
+running4.grid(row=5, column=0, pady=2)
 temp_running = tk.Label(tcp_frame, text=str(tcp_running), font=("Arial", 14), background='#f05666', relief='groove')
-temp_running.grid(row=4, column=1, sticky=W, pady=2)
+temp_running.grid(row=5, column=1, sticky=W, pady=2)
+stop_tcp_button = tk.Button(tcp_frame, text="Stop Temperature Sensor", background="#ffcdc9", command=stop_tcp)
+stop_tcp_button.grid(row=5, column=2, padx=3, pady=3, sticky=W)
 
 tcp_folder = tk.Button(tcp_frame, image=folders, command=lambda:open_folder('.\\data_output\\tcp'))
-tcp_folder.grid(row=5, column=2)
+tcp_folder.grid(row=6, column=2)
 
 ran_label3 = tk.Label(tcp_frame, text="Current run count: ", font=("Arial Bold", 10))
 ran_label3.grid(row=7, column=0, pady=2)
@@ -1448,9 +1498,6 @@ ran_counter3 = tk.Label(tcp_frame, text='0', font=("Arial", 14), background='#e0
 ran_counter3.grid(row=7, column=1, sticky=W, pady=2)
 counts_reset3 = tk.Button(tcp_frame, text='Reset Run Count', command=reset_tcp_nums)
 counts_reset3.grid(row=7, column=2, sticky=W)
-
-elapsed_time_label = tk.Label(tcp_frame, text="0")
-elapsed_time_label.grid(row=6, column=2)
 
 #endregion
 
