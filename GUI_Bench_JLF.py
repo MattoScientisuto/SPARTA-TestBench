@@ -203,6 +203,9 @@ def switch_true(device):
 def switch_false(device):
     device.config(text='False', background='#f05666')
 
+def switch_idle(device):
+    device.config(text='IDLE', background='#a7ddf2')
+
 def check_ports():
     global ser_running
     global tcph_running
@@ -521,7 +524,7 @@ def read_torque_sensor():
         vst_ran_num+=1
         count_update(ran_counter2)
         print('VST Run Completed!')
-        tk.messagebox.showinfo("VST Run Completed", "Total time elapsed: {:.3f} seconds\n NOW RESET THE MOTOR POSITION!".format(total_time))
+        tk.messagebox.showinfo("VST Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
 
 def reset_vst_nums():
     global vst_ran_num
@@ -596,6 +599,8 @@ def start_heating(tcp_duration):
 
     if tcp_duration == 0:
         tk.messagebox.showinfo("Error", 'Please select a heating duration first!')
+    elif heating_timer and heating_timer.is_alive():
+        tk.messagebox.showinfo("Error", 'TCP is already heating!')
     else:
         # Send the heating command to the Arduino
         tcpWrite(tcp_duration, 'H')
@@ -604,38 +609,38 @@ def start_heating(tcp_duration):
         message = tcp_heater.readline().decode('utf-8').rstrip() 
         if message == 'HEATING':
             print(message)
-
+            elapsed_time_label.config(text='HEATING...', background='#ff9c6b')
             # Start the timer for the heating duration
-            
             heating_timer = threading.Timer(tcp_duration / 1000, stop_heating)
             heating_timer.start()
 
 def stop_heating():
     # Send the stop heating command to the Arduino
     tcpWrite(0, 'C')
-    tk.messagebox.showinfo("TCP", 'Heating has been manually stopped!')
+
     # Get the confirmation message from the Arduino that heating stopped
     message = tcp_heater.readline().decode('utf-8').rstrip() 
     if message == 'STOPPED':
         print(message)
+        elapsed_time_label.config(text='IDLE', background='#a7ddf2')
+        tk.messagebox.showinfo("TCP", 'Heating has finished!')
 
 # Command for the actual button used to stop the heating manually
 def handle_manual_stop():
     global heating_timer
-    
+
     # Stop the heating abruptly if the thread timer is still running
     if heating_timer and heating_timer.is_alive():
         # Cancel the timer then send the stop code
         heating_timer.cancel()
         stop_heating()
     else:
-        tk.messagebox.showinfo("Error", 'TCP is currently not heating!')
+        tk.messagebox.showinfo("TCP", 'TCP is not currently heating!')
       
 # ================ #
 #   DSP READING
 # ================ #
 #region
-
 def device_update(device, serial):
     device.config(text=serial, background='#15eb80')
 
@@ -763,13 +768,19 @@ def scan_op(method):
         dsp_running = True
         switch_true(dsp_runstatus)
         Core.IV_startmethod(dsp_methods)
-        
+
+        dsp_prestat.config(text='TREATING...', background='#ffc2fd')
+        time.sleep(15)
+        switch_idle(dsp_prestat)
+        dsp_scanstat.config(text='SCANNING...', background='#ffc2fd')
+
         dsp_wait()
         dsp_running = False
         
         dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
         tk.messagebox.showinfo("DSP Scan Completed!", f'Successfully completed! Your .idf file has been saved as {dsp_idf[0]}')
         switch_false(dsp_runstatus)
+        switch_idle(dsp_scanstat)
         print('DSP Run Completed!')
         
         # Save to dsp folder
@@ -788,6 +799,7 @@ def stop_dsp():
     else:
         Core.IV_abort()
         switch_false(dsp_runstatus)
+        switch_idle(dsp_prestat)
 
 #endregion
 
@@ -867,7 +879,7 @@ dsp_plot2.set_title('DSP Phase Angle', weight='bold')
 dsp_plot2.set_xlabel('10log(frequency) /Hz', fontsize=15)
 dsp_plot2.set_ylabel('-phase /degrees', fontsize=15)
 dsp_plot2.set_xlim(0,5.1)
-dsp_plot2.set_ylim(0,80)
+dsp_plot2.set_ylim(0,120)
 dsp_plot2.grid()
 
 # Wet Zones
@@ -1425,8 +1437,18 @@ dsp_runtstat.grid(row=7, column=0, pady=2)
 dsp_runstatus = tk.Label(dsp_frame, text=str(dsp_running), font=("Arial", 14), background='#f05666', relief='groove')
 dsp_runstatus.grid(row=7, column=1, sticky=W, pady=2)
 
+dsp_pretreat = tk.Label(dsp_frame, text='Pre-treatment Status:', font=("Arial Bold", 10))
+dsp_pretreat.grid(row=8, column=0, pady=2)
+dsp_prestat = tk.Label(dsp_frame, text='IDLE', font=("Arial", 14), background='#a7ddf2', relief='groove')
+dsp_prestat.grid(row=8, column=1, sticky=W, pady=2)
+
+dsp_scann = tk.Label(dsp_frame, text='Scanning Status:', font=("Arial Bold", 10))
+dsp_scann.grid(row=9, column=0, pady=2)
+dsp_scanstat = tk.Label(dsp_frame, text='IDLE', font=("Arial", 14), background='#a7ddf2', relief='groove')
+dsp_scanstat.grid(row=9, column=1, sticky=W, pady=2)
+
 dsp_folder = tk.Button(dsp_frame, image=folders, command=lambda:open_folder('.\\data_output\\dsp'))
-dsp_folder.grid(row=8, column=2, pady=10)
+dsp_folder.grid(row=10, column=2, pady=10)
 
 #endregion
 
@@ -1475,9 +1497,9 @@ curr_log4.grid(row=3, column=1, sticky=W, pady=1)
 stop_tcp_heat = tk.Button(tcp_frame, text="Stop Heating", background="#a7ddf2", command=handle_manual_stop)
 stop_tcp_heat.grid(row=3, column=2)
 
-tcp_currheat = tk.Label(tcp_frame, text="Currently Heating: ", font=("Arial Bold", 10))
+tcp_currheat = tk.Label(tcp_frame, text="Heating Status: ", font=("Arial Bold", 10))
 tcp_currheat.grid(row=4, column=0, pady=2)
-elapsed_time_label = tk.Label(tcp_frame, text='0', font=("Arial", 14), background='#f05666', relief='groove')
+elapsed_time_label = tk.Label(tcp_frame, text='IDLE', font=("Arial", 14), background='#a7ddf2', relief='groove')
 elapsed_time_label.grid(row=4, column=1, sticky=W, pady=2)
 run_tcp_button = tk.Button(tcp_frame, text="Run Temperature Sensor", command=tcp_run)
 run_tcp_button.grid(row=4, column=2, padx=3, pady=3, sticky=W)

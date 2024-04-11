@@ -473,5 +473,9 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
      - It'll start a non-sleeping timer and has a status embedded into it
      - If the timer runs out on its own, it will execute whatever function is attached to it (e.g. stop heating)
      - If the user stops it, the timer will be killed, and the manual stop function will send the stop code
-     
+
   - Updated TCP Arduino to send out start and stop codes (HEATING, STOPPED) for Python to know when to update visual cues
+
+  - Added DSP pre-treatment and scanning indicators
+   - For now, it's just based on a sleep timer
+   - Maybe will change later if I can get pre-treatment live data or return statuses from Ivium
