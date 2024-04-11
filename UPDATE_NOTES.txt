@@ -480,6 +480,12 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - For now, it's just based on a sleep timer
    - Maybe will change later if I can get pre-treatment live data or return statuses from Ivium
 
-   ===
-   - Changed Channel 2 Blue Origin DSP to 0.5V method
-    - gives a better reading since it's on the dry side
+  - Added 'End of Run/Operation' indicator lines on CPT, VST and TCP
+   - Since we can run multiple logging operations onto a single file, I figured we needed a visual to show where we actually ended logging
+    - Otherwise, it would be difficult to remember once we're processing data later
+     - We'd be wondering how many seconds we ran the second time for, how deep we went on run 3, etc.
+   ! JUST MAKE SURE TO ACTUALLY SAVE SCREENSHOTS OF THE PLOTS FOR REFERENCE!!!
+
+  ===
+  - Changed Channel 2 Blue Origin DSP to 0.5V method
+   - gives a better reading since it's on the dry side

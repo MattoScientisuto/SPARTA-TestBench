@@ -402,6 +402,7 @@ def read_load_cell():
             # If not, last timestamp shouldn't be taken from the previous
             else:
                 last_timestamp = 0
+                clear_vertical_lines(cpt_endlines)
             
             for i in range(cpt_samples):
                 strain = ai_task.read()     # Read current value
@@ -442,6 +443,7 @@ def read_load_cell():
         ran_num+=1
         count_update(ran_counter)
         print('CPT Run Completed!')
+        add_endrunline(load_cell, cdepth)
         tk.messagebox.showinfo("CPT Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
 
 def reset_cpt_nums():
@@ -488,6 +490,7 @@ def read_torque_sensor():
             # If not, last timestamp shouldn't be taken from the previous
             else:
                 last_timestamp = 0
+                clear_vertical_lines(vst_endlines)
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
@@ -524,6 +527,7 @@ def read_torque_sensor():
         vst_ran_num+=1
         count_update(ran_counter2)
         print('VST Run Completed!')
+        add_endrunline(torque_sensor,continued_timestamp)
         tk.messagebox.showinfo("VST Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
 
 def reset_vst_nums():
@@ -555,6 +559,7 @@ def read_tcp():
             # If not, last timestamp shouldn't be taken from the previous
             else:
                 last_timestamp = 0
+                clear_vertical_lines(tcp_endlines)
 
             while tcp_running:
                 temp = ai_task.read()     # Read current value
@@ -580,6 +585,7 @@ def read_tcp():
         print('TCP Run Completed!')
         tcp_ran_num+=1
         count_update(ran_counter3)
+        add_endrunline(temp_sensor,continued_timestamp)
         tk.messagebox.showinfo("TCP Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
 
 def reset_tcp_nums():
@@ -806,6 +812,25 @@ def stop_dsp():
 # =================
 # LIVE PLOTS SETUP
 # =================
+cpt_endlines = []
+vst_endlines = []
+tcp_endlines = []
+# Adds vertical indicator lines to mark an end of an operation run
+def add_endrunline(plot, axis_position):
+    if plot == load_cell:
+        line = plot.axhline(y=axis_position, color='r', linestyle='--')
+        cpt_endlines.append(line)
+    elif plot == torque_sensor:
+        line = plot.axvline(x=axis_position, color='black', linestyle='--')
+        vst_endlines.append(line)
+    elif plot == temp_sensor:
+        line = plot.axvline(x=axis_position, color='r', linestyle='--')
+        tcp_endlines.append(line)
+# Clears all vertical indicator lines on the selected plot when starting a new file
+def clear_vertical_lines(endline_list):
+    for line in endline_list:
+        line.remove()
+    endline_list.clear()
 
 # Load Cell
 #region
