@@ -489,3 +489,8 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   ===
   - Changed Channel 2 Blue Origin DSP to 0.5V method
    - gives a better reading since it's on the dry side
+
+4-12-24
+  - Added the AnimatedGif custom library by Ole Jakob Skjelten
+   - Allows gifs to play within the tkinter interface
+   - Added for more visual appeal + demonstration friendly

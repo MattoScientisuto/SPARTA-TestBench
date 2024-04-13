@@ -8,13 +8,14 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: April 11th, 2024
+# Last Updated: April 12th, 2024
 # ============================================ #
 
 from tkinter import *
 from tkinter import filedialog
 import tkinter as tk
 from PIL import Image, ImageTk
+from AnimatedGif import *
 import webbrowser
 
 from datetime import date, datetime
@@ -190,7 +191,7 @@ frame.grid_propagate(False)
 # ========================================================================
 actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
 tcp_heater = serial.Serial('COM8', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM10', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial('COM11', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 ser_running = False
 tcph_running = False
 torser_running = False
@@ -616,6 +617,8 @@ def start_heating(tcp_duration):
         if message == 'HEATING':
             print(message)
             elapsed_time_label.config(text='HEATING...', background='#ff9c6b')
+            heating_gif.place(relx=0.36, rely=0.179, anchor=tk.NE)
+            heating_gif.start()
             # Start the timer for the heating duration
             heating_timer = threading.Timer(tcp_duration / 1000, stop_heating)
             heating_timer.start()
@@ -623,11 +626,12 @@ def start_heating(tcp_duration):
 def stop_heating():
     # Send the stop heating command to the Arduino
     tcpWrite(0, 'C')
-
+    heating_gif.place_forget()
     # Get the confirmation message from the Arduino that heating stopped
     message = tcp_heater.readline().decode('utf-8').rstrip() 
     if message == 'STOPPED':
         print(message)
+        
         elapsed_time_label.config(text='IDLE', background='#a7ddf2')
         tk.messagebox.showinfo("TCP", 'Heating has finished!')
 
@@ -1526,6 +1530,7 @@ tcp_currheat = tk.Label(tcp_frame, text="Heating Status: ", font=("Arial Bold", 
 tcp_currheat.grid(row=4, column=0, pady=2)
 elapsed_time_label = tk.Label(tcp_frame, text='IDLE', font=("Arial", 14), background='#a7ddf2', relief='groove')
 elapsed_time_label.grid(row=4, column=1, sticky=W, pady=2)
+heating_gif = AnimatedGif(tcp_frame, '.\\gui_images\\fire.gif', 0.05)
 run_tcp_button = tk.Button(tcp_frame, text="Run Temperature Sensor", command=tcp_run)
 run_tcp_button.grid(row=4, column=2, padx=3, pady=3, sticky=W)
 
