@@ -259,8 +259,12 @@ def kill_ports():
         tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
-vst_step_pos = 45000
+vst_step_pos = 3000
 def go_to():
+    stepper.write('@0B100\r'.encode())
+    stepper.write('@0M100\r'.encode())
+    stepper.write('@0J100\r'.encode())
+    stepper.write('@0+\r'.encode())
     stepper.write(f'@0N{vst_step_pos}\r'.encode())
     stepper.write('@0G\r'.encode())   
     stepper.write('@0F\r'.encode())   
@@ -408,7 +412,7 @@ def read_load_cell():
             for i in range(cpt_samples):
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1
-                newton = (strain * (-96960)) - 21.25 # -96960 gain, 9.25 offset
+                newton = (true_strain) - 11 # -96960 gain, 9.25 offset
                 cdepth = r_count / 1732     # About 1732 data points per centimeter at 12 Volts
 
                 now = dt.datetime.now()
@@ -420,7 +424,7 @@ def read_load_cell():
 
                 continued_timestamp = last_timestamp + rounded_seconds
 
-                strain_data.append(true_strain)
+                strain_data.append(newton)
                 r_count+=1
                 
                 # Write current value to CSV
@@ -450,6 +454,8 @@ def read_load_cell():
 def reset_cpt_nums():
     global ran_num
     global r_count
+    global strain_data
+    strain_data = []
     ran_num = 0
     r_count = 1
     count_update(ran_counter)
@@ -495,7 +501,8 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = torque * (-1) 
+                true_torque = torque +11    
+                lbs_inch = true_torque + 11
 
                 now = dt.datetime.now()
                 
@@ -736,6 +743,9 @@ def dsp_wait():
         for i in range(num_datapoints[1]):
             data_item = Core.IV_getdata(i)
 
+            print(data_item[1])
+            print(data_item[2])
+
             # Filter out the initial unknown value it always reads
             if(data_item[3] == 1e-12):
                 continue
@@ -743,7 +753,7 @@ def dsp_wait():
                 frequencies.append(math.log10(data_item[3]))
 
             zr = data_item[1]
-            n_zi = -(data_item[2])
+            n_zi = (data_item[2]) * -1
 
             # Equations for the plot taken from Keith's excel file
             absolZ.append(math.log10(math.sqrt((zr**2) + (n_zi**2))))
@@ -901,7 +911,7 @@ dsp_plot.set_title('DSP Wet Zones', weight='bold')
 dsp_plot.set_xlabel('10log(frequency) /Hz', fontsize=15)
 dsp_plot.set_ylabel('10log|Z| /ohm', fontsize=15)
 dsp_plot.set_xlim(0,5.1)
-dsp_plot.set_ylim(-1.1,8)
+dsp_plot.set_ylim(-1.1,9)
 dsp_plot.grid()
 dsp_pline, = dsp_plot2.plot([], [], linestyle='solid', linewidth='2', color='#1c27ff')
 dsp_plot2.set_title('DSP Phase Angle', weight='bold')  
@@ -938,7 +948,7 @@ def animate_load_cell(i):
     if csv_list and lc_running is True:
         data = pd.read_csv(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=",")
         x = data['Timestamp'] 
-        y = data['Force [Raw Reading]'] 
+        y = data['Force [Pounds]'] 
         y2 = data['Depth [cm]']                            
         
         load_line.set_data(y,y2)
@@ -951,7 +961,7 @@ def animate_torque_sensor(i):
     if torque_csv and ts_running is True:
         data = pd.read_csv(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
         x = data['Timestamp (seconds)'] 
-        y = data['Torque [Raw Reading]']                             
+        y = data['Torque [Pound-inches]']                             
         
         torque_line.set_data(x,y)
         torque_sensor.relim()
@@ -1153,7 +1163,7 @@ def set_vst_dur():
         tk.messagebox.showinfo("Error", 'The maximum duration is 5591 seconds!')
     else:  
         # Time -> Steps conversion: 1500 steps per second
-        vst_step_pos = (1500 * vst_duration)
+        vst_step_pos = (100 * vst_duration)
         rot_dur.config(text='{:.2f}'.format(vst_duration))
         print("VST Duration set to:", vst_duration)
     print(vst_step_pos)
@@ -1602,8 +1612,8 @@ save_phase.place(relx=0.06, rely=0.98, anchor=tk.SW)
 #endregion
 
 # Plots Animations
-ani = FuncAnimation(fig1, animate_load_cell, interval=1000, cache_frame_data=False)
-ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=1000, cache_frame_data=False)
+ani = FuncAnimation(fig1, animate_load_cell, interval=500, cache_frame_data=False)
+ani2 = FuncAnimation(fig2, animate_torque_sensor, interval=500, cache_frame_data=False)
 ani3 = FuncAnimation(fig3, animate_tcp, interval=1000, cache_frame_data=False)
 ani4 = FuncAnimation(fig4, animate_dsp, interval=1000, cache_frame_data=False)
 ani5 = FuncAnimation(fig5, animate_dsp_phase, interval=1000, cache_frame_data=False)

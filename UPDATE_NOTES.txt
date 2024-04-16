@@ -494,3 +494,14 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   - Added the AnimatedGif custom library by Ole Jakob Skjelten
    - Allows gifs to play within the tkinter interface
    - Added for more visual appeal + demonstration friendly
+
+4-15-24
+  - Updated JLF offset numbers and animation delay
+  * The gains on everything is probably gonna be inaccurate for APL 
+   - I really don't think we're gonna have time except maybe TCP with ice water
+  
+  - DSP only works properly with the black cable, NOT the green card 
+
+  - TCP heater needs a 150 ohm resistor somewhere within the circuit to heat safely
+   - could possibly already be burnt
+  
