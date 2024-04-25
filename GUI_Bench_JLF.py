@@ -25,10 +25,13 @@ import select
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from matplotlib.ticker import ScalarFormatter
+from scipy.signal import butter, lfilter, filtfilt
+
 
 import nidaqmx
 from nidaqmx.constants import BridgePhysicalUnits, RTDType, ExcitationSource, TemperatureUnits, ResistanceConfiguration
@@ -191,7 +194,18 @@ frame.grid_propagate(False)
 # ========================================================================
 actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
 tcp_heater = serial.Serial('COM8', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM11', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial('COM12', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+
+time.sleep(0.5)
+stepper.write('@0B670\r'.encode())
+time.sleep(0.5)
+stepper.write('@0M670\r'.encode())
+time.sleep(0.5)
+stepper.write('@0J670\r'.encode())
+time.sleep(0.5)
+stepper.write('@0+\r'.encode())
+time.sleep(0.2)
+
 ser_running = False
 tcph_running = False
 torser_running = False
@@ -259,14 +273,12 @@ def kill_ports():
         tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
-vst_step_pos = 3000
+vst_step_pos = 4020
 def go_to():
-    stepper.write('@0B100\r'.encode())
-    stepper.write('@0M100\r'.encode())
-    stepper.write('@0J100\r'.encode())
-    stepper.write('@0+\r'.encode())
+    time.sleep(0.1)
     stepper.write(f'@0N{vst_step_pos}\r'.encode())
-    stepper.write('@0G\r'.encode())   
+    stepper.write('@0G\r'.encode())  
+    time.sleep(0.1) 
     stepper.write('@0F\r'.encode())   
     print('Rotating forward...')
 def step_stop():
@@ -274,13 +286,16 @@ def step_stop():
     stepper.write('@0F\r'.encode())
     print('Rotation stopped!')
 def reset():
+    time.sleep(0.1)
     stepper.write('@0P0\r'.encode())
     stepper.write('@0G\r'.encode())
+    time.sleep(0.1)
     stepper.write('@0F\r'.encode())
     print('Resetting position...')
 
 # Write command for Linear Actuator    
 def digitalWrite(device, command):
+    time.sleep(0.2)
     device.write(command.encode())
     print(f'Command sent:', command)
 
@@ -290,7 +305,7 @@ def tcpWrite(duration, command):
     data = f"{command},{duration}\n".encode()
     tcp_heater.write(data)
     print('Command sent:', data.decode().strip())
-
+    
 # Arrays for CSV names
 csv_list = []
 torque_csv = []
@@ -333,7 +348,7 @@ total_time = 0
 sample_rate = 1655
 
 acquisition_duration = 0
-vst_duration = 30
+vst_duration = 6
     
 def log_update(device):
     if device is curr_log1:
@@ -391,6 +406,7 @@ def read_load_cell():
         ai_task.start()
         
         digitalWrite(actuator, 'W')
+        time.sleep(0.1)
 
         lc_running = True
         switch_true(load_running)
@@ -437,14 +453,16 @@ def read_load_cell():
                     break
                 
             file.close()
-        
+            
+        time.sleep(0.1)
+        digitalWrite(actuator, 's')
+
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         lc_running = False
         switch_false(load_running)
         newton_update()
-        digitalWrite(actuator, 's')
         ran_num+=1
         count_update(ran_counter)
         print('CPT Run Completed!')
@@ -460,6 +478,7 @@ def reset_cpt_nums():
     r_count = 1
     count_update(ran_counter)
     tk.messagebox.showinfo("CPT", f"Current CPT Run Count: {ran_num}\nCurrent Artificial Depth Num: {r_count}")
+
 
 # Torque Sensor Read
 def read_torque_sensor():
@@ -501,7 +520,7 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = torque +11    
+                true_torque = torque + 11    
                 lbs_inch = true_torque + 11
 
                 now = dt.datetime.now()
@@ -522,6 +541,7 @@ def read_torque_sensor():
                 if vst_estop_flag:
                     print("Emergency stop torque motor!")
                     step_stop()
+                    time.sleep(0.2)
                     break
                 
             file.close()
@@ -536,7 +556,7 @@ def read_torque_sensor():
         count_update(ran_counter2)
         print('VST Run Completed!')
         add_endrunline(torque_sensor,continued_timestamp)
-        tk.messagebox.showinfo("VST Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
+        tk.messagebox.showinfo("VST Run Completed", "Total time elapsed: {:.3f} seconds\n NOW RESET THE MOTOR POSITION!!".format(total_time))
 
 def reset_vst_nums():
     global vst_ran_num
@@ -571,7 +591,7 @@ def read_tcp():
 
             while tcp_running:
                 temp = ai_task.read()     # Read current value
-                true_temp = (temp)
+                true_temp = (temp) - 30
                 now = dt.datetime.now()
                 
                 # Calculate current time, starting from 0 seconds
@@ -582,7 +602,7 @@ def read_tcp():
 
                 continued_timestamp = last_timestamp + rounded_seconds
                 
-                writer.writerow([continued_timestamp, true_temp])
+                writer.writerow([continued_timestamp, true_temp, temp])
                 file.flush()
                 
             file.close()    
@@ -743,16 +763,13 @@ def dsp_wait():
         for i in range(num_datapoints[1]):
             data_item = Core.IV_getdata(i)
 
-            print(data_item[1])
-            print(data_item[2])
-
             # Filter out the initial unknown value it always reads
             if(data_item[3] == 1e-12):
                 continue
             else:
                 frequencies.append(math.log10(data_item[3]))
 
-            zr = data_item[1]
+            zr = abs(data_item[1])
             n_zi = (data_item[2]) * -1
 
             # Equations for the plot taken from Keith's excel file
@@ -876,6 +893,7 @@ torque_sensor.set_title('Torque Sensor', weight='bold')
 torque_sensor.set_xlabel('Time Elapsed (seconds)')
 torque_sensor.set_ylabel('Torque (Pound-inches)')
 torque_sensor.grid()
+# torque_sensor.set_ylim(0,100)
 
 fig2.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 
@@ -911,14 +929,14 @@ dsp_plot.set_title('DSP Wet Zones', weight='bold')
 dsp_plot.set_xlabel('10log(frequency) /Hz', fontsize=15)
 dsp_plot.set_ylabel('10log|Z| /ohm', fontsize=15)
 dsp_plot.set_xlim(0,5.1)
-dsp_plot.set_ylim(-1.1,9)
+dsp_plot.set_ylim(-1.1,10)
 dsp_plot.grid()
 dsp_pline, = dsp_plot2.plot([], [], linestyle='solid', linewidth='2', color='#1c27ff')
 dsp_plot2.set_title('DSP Phase Angle', weight='bold')  
 dsp_plot2.set_xlabel('10log(frequency) /Hz', fontsize=15)
 dsp_plot2.set_ylabel('-phase /degrees', fontsize=15)
 dsp_plot2.set_xlim(0,5.1)
-dsp_plot2.set_ylim(0,120)
+dsp_plot2.set_ylim(-50,120)
 dsp_plot2.grid()
 
 # Wet Zones
@@ -960,6 +978,14 @@ def animate_torque_sensor(i):
     global ts_running
     if torque_csv and ts_running is True:
         data = pd.read_csv(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
+
+        #         # Downsample the data
+        # downsample_factor = 10  # Adjust this factor as needed
+        # downsampled_data = data.iloc[::downsample_factor]
+        
+        # x = downsampled_data['Timestamp (seconds)']
+        # y = downsampled_data['Torque [Raw Offset]']  
+
         x = data['Timestamp (seconds)'] 
         y = data['Torque [Pound-inches]']                             
         
@@ -1063,7 +1089,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches]", "Torque [Raw Reading]"])
+        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches]", "Torque [Raw Offset]", "Torque [Raw Reading]"])
         file.close()
 
 # Get DSP IDF log name
@@ -1144,7 +1170,7 @@ def get_tcp_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Temperature [Celsius]"])
+        writer.writerow(["Timestamp (seconds)", "Temperature [Celsius]", "Temperature [Raw Reading]"])
         file.close()
         
 # ========================
@@ -1163,7 +1189,7 @@ def set_vst_dur():
         tk.messagebox.showinfo("Error", 'The maximum duration is 5591 seconds!')
     else:  
         # Time -> Steps conversion: 1500 steps per second
-        vst_step_pos = (100 * vst_duration)
+        vst_step_pos = (670 * vst_duration)
         rot_dur.config(text='{:.2f}'.format(vst_duration))
         print("VST Duration set to:", vst_duration)
     print(vst_step_pos)
@@ -1335,7 +1361,7 @@ act_estop.grid(row=4, column=2, sticky=W)
 act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite(actuator, 'C'))
 act_reset.grid(row=5, column=2, sticky=tk.W)
 
-newt = tk.Label(cpt_frame, text="Greatest Force (Newton): ", font=("Arial Bold", 10))
+newt = tk.Label(cpt_frame, text="Greatest Force (Pounds): ", font=("Arial Bold", 10))
 newt.grid(row=6, column=0, pady=2)
 curr_newt = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='#e0e0e0', relief='ridge')
 curr_newt.grid(row=6, column=1, sticky=W, pady=2)
@@ -1395,8 +1421,8 @@ rot_dial.grid(row=5, column=0)
 rot_dur = tk.Label(vst_frame, text='{:.2f}'.format(vst_duration), font=("Arial", 14), background='#15eb80', relief='groove')
 rot_dur.grid(row=5, column=1, sticky=W, pady=2)
 
-# reset_pos = tk.Button(vst_frame, text='Reset Motor Position', command=reset)
-# reset_pos.grid(row=5, column=2, sticky=W)
+reset_pos = tk.Button(vst_frame, text='Reset Motor Position', command=reset)
+reset_pos.grid(row=5, column=2, sticky=W)
 
 running2 = tk.Label(vst_frame, text="Currently Running: ", font=("Arial Bold", 10))
 running2.grid(row=6, column=0, pady=2)
@@ -1485,6 +1511,9 @@ dsp_scann = tk.Label(dsp_frame, text='Scanning Status:', font=("Arial Bold", 10)
 dsp_scann.grid(row=9, column=0, pady=2)
 dsp_scanstat = tk.Label(dsp_frame, text='IDLE', font=("Arial", 14), background='#a7ddf2', relief='groove')
 dsp_scanstat.grid(row=9, column=1, sticky=W, pady=2)
+# scanning_gif = AnimatedGif(dsp_frame, '.\\gui_images\\pulse.gif', 0.05)
+# scanning_gif.place(relx=0.36, rely=0.179, anchor=tk.NE)
+# scanning_gif.start()
 
 dsp_folder = tk.Button(dsp_frame, image=folders, command=lambda:open_folder('.\\data_output\\dsp'))
 dsp_folder.grid(row=10, column=2, pady=10)

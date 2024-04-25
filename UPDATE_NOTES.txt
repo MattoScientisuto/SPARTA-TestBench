@@ -497,11 +497,24 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
 4-15-24
   - Updated JLF offset numbers and animation delay
-  * The gains on everything is probably gonna be inaccurate for APL 
+  * The gains on everything is probably gonna be inaccurate for LSIC
    - I really don't think we're gonna have time except maybe TCP with ice water
   
   - DSP only works properly with the black cable, NOT the green card 
 
   - TCP heater needs a 150 ohm resistor somewhere within the circuit to heat safely
    - could possibly already be burnt
+
+4-24-24
+   POST LSIC APL 
+   - Good ass presentation and demo, day to remember for sure!
+   - Keeping all of the 4-24-24 data as a memento
+
+   - Added absolute value to DSP phase angle equation to fix super wonky data
+    - the beginning portion of the scan still isn't 100% correct but it's a lot better looking
+
+   - Re-wrote the Linear Actuator Arduino code to replace John's old file
+    - His worked pretty much the same, but not being able to retreive/see the code made me anxious
+
+   - Added the Field Operation Manual for the Lava Bed trip since I probably won't be there
   
