@@ -15,6 +15,7 @@ from tkinter import *
 from tkinter import filedialog
 import tkinter as tk
 from PIL import Image, ImageTk
+import nidaqmx.constants
 from AnimatedGif import *
 import webbrowser
 
@@ -193,8 +194,9 @@ frame.grid_propagate(False)
 
 # ========================================================================
 actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
-tcp_heater = serial.Serial('COM8', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM12', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+# tcp_heater = serial.Serial('COM8', baudrate=9600, timeout=1)
+#stepper = serial.Serial('COM12', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial('COM11', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
 time.sleep(0.5)
 stepper.write('@0B670\r'.encode())
@@ -233,12 +235,12 @@ def check_ports():
     else:
         tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
 
-    if tcp_heater.isOpen() == True:
-        tcph_running = True
-        print('TCP Heater Port Opened?: ', tcp_heater.isOpen())
-        switch_true(tcphser_status)
-    else:
-        tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
+    # if tcp_heater.isOpen() == True:
+    #     tcph_running = True
+    #     print('TCP Heater Port Opened?: ', tcp_heater.isOpen())
+    #     switch_true(tcphser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
 
     if stepper.isOpen() == True:
         torser_running = True
@@ -256,13 +258,13 @@ def kill_ports():
     else:
         tk.messagebox.showinfo("Error", "Linear Actuator serial port already closed")
 
-    if tcp_heater.isOpen() == True:
-        tcp_heater.close()
-        print("TCP Heater Port Status: ", tcp_heater.isOpen())
-        print("TCP Heater port closed successfully!")
-        switch_false(tcphser_status)
-    else:
-        tk.messagebox.showinfo("Error", "TCP Heater serial port already closed")
+    # if tcp_heater.isOpen() == True:
+    #     tcp_heater.close()
+    #     print("TCP Heater Port Status: ", tcp_heater.isOpen())
+    #     print("TCP Heater port closed successfully!")
+    #     switch_false(tcphser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "TCP Heater serial port already closed")
         
     if stepper.isOpen() == True:
         stepper.close()
@@ -276,8 +278,6 @@ def kill_ports():
 vst_step_pos = 4020
 def go_to():
     time.sleep(0.1)
-    stepper.write('@0+\r'.encode())
-    time.sleep(0.2)
     stepper.write(f'@0N{vst_step_pos}\r'.encode())
     stepper.write('@0G\r'.encode())  
     time.sleep(0.1) 
@@ -302,11 +302,11 @@ def digitalWrite(device, command):
     print(f'Command sent:', command)
 
 # Write command for TCP Heater
-def tcpWrite(duration, command):
-    global tcp_duration
-    data = f"{command},{duration}\n".encode()
-    tcp_heater.write(data)
-    print('Command sent:', data.decode().strip())
+# def tcpWrite(duration, command):
+#     global tcp_duration
+#     data = f"{command},{duration}\n".encode()
+#     tcp_heater.write(data)
+#     print('Command sent:', data.decode().strip())
     
 # Arrays for CSV names
 csv_list = []
@@ -385,9 +385,11 @@ def read_load_cell():
     global r_count
     global entry_nums
     global ran_num
+
+    global ard_target
     
     cpt_samples = int(sample_rate * acquisition_duration)
-    
+
     with nidaqmx.Task() as ai_task:
          
         # Setup the NI cDAQ-9174 + DAQ 9237 module
@@ -397,7 +399,7 @@ def read_load_cell():
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.POUNDS)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
-        ai_task.in_stream.input_buf_size = 2000
+        ai_task.in_stream.input_buf_size = 5000
 
         # Start the task
         
@@ -407,7 +409,7 @@ def read_load_cell():
         
         ai_task.start()
         
-        digitalWrite(actuator, 'W')
+        # digitalWrite(actuator, 'W')
         time.sleep(0.1)
 
         lc_running = True
@@ -429,9 +431,8 @@ def read_load_cell():
             
             for i in range(cpt_samples):
                 strain = ai_task.read()     # Read current value
-                true_strain = strain * -1   # Inversion
-                offset_strain = true_strain + 5
-                # newton = (true_strain) - 11 # -96960 gain, 9.25 offset
+                # newton = (true_strain[i]) - 11
+                newton = 1
                 cdepth = r_count / 1732     # About 1732 data points per centimeter at 12 Volts
 
                 now = dt.datetime.now()
@@ -443,13 +444,13 @@ def read_load_cell():
 
                 continued_timestamp = last_timestamp + rounded_seconds
 
-                strain_data.append(true_strain)
+                strain_data.append(newton)
                 r_count+=1
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, cdepth, true_strain, offset_strain])
-                
+                # writer.writerow([continued_timestamp, arduino_data, strain, strain])
+
                 # If E-STOP condition is flagged:
                 if cpt_estop_flag:
                     print("Emergency stop actuator!")
@@ -458,7 +459,7 @@ def read_load_cell():
             file.close()
             
         time.sleep(0.1)
-        digitalWrite(actuator, 's')
+        # digitalWrite(actuator, 's')
 
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
@@ -523,7 +524,8 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = abs(torque)   # Torque should only go up
+                true_torque = torque + 11    
+                lbs_inch = true_torque + 11
 
                 now = dt.datetime.now()
                 
@@ -537,7 +539,7 @@ def read_torque_sensor():
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, true_torque])
+                writer.writerow([continued_timestamp, true_torque, torque])
                 
                 # If E-STOP condition is flagged:
                 if vst_estop_flag:
@@ -630,39 +632,39 @@ def stop_tcp():
     switch_false(temp_running)
 
 heating_timer = None
-def start_heating(tcp_duration):
-    global heating_timer
+# def start_heating(tcp_duration):
+#     global heating_timer
 
-    if tcp_duration == 0:
-        tk.messagebox.showinfo("Error", 'Please select a heating duration first!')
-    elif heating_timer and heating_timer.is_alive():
-        tk.messagebox.showinfo("Error", 'TCP is already heating!')
-    else:
-        # Send the heating command to the Arduino
-        tcpWrite(tcp_duration, 'H')
+#     if tcp_duration == 0:
+#         tk.messagebox.showinfo("Error", 'Please select a heating duration first!')
+#     elif heating_timer and heating_timer.is_alive():
+#         tk.messagebox.showinfo("Error", 'TCP is already heating!')
+#     else:
+#         # Send the heating command to the Arduino
+#         tcpWrite(tcp_duration, 'H')
 
-        # Get the confirmation message from the Arduino that heating started
-        message = tcp_heater.readline().decode('utf-8').rstrip() 
-        if message == 'HEATING':
-            print(message)
-            elapsed_time_label.config(text='HEATING...', background='#ff9c6b')
-            heating_gif.place(relx=0.36, rely=0.179, anchor=tk.NE)
-            heating_gif.start()
-            # Start the timer for the heating duration
-            heating_timer = threading.Timer(tcp_duration / 1000, stop_heating)
-            heating_timer.start()
+#         # Get the confirmation message from the Arduino that heating started
+#         message = tcp_heater.readline().decode('utf-8').rstrip() 
+#         if message == 'HEATING':
+#             print(message)
+#             elapsed_time_label.config(text='HEATING...', background='#ff9c6b')
+#             heating_gif.place(relx=0.36, rely=0.179, anchor=tk.NE)
+#             heating_gif.start()
+#             # Start the timer for the heating duration
+#             heating_timer = threading.Timer(tcp_duration / 1000, stop_heating)
+#             heating_timer.start()
 
-def stop_heating():
-    # Send the stop heating command to the Arduino
-    tcpWrite(0, 'C')
-    heating_gif.place_forget()
-    # Get the confirmation message from the Arduino that heating stopped
-    message = tcp_heater.readline().decode('utf-8').rstrip() 
-    if message == 'STOPPED':
-        print(message)
+# def stop_heating():
+#     # Send the stop heating command to the Arduino
+#     tcpWrite(0, 'C')
+#     heating_gif.place_forget()
+#     # Get the confirmation message from the Arduino that heating stopped
+#     message = tcp_heater.readline().decode('utf-8').rstrip() 
+#     if message == 'STOPPED':
+#         print(message)
         
-        elapsed_time_label.config(text='IDLE', background='#a7ddf2')
-        tk.messagebox.showinfo("TCP", 'Heating has finished!')
+#         elapsed_time_label.config(text='IDLE', background='#a7ddf2')
+#         tk.messagebox.showinfo("TCP", 'Heating has finished!')
 
 # Command for the actual button used to stop the heating manually
 def handle_manual_stop():
@@ -967,8 +969,8 @@ def animate_load_cell(i):
     global lc_running
     if csv_list and lc_running is True:
         data = pd.read_csv(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=",")
-        # x = data['Timestamp'] 
-        y = data['Force [Offset]'] 
+        x = data['Timestamp'] 
+        y = data['Force [Pounds]'] 
         y2 = data['Depth [cm]']                            
         
         load_line.set_data(y,y2)
@@ -989,7 +991,7 @@ def animate_torque_sensor(i):
         # y = downsampled_data['Torque [Raw Offset]']  
 
         x = data['Timestamp (seconds)'] 
-        y = data['Torque [Pound-inches/Raw]']                             
+        y = data['Torque [Pound-inches]']                             
         
         torque_line.set_data(x,y)
         torque_sensor.relim()
@@ -1063,7 +1065,7 @@ def get_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp", "Depth [cm]", "Force [Pounds/Raw]", "Force [Offset]"])
+        writer.writerow(["Timestamp", "Depth [cm]", "Force [Pounds]", "Force [Raw Reading]"])
         file.close()
 
 # Get Torque CSV log name
@@ -1091,7 +1093,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches/Raw]"])
+        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches]", "Torque [Raw Offset]", "Torque [Raw Reading]"])
         file.close()
 
 # Get DSP IDF log name
@@ -1209,6 +1211,7 @@ def load_cell_run():
     cpt_estop_flag = False
     thread_cpt = Thread(target=read_load_cell)
     thread_cpt.start()
+    digitalWrite(actuator, cptToWrite)
     
 def torque_sensor_run():
     global vst_estop_flag
@@ -1289,37 +1292,68 @@ entry.grid(row=1, column=1, padx=3, pady=3, sticky=W)
 dep_var = tk.StringVar()
 def update_depth(depth):
     global acquisition_duration
+    global cptToWrite
     selected = depth
     if selected == '1 cm':
         acquisition_duration = 1.05
+        cptToWrite = "1\n"
+        #digitalWrite(actuator, "1\n")
     elif selected == '2 cm':
         acquisition_duration = 2.10
+        cptToWrite = "2\n"
+        #digitalWrite(actuator, "2\n")
     elif selected == '3 cm':
         acquisition_duration = 3.15
+        cptToWrite = "3\n"
+        #digitalWrite(actuator, "3\n")
     elif selected == '4 cm':
         acquisition_duration = 4.20
+        cptToWrite = "4\n"
+        #digitalWrite(actuator, "4.")
     elif selected == '5 cm':
         acquisition_duration = 5.25
+        cptToWrite = "5\n"
+        #digitalWrite(actuator, "5.")
     elif selected == '6 cm':
         acquisition_duration = 6.30
+        cptToWrite = "6\n"
+        #digitalWrite(actuator, "6.")
     elif selected == '7 cm':
         acquisition_duration = 7.35
+        cptToWrite = "7\n"
+        #digitalWrite(actuator, "7.")
     elif selected == '8 cm':
         acquisition_duration = 8.40
+        cptToWrite = "8\n"
+        #digitalWrite(actuator, "8.")
     elif selected == '9 cm':
         acquisition_duration = 9.45
+        cptToWrite = "9\n"
+        #digitalWrite(actuator, "9.")
     elif selected == '10 cm':
         acquisition_duration = 10.49
+        cptToWrite = "10\n"
+        #digitalWrite(actuator, "10.")
     elif selected == '11 cm':
         acquisition_duration = 11.54
+        cptToWrite = "11\n"
+        #digitalWrite(actuator, "11.")
     elif selected == '12 cm':
         acquisition_duration = 12.59
+        cptToWrite = "12\n"
+        #digitalWrite(actuator, "12.")
     elif selected == '13 cm':
         acquisition_duration = 13.64
+        cptToWrite = "13\n"
+        #digitalWrite(actuator, "13.")
     elif selected == '14 cm':
         acquisition_duration = 14.69
+        cptToWrite = "14\n"
+        #digitalWrite(actuator, "14.")
     elif selected == '15 cm':
         acquisition_duration = 15.74
+        cptToWrite = "15\n"
+        #digitalWrite(actuator, "15.")
     print(f'Selected {selected} actuator depth!')   
 dep_options = ['1 cm', '2 cm', '3 cm', '4 cm', '5 cm', '6 cm', '7 cm', '8 cm', 
                '9 cm', '10 cm', '11 cm', '12 cm', '13 cm', '14 cm', '15 cm']
@@ -1352,15 +1386,15 @@ def cpt_estop():
 act_nstop = tk.Button(cpt_frame, text="Actuator Stop", bg="#fcf5b6", command=lambda: digitalWrite(actuator,'s'))
 act_nstop.grid(row=3, column=2, sticky=W)
 
-jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'W'))
-jog_up = tk.Button(cpt_frame, text="Jog Up", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'C'))
+jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite(actuator, '14.605\n'))
+jog_up = tk.Button(cpt_frame, text="Jog Up", bg="#cfe1ff", command=lambda: digitalWrite(actuator, '-1\n'))
 jog_down.place(relx=0.86, rely=0.19)
 jog_up.place(relx=0.86, rely=0.153)
 
 act_estop = tk.Button(cpt_frame, text="Stop Operation", bg="#ffcdc9", command=cpt_estop)
 act_estop.grid(row=4, column=2, sticky=W)
 
-act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite(actuator, 'C'))
+act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite(actuator, '-1\n'))
 act_reset.grid(row=5, column=2, sticky=tk.W)
 
 newt = tk.Label(cpt_frame, text="Greatest Force (Pounds): ", font=("Arial Bold", 10))
@@ -1676,5 +1710,25 @@ def exit_handler():
         print("Torque Motor already closed")
 
 atexit.register(exit_handler)
+
+def read_from_arduino():
+    """
+    Function to read data from the Arduino serial port with timeout.
+    """
+    readin = actuator.readline().decode().strip()
+    line = float(readin)
+    if line:  # Check if data was received
+        return line
+    else:
+        return None  # Indicate no data received within timeout
+
+# Example usage
+# while True:
+#     arduino_data = read_from_arduino()
+#     if arduino_data:
+#         print("Received from Arduino:", arduino_data)
+#     else:
+#         print("No data received from Arduino within timeout.")
+    # Continue with other tasks or wait for next iteration
 
 root.mainloop()

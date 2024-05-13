@@ -517,4 +517,20 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
     - His worked pretty much the same, but not being able to retreive/see the code made me anxious
 
    - Added the Field Operation Manual for the Lava Bed trip since I probably won't be there
+
+5-12-24
+    POST LAVA BEDS FIELD TRIP
+    - Good ass data collection, another trip to remember!
+    - Keeping the 5-12-24 data
+    
+    - Updated CPT and VST reading and logging to match with the new SSM-500 load cell and TRT-200 torque sensor
+     - Still pretty noisy since we didn't have much force exerted on either
+      - But luckily filters on excel make it much more readable using an average of 100 points on each file
+
+    - Keeping all of Jared's potentiometer code and batch files in a separate folder for the future
+     - It might work properly now since the wiring needed to be fixed
+
+    - Lots of inconvenient pauses due to the stepper motor controller timing out for no reason
+     - really gonna have to look into eliminating this entirely
+
   

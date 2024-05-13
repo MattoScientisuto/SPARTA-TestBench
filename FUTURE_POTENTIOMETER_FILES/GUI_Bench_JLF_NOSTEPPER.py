@@ -194,17 +194,17 @@ frame.grid_propagate(False)
 # ========================================================================
 actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
 tcp_heater = serial.Serial('COM8', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM12', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+#stepper = serial.Serial('COM12', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
-time.sleep(0.5)
-stepper.write('@0B670\r'.encode())
-time.sleep(0.5)
-stepper.write('@0M670\r'.encode())
-time.sleep(0.5)
-stepper.write('@0J670\r'.encode())
-time.sleep(0.5)
-stepper.write('@0+\r'.encode())
-time.sleep(0.2)
+# time.sleep(0.5)
+# stepper.write('@0B670\r'.encode())
+# time.sleep(0.5)
+# stepper.write('@0M670\r'.encode())
+# time.sleep(0.5)
+# stepper.write('@0J670\r'.encode())
+# time.sleep(0.5)
+# stepper.write('@0+\r'.encode())
+# time.sleep(0.2)
 
 ser_running = False
 tcph_running = False
@@ -240,12 +240,12 @@ def check_ports():
     else:
         tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
 
-    if stepper.isOpen() == True:
-        torser_running = True
-        print('Torque Motor Port Opened?: ', stepper.isOpen())
-        switch_true(torser_status)
-    else:
-        tk.messagebox.showinfo("Error", "Torque Motor serial port is not opened!")
+    # if stepper.isOpen() == True:
+    #     torser_running = True
+    #     print('Torque Motor Port Opened?: ', stepper.isOpen())
+    #     switch_true(torser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "Torque Motor serial port is not opened!")
 
 def kill_ports():
     if actuator.isOpen() == True:
@@ -264,20 +264,18 @@ def kill_ports():
     else:
         tk.messagebox.showinfo("Error", "TCP Heater serial port already closed")
         
-    if stepper.isOpen() == True:
-        stepper.close()
-        print("Torque Motor Port Status: ", actuator.isOpen())
-        print("Torque Motor port closed successfully!")
-        switch_false(torser_status)
-    else:
-        tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
+    # if stepper.isOpen() == True:
+    #     stepper.close()
+    #     print("Torque Motor Port Status: ", actuator.isOpen())
+    #     print("Torque Motor port closed successfully!")
+    #     switch_false(torser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
 vst_step_pos = 4020
 def go_to():
     time.sleep(0.1)
-    stepper.write('@0+\r'.encode())
-    time.sleep(0.2)
     stepper.write(f'@0N{vst_step_pos}\r'.encode())
     stepper.write('@0G\r'.encode())  
     time.sleep(0.1) 
@@ -429,9 +427,8 @@ def read_load_cell():
             
             for i in range(cpt_samples):
                 strain = ai_task.read()     # Read current value
-                true_strain = strain * -1   # Inversion
-                offset_strain = true_strain + 5
-                # newton = (true_strain) - 11 # -96960 gain, 9.25 offset
+                true_strain = strain * -1
+                newton = (true_strain) - 11 # -96960 gain, 9.25 offset
                 cdepth = r_count / 1732     # About 1732 data points per centimeter at 12 Volts
 
                 now = dt.datetime.now()
@@ -443,12 +440,12 @@ def read_load_cell():
 
                 continued_timestamp = last_timestamp + rounded_seconds
 
-                strain_data.append(true_strain)
+                strain_data.append(newton)
                 r_count+=1
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, cdepth, true_strain, offset_strain])
+                writer.writerow([continued_timestamp, cdepth, newton, true_strain])
                 
                 # If E-STOP condition is flagged:
                 if cpt_estop_flag:
@@ -523,7 +520,8 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = abs(torque)   # Torque should only go up
+                true_torque = torque + 11    
+                lbs_inch = true_torque + 11
 
                 now = dt.datetime.now()
                 
@@ -537,7 +535,7 @@ def read_torque_sensor():
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, true_torque])
+                writer.writerow([continued_timestamp, true_torque, torque])
                 
                 # If E-STOP condition is flagged:
                 if vst_estop_flag:
@@ -967,8 +965,8 @@ def animate_load_cell(i):
     global lc_running
     if csv_list and lc_running is True:
         data = pd.read_csv(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=",")
-        # x = data['Timestamp'] 
-        y = data['Force [Offset]'] 
+        x = data['Timestamp'] 
+        y = data['Force [Pounds]'] 
         y2 = data['Depth [cm]']                            
         
         load_line.set_data(y,y2)
@@ -989,7 +987,7 @@ def animate_torque_sensor(i):
         # y = downsampled_data['Torque [Raw Offset]']  
 
         x = data['Timestamp (seconds)'] 
-        y = data['Torque [Pound-inches/Raw]']                             
+        y = data['Torque [Pound-inches]']                             
         
         torque_line.set_data(x,y)
         torque_sensor.relim()
@@ -1063,7 +1061,7 @@ def get_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp", "Depth [cm]", "Force [Pounds/Raw]", "Force [Offset]"])
+        writer.writerow(["Timestamp", "Depth [cm]", "Force [Pounds]", "Force [Raw Reading]"])
         file.close()
 
 # Get Torque CSV log name
@@ -1091,7 +1089,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches/Raw]"])
+        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches]", "Torque [Raw Offset]", "Torque [Raw Reading]"])
         file.close()
 
 # Get DSP IDF log name
