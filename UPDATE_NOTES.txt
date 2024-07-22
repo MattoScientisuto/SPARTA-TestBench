@@ -539,4 +539,6 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   Changed P2xxxx DSP to 0.5V amplitude 
    - For some reason even though it seems to have a decent amount of water, it's very glitchy with 0.01V
+
+  Added moving average buffers for CPT and VST for every 500 points
   

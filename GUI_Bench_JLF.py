@@ -21,27 +21,22 @@ import webbrowser
 from datetime import date, datetime
 import datetime as dt
 import time
-import select
 
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from collections import deque
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from matplotlib.ticker import ScalarFormatter
-from scipy.signal import butter, lfilter, filtfilt
-
 
 import nidaqmx
 from nidaqmx.constants import BridgePhysicalUnits, RTDType, ExcitationSource, TemperatureUnits, ResistanceConfiguration
 from nidaqmx.constants import AcquisitionType, TerminalConfiguration, TorqueUnits, BridgeConfiguration, BridgeElectricalUnits, AcquisitionType, ForceUnits
 
 from pyvium import Core
-from pyvium import Tools
 
 import os
-import sys
 import csv
 import math
 
@@ -192,9 +187,9 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
-actuator = serial.Serial('COM4', baudrate=9600, timeout=1)
-tcp_heater = serial.Serial('COM8', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM12', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+actuator = serial.Serial('COM5', baudrate=9600, timeout=1)
+tcp_heater = serial.Serial('COM4', baudrate=9600, timeout=1)
+stepper = serial.Serial('COM8', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
 
 time.sleep(0.5)
 stepper.write('@0B670\r'.encode())
@@ -333,6 +328,8 @@ r_count=1
 ran_num=0
 vst_ran_num=0
 tcp_ran_num=0
+new_file_load = True
+new_file_torque = True
 
 lc_running = False
 ts_running = False
@@ -473,11 +470,10 @@ def read_load_cell():
         tk.messagebox.showinfo("CPT Run Completed", "Total time elapsed: {:.3f} seconds".format(total_time))
 
 def reset_cpt_nums():
-    global ran_num
-    global r_count
-    global strain_data
+    global ran_num, r_count, strain_data, new_file_load
     strain_data = []
     ran_num = 0
+    new_file_load = True
     r_count = 1
     count_update(ran_counter)
     tk.messagebox.showinfo("CPT", f"Current CPT Run Count: {ran_num}\nCurrent Artificial Depth Num: {r_count}")
@@ -561,8 +557,9 @@ def read_torque_sensor():
         tk.messagebox.showinfo("VST Run Completed", "Total time elapsed: {:.3f} seconds\n NOW RESET THE MOTOR POSITION!!".format(total_time))
 
 def reset_vst_nums():
-    global vst_ran_num
+    global vst_ran_num, new_file_torque
     vst_ran_num = 0
+    new_file_torque = True
     count_update(ran_counter2)
     tk.messagebox.showinfo("VST", f"Current VST Run Count: {vst_ran_num}")
 
@@ -958,40 +955,87 @@ fig5.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=1
 
 #endregion
 
-# ==================
-# Animate Functions
-# ==================
+# ====================================================
+#                 Animate Functions
+# ====================================================
+# Size of moving average buffer
+BUFFER_SIZE = 500
+# CPT Buffers
+y_buffer_load = deque(maxlen=BUFFER_SIZE)
+y2_buffer_load = deque(maxlen=BUFFER_SIZE)
+avg_y_load = []
+avg_y2_load = []
+# VST Buffers
+x_buffer_torque = deque(maxlen=BUFFER_SIZE)
+y_buffer_torque = deque(maxlen=BUFFER_SIZE)
+avg_x_torque = []
+avg_y_torque = []
+
+# Calculate moving average
+def moving_average(buffer):
+    return np.mean(list(buffer))
 
 # Load Cell Animate Function
 def animate_load_cell(i):
-    global lc_running
+    global lc_running, new_file_load
     if csv_list and lc_running is True:
+
+        if new_file_load:
+            y_buffer_load.clear()
+            y2_buffer_load.clear()
+            avg_y_load.clear()
+            avg_y2_load.clear()
+            new_file_load = False  # Reset the flag
+
         data = pd.read_csv(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=",")
-        # x = data['Timestamp'] 
+
         y = data['Force [Offset]'] 
         y2 = data['Depth [cm]']                            
         
-        load_line.set_data(y,y2)
+        # Update buffers with new data points
+        y_buffer_load.extend(y)
+        y2_buffer_load.extend(y2)
+        
+        # Compute the moving average
+        avg_y_load.append(moving_average(y_buffer_load))
+        avg_y2_load.append(moving_average(y2_buffer_load))
+        
+        # Update the plot with the averaged data
+        load_line.set_data(avg_y_load, avg_y2_load)
+
+        # load_line.set_data(y,y2)
         load_cell.relim()
         load_cell.autoscale_view()
 
 # Torque Sensor Animate Function    
 def animate_torque_sensor(i):
-    global ts_running
+    global ts_running, new_file_torque
     if torque_csv and ts_running is True:
-        data = pd.read_csv(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
 
-        #         # Downsample the data
-        # downsample_factor = 10  # Adjust this factor as needed
-        # downsampled_data = data.iloc[::downsample_factor]
-        
-        # x = downsampled_data['Timestamp (seconds)']
-        # y = downsampled_data['Torque [Raw Offset]']  
+        if new_file_torque:
+            x_buffer_torque.clear()
+            y_buffer_torque.clear()
+            avg_x_torque.clear()
+            avg_y_torque.clear()
+            new_file_torque = False  # Reset the flag
+
+        data = pd.read_csv(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
 
         x = data['Timestamp (seconds)'] 
         y = data['Torque [Pound-inches/Raw]']                             
         
-        torque_line.set_data(x,y)
+        # Update buffers with new data points
+        x_buffer_torque.extend(x)
+        y_buffer_torque.extend(y)
+        
+        # Compute the moving average
+        avg_x_torque.append(moving_average(x_buffer_torque))
+        avg_y_torque.append(moving_average(y_buffer_torque))
+        
+        # Update the plot with the averaged data
+        torque_line.set_data(avg_x_torque, avg_y_torque)
+
+        # torque_line.set_data(x,y)
         torque_sensor.relim()
         torque_sensor.autoscale_view()
 
