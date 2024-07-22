@@ -533,4 +533,10 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
     - Lots of inconvenient pauses due to the stepper motor controller timing out for no reason
      - really gonna have to look into eliminating this entirely
 
+7-22-24
+  Added a 4 second delay before the GroundVST for BlueOriginSequence
+   - COM port probably needs some time to connect first before task scheduler starts the operation
+
+  Changed P2xxxx DSP to 0.5V amplitude 
+   - For some reason even though it seems to have a decent amount of water, it's very glitchy with 0.01V
   

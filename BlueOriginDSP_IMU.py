@@ -113,7 +113,7 @@ def connect_dsp():
 # TEMPORARY: currently statically set to 0.01V method
 def scan_op():
     # Merge ivium.py directory + dsp_settings folder + chosen settings
-    dsp_methods = os.path.join(current_directory, 'dsp_settings', dsp_001method)
+    dsp_methods = os.path.join(current_directory, 'dsp_settings', dsp_05method)
     
     # Channel 1
     Core.IV_SelectChannel(1)
@@ -226,6 +226,7 @@ def full_op():
 
     time_now = dt.datetime.now().strftime("%H:%M:%S")
     print(f'\n[{todays_date}, {time_now}] Main DSP & IMU batch successfully started!')
+    time.sleep(4)
     thread_groundvst()
     # Power up Ivium and IMU
     start_ivium()
