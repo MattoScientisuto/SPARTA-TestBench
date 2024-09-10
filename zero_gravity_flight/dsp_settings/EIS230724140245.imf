@@ -1,0 +1,116 @@
+Version= 15
+Method=Impedance
+Technique=Constant E
+Dconfig=16392
+Title=Test1
+Redefine filename=false
+E start=0
+Equilibration time=10
+Frequencies=26
+Frequencies.freq[1]=100000
+Frequencies.amp[1]=0.01
+Frequencies.freq[2]=63095.7344480193
+Frequencies.amp[2]=0.01
+Frequencies.freq[3]=39810.7170553497
+Frequencies.amp[3]=0.01
+Frequencies.freq[4]=25118.8643150958
+Frequencies.amp[4]=0.01
+Frequencies.freq[5]=15848.9319246111
+Frequencies.amp[5]=0.01
+Frequencies.freq[6]=10000
+Frequencies.amp[6]=0.01
+Frequencies.freq[7]=6309.57344480193
+Frequencies.amp[7]=0.01
+Frequencies.freq[8]=3981.07170553497
+Frequencies.amp[8]=0.01
+Frequencies.freq[9]=2511.88643150958
+Frequencies.amp[9]=0.01
+Frequencies.freq[10]=1584.89319246111
+Frequencies.amp[10]=0.01
+Frequencies.freq[11]=1000
+Frequencies.amp[11]=0.01
+Frequencies.freq[12]=630.957344480193
+Frequencies.amp[12]=0.01
+Frequencies.freq[13]=398.107170553497
+Frequencies.amp[13]=0.01
+Frequencies.freq[14]=251.188643150958
+Frequencies.amp[14]=0.01
+Frequencies.freq[15]=158.489319246111
+Frequencies.amp[15]=0.01
+Frequencies.freq[16]=100
+Frequencies.amp[16]=0.01
+Frequencies.freq[17]=63.0957344480193
+Frequencies.amp[17]=0.01
+Frequencies.freq[18]=39.8107170553497
+Frequencies.amp[18]=0.01
+Frequencies.freq[19]=25.1188643150958
+Frequencies.amp[19]=0.01
+Frequencies.freq[20]=15.8489319246111
+Frequencies.amp[20]=0.01
+Frequencies.freq[21]=10
+Frequencies.amp[21]=0.01
+Frequencies.freq[22]=6.30957344480193
+Frequencies.amp[22]=0.01
+Frequencies.freq[23]=3.98107170553497
+Frequencies.amp[23]=0.01
+Frequencies.freq[24]=2.51188643150958
+Frequencies.amp[24]=0.01
+Frequencies.freq[25]=1.58489319246111
+Frequencies.amp[25]=0.01
+Frequencies.freq[26]=1
+Frequencies.amp[26]=0.01
+Current Range=1mA
+Noise Reduction=true
+Noise Reduction.Acquisition period=2
+Noise Reduction.Stabilize Settings=false
+Noise Reduction.Drift Correction=false
+Filter=automatic
+Stability=automatic
+Connect to=Cell-2EL
+AutoCR=true
+AutoCR.Max range=10mA
+AutoCR.Min range=100pA
+AutoCR.Pre ranging=true
+DualCR=false
+Apply wrt OCP=false
+Cell after meas=false
+Pretreatment=0
+Pretreat each freq=false
+Data Options=
+Data Options.AnalogInputTitle=Peripheral Port
+Data Options.AnalogInputYlabel=Analog input
+Data Options.AnalogInputTitle2=Peripheral Port
+Data Options.AnalogInputYlabel2=Analog input
+Data Options.AnalogInputData=0
+Data Options.A_Transform=none
+Data Options.A_Transform2=none
+Data Options.A_A=0
+Data Options.A_B=1
+Data Options.A_C=0
+Data Options.A_D=0
+Data Options.A_A2=0
+Data Options.A_B2=1
+Data Options.A_C2=0
+Data Options.A_D2=0
+Data Options.E_correction=0
+Data Options.Area=1
+Data Options.Cap0=1E-6
+Data Options.MaxScanpoints=200000
+Data Options.Equivalent Weight=27.9
+Data Options.Density=7.86
+Data Options.Ba=0.1
+Data Options.Bc=0.1
+Data Options.Permittivity=1
+Data Options.Temperature=298
+Data Options.NominalCharge=1
+Data Options.EISfreq=5000
+Data Options.EISamp=0.025
+Data Options.CompFactor=0.85
+Data Options.AnalogInputYUnit=V
+Data Options.AnalogInputYUnit2=V
+Data Options.EISNonLinCorr=false
+MeasConfig=standard
+Report=
+Report.Remarks=
+Report.Process data=instrument  : P28659channel     : 0alias       : P28659software vs : 4.1098firmware vs : 2225 (2225)hw config   : pocketSTAT2+FRAstart time  : 7/24/2023 2:02:15 PMend time    : 7/24/2023 2:02:35 PMendcondition: Scan AbortedSpec Rev    : 10DbFileName  : DataServer_P28659_2023-07-24_14-02-15-247.idf.sqliteDbFileMeasId: 1Step        : 0.00000E+0Interval    : 0.00000E+0
+Mconfig=0

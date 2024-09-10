@@ -39,15 +39,52 @@ void loop() {
       digitalWrite(relayPin2, HIGH);
     }
   }
-
-  //   // Check if a delay command is ongoing
-  // if (millis() - commandTime < delayDuration) {
-  //   // If the time hasn't elapsed, continue doing other things
-  //   // You can add other code here to execute concurrently
-  // } 
-  // else {
-  //   // If the time has elapsed, do something (e.g., turn off the relay)
-  //   digitalWrite(relayPin1, HIGH);
-  //   digitalWrite(relayPin2, HIGH);
-  // }
 }
+
+
+// int relayPin1 = 2;
+// int relayPin2 = 3;
+// unsigned long commandTime = 0; // Time when the command is received
+// unsigned long moveDuration = 0; // Duration for the movement
+// bool isMoving = false; // Flag to check if the actuator is moving
+
+// void setup() {
+//   Serial.begin(9600);
+//   pinMode(relayPin1, OUTPUT);
+//   pinMode(relayPin2, OUTPUT);
+//   digitalWrite(relayPin1, HIGH);
+//   digitalWrite(relayPin2, HIGH);
+// }
+
+// void loop() {
+//   if (Serial.available() > 0) {
+//     char command = Serial.read();
+    
+//     if (command == 'W') {
+//       String durationStr = Serial.readStringUntil('\n');
+//       moveDuration = durationStr.toInt();
+      
+//       digitalWrite(relayPin1, LOW);
+//       digitalWrite(relayPin2, HIGH);
+//       commandTime = millis(); // Start timer
+//       isMoving = true;
+//     } 
+//     else if (command == 'C') {
+//       digitalWrite(relayPin1, HIGH);
+//       digitalWrite(relayPin2, LOW);
+//       isMoving = false; // Move fully, no timer
+//     }
+//     else if (command == 's') {
+//       digitalWrite(relayPin1, HIGH);
+//       digitalWrite(relayPin2, HIGH);
+//       isMoving = false; // Stop immediately
+//     }
+//   }
+
+//   // Stop the movement after the specified duration for 'W' command
+//   if (isMoving && (millis() - commandTime >= moveDuration)) {
+//     digitalWrite(relayPin1, HIGH);
+//     digitalWrite(relayPin2, HIGH);
+//     isMoving = false; // Stop the actuator
+//   }
+// }

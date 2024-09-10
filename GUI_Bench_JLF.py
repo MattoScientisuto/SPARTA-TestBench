@@ -187,25 +187,43 @@ frame.bind('<Leave>',lambda e: contract())
 frame.grid_propagate(False)
 
 # ========================================================================
+
+stepper_write_lock = threading.Lock()
+
 actuator = serial.Serial('COM5', baudrate=9600, timeout=1)
 tcp_heater = serial.Serial('COM4', baudrate=9600, timeout=1)
-stepper = serial.Serial('COM8', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial(
+    port='COM11',
+    baudrate=38400,
+    bytesize=serial.EIGHTBITS,  # Data bits
+    parity=serial.PARITY_NONE,  # Parity
+    stopbits=serial.STOPBITS_ONE,
+    timeout=0,
+    write_timeout=0
+)
 
-time.sleep(0.5)
-stepper.write('@0B670\r'.encode())
-time.sleep(0.5)
-stepper.write('@0M670\r'.encode())
-time.sleep(0.5)
-stepper.write('@0J670\r'.encode())
-time.sleep(0.5)
+stepper.write('@0B67\r'.encode())
+stepper.write('@0M67\r'.encode())
+stepper.write('@0J67\r'.encode())
 stepper.write('@0+\r'.encode())
-time.sleep(0.2)
+
+
 
 ser_running = False
 tcph_running = False
 torser_running = False
 
 tcp_duration = 0
+
+def restart_torque_port():
+    global stepper
+    try:
+        if stepper and stepper.is_open:
+            stepper.close()
+        stepper.open()
+        tk.messagebox.showinfo("Success", "Serial port restarted successfully.")
+    except serial.SerialException as e:
+        tk.messagebox.showerror("Error", f"Error restarting serial port: {e}")
 
 def switch_true(device):
     device.config(text='True', background='#15eb80')
@@ -268,27 +286,41 @@ def kill_ports():
         tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
+# vst_step_pos = 420
 vst_step_pos = 4020
+
 def go_to():
-    time.sleep(0.1)
-    stepper.write('@0+\r'.encode())
-    time.sleep(0.2)
-    stepper.write(f'@0N{vst_step_pos}\r'.encode())
-    stepper.write('@0G\r'.encode())  
-    time.sleep(0.1) 
-    stepper.write('@0F\r'.encode())   
-    print('Rotating forward...')
+    global stepper
+
+    with stepper_write_lock:
+        stepper.write('@0B67\r'.encode())
+        stepper.write('@0M67\r'.encode())
+        stepper.write('@0J67\r'.encode())
+        stepper.write('@0+\r'.encode())
+        stepper.write(f'@0N{vst_step_pos}\r'.encode())
+        stepper.write('@0G\r'.encode())  
+        stepper.write('@0F\r'.encode())   
+        print('Rotating forward...')
+
 def step_stop():
-    stepper.write('@0.\r'.encode())
-    stepper.write('@0F\r'.encode())
-    print('Rotation stopped!')
+    global stepper
+    with stepper_write_lock:
+        stepper.write('@0.\r'.encode())
+        stepper.write('@0F\r'.encode())
+        print('Rotation stopped!')
+
 def reset():
-    time.sleep(0.1)
-    stepper.write('@0P0\r'.encode())
-    stepper.write('@0G\r'.encode())
-    time.sleep(0.1)
-    stepper.write('@0F\r'.encode())
-    print('Resetting position...')
+    global stepper
+
+    with stepper_write_lock:
+        # Reset at motor default speed, otherwise it'd take too long
+        stepper.write('@0B500\r'.encode())
+        stepper.write('@0M1500\r'.encode())
+        stepper.write('@0J1500\r'.encode())
+        stepper.write('@0P0\r'.encode())
+        stepper.write('@0G\r'.encode())
+        stepper.write('@0F\r'.encode())
+        print('Resetting position...')
 
 # Write command for Linear Actuator    
 def digitalWrite(device, command):
@@ -347,7 +379,7 @@ total_time = 0
 sample_rate = 1655
 
 acquisition_duration = 0
-vst_duration = 6
+vst_duration = 60
     
 def log_update(device):
     if device is curr_log1:
@@ -400,12 +432,10 @@ def read_load_cell():
         
         # CLEAR/RESET OLD DATA EVERY NEW RUN TO PREVENT INTERFERANCE!
         entry_nums.clear()
-        # r_count = 1
         
         ai_task.start()
         
         digitalWrite(actuator, 'W')
-        time.sleep(0.1)
 
         lc_running = True
         switch_true(load_running)
@@ -457,6 +487,8 @@ def read_load_cell():
         time.sleep(0.1)
         digitalWrite(actuator, 's')
 
+        ai_task.close()
+
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
@@ -489,7 +521,7 @@ def read_torque_sensor():
     vst_samples = int(sample_rate * vst_duration)
     
     with nidaqmx.Task() as ai_task:
-         
+
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
@@ -497,6 +529,7 @@ def read_torque_sensor():
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.INCH_POUNDS)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
+        # ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.FINITE, samps_per_chan=10000)
         ai_task.in_stream.input_buf_size = 5000
         
         ai_task.start()
@@ -543,7 +576,8 @@ def read_torque_sensor():
                     break
                 
             file.close()
-                
+        
+        ai_task.close()
         vst_estop_flag = False
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
@@ -892,7 +926,7 @@ torque_sensor.set_title('Torque Sensor', weight='bold')
 torque_sensor.set_xlabel('Time Elapsed (seconds)')
 torque_sensor.set_ylabel('Torque (Pound-inches)')
 torque_sensor.grid()
-# torque_sensor.set_ylim(0,100)
+# torque_sensor.set_ylim(1,8)
 
 fig2.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=10.5)
 
@@ -959,7 +993,7 @@ fig5.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=1
 #                 Animate Functions
 # ====================================================
 # Size of moving average buffer
-BUFFER_SIZE = 500
+BUFFER_SIZE = 1500
 # CPT Buffers
 y_buffer_load = deque(maxlen=BUFFER_SIZE)
 y2_buffer_load = deque(maxlen=BUFFER_SIZE)
@@ -1235,7 +1269,7 @@ def set_vst_dur():
         tk.messagebox.showinfo("Error", 'The maximum duration is 5591 seconds!')
     else:  
         # Time -> Steps conversion: 1500 steps per second
-        vst_step_pos = (670 * vst_duration)
+        vst_step_pos = (67 * vst_duration)
         rot_dur.config(text='{:.2f}'.format(vst_duration))
         print("VST Duration set to:", vst_duration)
     print(vst_step_pos)
@@ -1313,6 +1347,8 @@ torser_status.grid(row=7, column=1, sticky=NW)
 
 ser_kill = tk.Button(home_frame, text="Kill Ports", command=kill_ports)
 ser_kill.grid(row=8, column=0, padx=5, pady=5, sticky=NW)
+torser_restart = tk.Button(home_frame, text="Restart Torque Motor")
+torser_restart.grid(row=9, column=0, padx=5, pady=5, sticky=NW)
 
 cpt_var = tk.StringVar()
 vst_var = tk.StringVar()
@@ -1694,7 +1730,7 @@ ani4 = FuncAnimation(fig4, animate_dsp, interval=1000, cache_frame_data=False)
 ani5 = FuncAnimation(fig5, animate_dsp_phase, interval=1000, cache_frame_data=False)
 
 plt.show()
-check_ports()
+# check_ports()
 
 # Automatically closes serial ports as soon as the program is closed
 def exit_handler():
