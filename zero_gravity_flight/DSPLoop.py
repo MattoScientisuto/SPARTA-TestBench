@@ -4,7 +4,7 @@
 # Zero Gravity: DSP Loop
 
 # Created: September 3rd, 2024
-# Last Updated: September 5th, 2024
+# Last Updated: September 16th, 2024
 # ============================================ #
 
 from DateTimeFetching import *
@@ -17,9 +17,13 @@ import time
 
 import subprocess
 import atexit
+
+
 log_path = f"C:\\zero_gravity_output\\data_output\\dsp\\{get_datestamp()}\\console_log_dspimu.txt"
 os.makedirs(os.path.dirname(log_path), exist_ok=True)
 sys.stdout = open(log_path, "a")
+
+
 dsp_idf = []
 dsp_dir = f'C:\\zero_gravity_output\\data_output\\dsp\\{get_datestamp()}'
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -131,7 +135,7 @@ if __name__ == "__main__":
     print(f'====================================================\n START POINT OF DSP LOG: {get_datestamp()} at {get_timestamp()}\n====================================================')
     sys.stdout.flush()
 
-    print(f'\n[{get_datestamp()}, {get_timestamp()}] Main DSP & IMU batch successfully started!')
+    print(f'\n[{get_datestamp()}, {get_timestamp()}] DSP batch successfully started!')
 
     # Power up Ivium and IMU
     start_ivium()

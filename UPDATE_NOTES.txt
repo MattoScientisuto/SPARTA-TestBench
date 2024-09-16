@@ -542,3 +542,14 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   Added moving average buffers for CPT and VST for every 500 points
   
+
+9-16-24
+  Created a Zero Gravity Flight folder
+   - This time, I organized the operations into several files for readability
+   - Like Blue Origin, it has a DSP Loop (on one channel for now)
+   - Also has a geomechanical operations interface with a pre-set depth and rotation duration
+    - This will need to be configured later on once the flight is more established
+   - Re-routes data files to C:\zero_gravity_output so any new git pushes won't be cluttered
+    * Need to do the same with the JLF interface
+
+  All CPT movements are disabled for now until the hardware wiring set up is resolved

@@ -16,7 +16,6 @@ from nidaqmx.constants import BridgePhysicalUnits, ExcitationSource, ResistanceC
 from nidaqmx.constants import AcquisitionType, TerminalConfiguration, TorqueUnits, BridgeConfiguration, BridgeElectricalUnits, AcquisitionType, ForceUnits
 
 import time
-from datetime import date, datetime
 import datetime as dt
 import os
 import sys
@@ -27,12 +26,17 @@ import pandas as pd
 
 sample_rate = 1655
 
-todays_date = date.today().strftime("%m-%d-%Y")
 cpt_csv = []
 vst_csv = []
-cpt_dir = f'C:\\zero_gravity_output\\data_output\\cpt\\{todays_date}\\'
-vst_dir = f'C:\\zero_gravity_output\\data_output\\vst\\{todays_date}\\'
+cpt_dir = f'C:\\zero_gravity_output\\data_output\\cpt\\{get_datestamp()}\\'
+vst_dir = f'C:\\zero_gravity_output\\data_output\\vst\\{get_datestamp()}\\'
 
+lc_running = False
+ts_running = False
+cpt_ran_num=0
+vst_ran_num=0
+new_file_load = False
+new_file_torque = False
 r_count = 1
 
 # ==========================
@@ -44,11 +48,17 @@ def get_cpt_csv():
     global cpt_csv
     global cpt_dir
 
-    curr_time = datetime.now().strftime("%H-%M-%S")
-    input = f'ZeroG_CPT[{todays_date}][{curr_time}]' '.csv'
+    input = f'ZeroG_CPT[{get_datestamp()}][{get_dashedtime()}]' '.csv'
     
-    cpt_csv.append(input)
-    print(f"[{get_timestamp()}] CPT CSV set to:", input)
+    # If the list of csvs is empty, append
+    # Otherwise, replace the current stored csv
+    if len(cpt_csv) == 0:
+        cpt_csv.append(input)
+        print(f"[{get_timestamp()}] Load CSV set to:", input)
+    else:
+        cpt_csv[0] = input
+        print(f"[{get_timestamp()}] Load CSV replaced with:", input)
+
     sys.stdout.flush()
 
     # If today's date doesn't have an output folder yet, make one
@@ -57,7 +67,7 @@ def get_cpt_csv():
         os.makedirs(cpt_dir)
     
     # Create the csv file and write the column titles
-    with open(f'C:\\zero_gravity_output\\data_output\\cpt\\{todays_date}\\{cpt_csv[0]}', 'w', newline='') as file:
+    with open(f'C:\\zero_gravity_output\\data_output\\cpt\\{get_datestamp()}\\{cpt_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Timestamp", "Depth [cm]", "Force [Pounds/Raw]"])
         file.close()
@@ -67,8 +77,10 @@ def read_load_cell():
     
     global total_time
     global r_count
+    global lc_running
     
     cpt_samples = int(sample_rate * actuator_duration)
+    r_count = 0
     
     with nidaqmx.Task() as ai_task:
          
@@ -85,13 +97,16 @@ def read_load_cell():
         
         ai_task.start()
         
-        digitalWrite(linear_actuator, 'W5000')
+        digitalWrite(linear_actuator, 'W')
         
+        lc_running = True
+
         start_time = dt.datetime.now()
 
-        with open(f'C:\\zero_gravity_output\\data_output\\cpt\\{todays_date}\\{cpt_csv[0]}', 'a', newline='') as file:
+        with open(f'C:\\zero_gravity_output\\data_output\\cpt\\{get_datestamp()}\\{cpt_csv[0]}', 'a', newline='') as file:
 
             writer = csv.writer(file)
+
             last_timestamp = 0
             
             for i in range(cpt_samples):
@@ -120,12 +135,22 @@ def read_load_cell():
 
         # Close port safely, prep for re-open and reset
         # needs testing first
-        linear_actuator.close()
+        # linear_actuator.close()
 
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         time_print('CPT Run Completed!')
+        lc_running = False
+        reset_cpt_nums()
+
+
+def reset_cpt_nums():
+
+    global new_file_load
+
+    new_file_load = True
+
 
 # ==========================
 # Torque Sensor Operations
@@ -135,11 +160,18 @@ def get_vst_csv():
 
     global vst_csv
     global vst_dir
-    curr_time = datetime.now().strftime("%H-%M-%S")
-    input = f'ZeroG_VST[{todays_date}][{curr_time}]' '.csv'
+
+    input = f'ZeroG_VST[{get_datestamp()}][{get_dashedtime()}]' '.csv'
     
-    vst_csv.append(input)
-    print(f"[{get_timestamp()}] VST CSV set to:", input)
+    # If the list of csvs is empty, append
+    # Otherwise, replace the current stored csv
+    if len(vst_csv) == 0:
+        vst_csv.append(input)
+        print(f"[{get_timestamp()}] Torque CSV set to:", input)
+    else:
+        vst_csv[0] = input
+        print(f"[{get_timestamp()}] Torque CSV replaced with:", input)
+
     sys.stdout.flush()
 
     # If today's date doesn't have an output folder yet, make one
@@ -148,7 +180,7 @@ def get_vst_csv():
         os.makedirs(vst_dir)
     
     # Create the csv file and write the column titles
-    with open(f'C:\\zero_gravity_output\\data_output\\vst\\{todays_date}\\{vst_csv[0]}', 'w', newline='') as file:
+    with open(f'C:\\zero_gravity_output\\data_output\\vst\\{get_datestamp()}\\{vst_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches/Raw]"])
         file.close()
@@ -158,6 +190,7 @@ def get_vst_csv():
 def read_torque_sensor():
 
     global total_time
+    global ts_running
     
     vst_samples = int(sample_rate * vst_seconds)
     
@@ -174,11 +207,20 @@ def read_torque_sensor():
         
         ai_task.start()
         rotate_forward()
+        ts_running = True
         start_time = dt.datetime.now()
         
-        with open(f'C:\\zero_gravity_output\\data_output\\vst\\{todays_date}\\{vst_csv[0]}', 'a', newline='') as file:
+        with open(f'C:\\zero_gravity_output\\data_output\\vst\\{get_datestamp()}\\{vst_csv[0]}', 'a', newline='') as file:
             writer = csv.writer(file)
-            last_timestamp = 0
+
+            # Check if this is the first run of the current log file
+            if vst_ran_num >= 1:
+                existing_data = pd.read_csv(f'C:\\zero_gravity_output\\data_output\\vst\\{get_datestamp()}\\{vst_csv[0]}', sep=',')
+                last_timestamp = existing_data['Timestamp (seconds)'].iloc[-1]
+            # If not, last timestamp shouldn't be taken from the previous
+            else:
+                last_timestamp = 0
+                # clear_vertical_lines(vst_endlines)
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
@@ -200,11 +242,19 @@ def read_torque_sensor():
                 
             file.close()
 
-        stepper.close()
+        # stepper.close()
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
         time_print('VST Run Completed!')
+        ts_running = False
+        reset_vst_nums()
+
+
+def reset_vst_nums():
+    global new_file_torque, vst_ran_num
+    new_file_torque = True
+    vst_ran_num = 0
 
 
 # ============
@@ -214,7 +264,7 @@ def read_torque_sensor():
 def start_cpt_thread():
     print(f'=======================================================\n START POINT CPT : {get_datestamp()} at {get_timestamp()}\n=======================================================')
     get_cpt_csv()
-    time.sleep(1)
+    time.sleep(0.5)
     thread_cpt = Thread(target=read_load_cell)
     thread_cpt.start()
     return thread_cpt
@@ -223,7 +273,7 @@ def start_vst_thread():
     print(f'=======================================================\n START POINT VST : {get_datestamp()} at {get_timestamp()}\n=======================================================')
     speeds_setup()
     get_vst_csv()
-    time.sleep(1)
+    time.sleep(0.5)
     thread_vst = Thread(target=read_torque_sensor) 
     thread_vst.start()
     return thread_vst
@@ -246,9 +296,8 @@ def reset_vst_thread():
 def reset_linear_actuator():
 
     digitalWrite(linear_actuator, 'C')
-    time_print('Homing linear actuator...')
+
 
 def reset_rotation_motor():
 
     rotate_reset()
-    time_print('Homing rotation motor...')

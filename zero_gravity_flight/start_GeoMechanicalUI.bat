@@ -1,0 +1,2 @@
+python OperationsUI.py
+pause

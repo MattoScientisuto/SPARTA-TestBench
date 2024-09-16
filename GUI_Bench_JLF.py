@@ -8,7 +8,7 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: April 24th, 2024
+# Last Updated: September 12th, 2024
 # ============================================ #
 
 from tkinter import *
@@ -484,10 +484,7 @@ def read_load_cell():
                 
             file.close()
             
-        time.sleep(0.1)
         digitalWrite(actuator, 's')
-
-        ai_task.close()
 
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
@@ -577,7 +574,6 @@ def read_torque_sensor():
                 
             file.close()
         
-        ai_task.close()
         vst_estop_flag = False
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
@@ -1007,6 +1003,8 @@ avg_y_torque = []
 
 # Calculate moving average
 def moving_average(buffer):
+    if len(buffer) == 0:
+        return np.nan  # or return 0, None, etc., depending on your needs
     return np.mean(list(buffer))
 
 # Load Cell Animate Function
@@ -1432,7 +1430,7 @@ def cpt_estop():
 act_nstop = tk.Button(cpt_frame, text="Actuator Stop", bg="#fcf5b6", command=lambda: digitalWrite(actuator,'s'))
 act_nstop.grid(row=3, column=2, sticky=W)
 
-jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'W'))
+jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'W7000'))
 jog_up = tk.Button(cpt_frame, text="Jog Up", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'C'))
 jog_down.place(relx=0.86, rely=0.19)
 jog_up.place(relx=0.86, rely=0.153)
