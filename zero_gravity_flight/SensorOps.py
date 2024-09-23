@@ -131,6 +131,7 @@ def read_load_cell():
             file.close()
             
         time.sleep(0.1)
+
         digitalWrite(linear_actuator, 's')
 
         # Close port safely, prep for re-open and reset
@@ -206,6 +207,7 @@ def read_torque_sensor():
         ai_task.in_stream.input_buf_size = 5000
         
         ai_task.start()
+        
         rotate_forward()
         ts_running = True
         start_time = dt.datetime.now()

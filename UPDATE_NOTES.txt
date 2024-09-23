@@ -553,3 +553,9 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
     * Need to do the same with the JLF interface
 
   All CPT movements are disabled for now until the hardware wiring set up is resolved
+
+
+9-23-24
+  FINALLY FIXED THE COM PORT ISSUES LESGOOOOO
+   - turns out it was just the USB hub (probably couldn't handle both linear and rotation power wise)
+   - also added a small delay on the arduino reading and turned down baudrate to 4800

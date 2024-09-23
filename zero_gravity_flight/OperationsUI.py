@@ -4,10 +4,11 @@
 # Zero Gravity: Operations Interface
 
 # Created: September 10th, 2024
-# Last Updated: September 16th, 2024
+# Last Updated: September 23th, 2024
 # ============================================ #
 
 from LivePlots import *
+from RotateMotor import *
 
 import tkinter as tk
 from tkinter import *
@@ -16,9 +17,9 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import atexit
 
-log_path = f"C:\\zero_gravity_output\\console_log_geomechanical.txt"
-os.makedirs(os.path.dirname(log_path), exist_ok=True)
-sys.stdout = open(log_path, "a")
+# log_path = f"C:\\zero_gravity_output\\console_log_geomechanical.txt"
+# os.makedirs(os.path.dirname(log_path), exist_ok=True)
+# sys.stdout = open(log_path, "a")
 
 
 root = tk.Tk()

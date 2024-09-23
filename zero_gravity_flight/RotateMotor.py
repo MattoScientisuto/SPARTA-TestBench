@@ -14,8 +14,9 @@ import time
 vst_seconds   = 20
 step_position = 67 * (vst_seconds)
     
+    
 stepper = serial.Serial(
-        port='COM11',
+        port='COM15',
         baudrate=38400,
         bytesize=serial.EIGHTBITS,
         parity=serial.PARITY_NONE, 
@@ -65,5 +66,3 @@ def rotate_reset():
 
     time_print('Resetting position...')
     time.sleep(2)
-
-    # stepper.close()

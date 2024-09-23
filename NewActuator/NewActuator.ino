@@ -4,7 +4,7 @@ unsigned long commandTime = 0; // variable to store the time when the command is
 int delayDuration = 0; // variable to store the delay duration
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(4800);
   pinMode(relayPin1, OUTPUT);
   pinMode(relayPin2, OUTPUT);
   digitalWrite(relayPin1, HIGH);
@@ -39,6 +39,7 @@ void loop() {
       digitalWrite(relayPin2, HIGH);
     }
   }
+  delay(10);
 }
 
 //

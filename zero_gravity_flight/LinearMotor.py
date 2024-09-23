@@ -11,7 +11,7 @@ import serial
 import time
 
 # Motor serial ports
-linear_actuator = serial.Serial('COM5', baudrate=9600, timeout=0, write_timeout=0)
+linear_actuator = serial.Serial('COM14', baudrate=4800, timeout=0, write_timeout=0)
 
 actuator_duration = 8 #seconds, will change later to whatever the flight needs
 

@@ -190,10 +190,10 @@ frame.grid_propagate(False)
 
 stepper_write_lock = threading.Lock()
 
-actuator = serial.Serial('COM5', baudrate=9600, timeout=1)
-tcp_heater = serial.Serial('COM4', baudrate=9600, timeout=1)
+actuator = serial.Serial('COM5', baudrate=4800, timeout=1)
+# tcp_heater = serial.Serial('COM4', baudrate=9600, timeout=1)
 stepper = serial.Serial(
-    port='COM11',
+    port='COM15',
     baudrate=38400,
     bytesize=serial.EIGHTBITS,  # Data bits
     parity=serial.PARITY_NONE,  # Parity
@@ -246,12 +246,12 @@ def check_ports():
     else:
         tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
 
-    if tcp_heater.isOpen() == True:
-        tcph_running = True
-        print('TCP Heater Port Opened?: ', tcp_heater.isOpen())
-        switch_true(tcphser_status)
-    else:
-        tk.messagebox.showinfo("Error", "Linear Actuator serial port is not opened!")
+    # if tcp_heater.isOpen() == True:
+    #     tcph_running = True
+    #     print('TCP Heater Port Opened?: ', tcp_heater.isOpen())
+    #     switch_true(tcphser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "TCP Heater serial port is not opened!")
 
     if stepper.isOpen() == True:
         torser_running = True
@@ -269,13 +269,13 @@ def kill_ports():
     else:
         tk.messagebox.showinfo("Error", "Linear Actuator serial port already closed")
 
-    if tcp_heater.isOpen() == True:
-        tcp_heater.close()
-        print("TCP Heater Port Status: ", tcp_heater.isOpen())
-        print("TCP Heater port closed successfully!")
-        switch_false(tcphser_status)
-    else:
-        tk.messagebox.showinfo("Error", "TCP Heater serial port already closed")
+    # if tcp_heater.isOpen() == True:
+    #     tcp_heater.close()
+    #     print("TCP Heater Port Status: ", tcp_heater.isOpen())
+    #     print("TCP Heater port closed successfully!")
+    #     switch_false(tcphser_status)
+    # else:
+    #     tk.messagebox.showinfo("Error", "TCP Heater serial port already closed")
         
     if stepper.isOpen() == True:
         stepper.close()
@@ -324,16 +324,16 @@ def reset():
 
 # Write command for Linear Actuator    
 def digitalWrite(device, command):
-    time.sleep(0.2)
+    time.sleep(0.1)
     device.write(command.encode())
     print(f'Command sent:', command)
 
 # Write command for TCP Heater
-def tcpWrite(duration, command):
-    global tcp_duration
-    data = f"{command},{duration}\n".encode()
-    tcp_heater.write(data)
-    print('Command sent:', data.decode().strip())
+# def tcpWrite(duration, command):
+#     global tcp_duration
+#     data = f"{command},{duration}\n".encode()
+#     tcp_heater.write(data)
+#     print('Command sent:', data.decode().strip())
     
 # Arrays for CSV names
 csv_list = []
@@ -656,52 +656,52 @@ def stop_tcp():
     tcp_running = False
     switch_false(temp_running)
 
-heating_timer = None
-def start_heating(tcp_duration):
-    global heating_timer
+# heating_timer = None
+# def start_heating(tcp_duration):
+#     global heating_timer
 
-    if tcp_duration == 0:
-        tk.messagebox.showinfo("Error", 'Please select a heating duration first!')
-    elif heating_timer and heating_timer.is_alive():
-        tk.messagebox.showinfo("Error", 'TCP is already heating!')
-    else:
-        # Send the heating command to the Arduino
-        tcpWrite(tcp_duration, 'H')
+#     if tcp_duration == 0:
+#         tk.messagebox.showinfo("Error", 'Please select a heating duration first!')
+#     elif heating_timer and heating_timer.is_alive():
+#         tk.messagebox.showinfo("Error", 'TCP is already heating!')
+#     else:
+#         # Send the heating command to the Arduino
+#         tcpWrite(tcp_duration, 'H')
 
-        # Get the confirmation message from the Arduino that heating started
-        message = tcp_heater.readline().decode('utf-8').rstrip() 
-        if message == 'HEATING':
-            print(message)
-            elapsed_time_label.config(text='HEATING...', background='#ff9c6b')
-            heating_gif.place(relx=0.36, rely=0.179, anchor=tk.NE)
-            heating_gif.start()
-            # Start the timer for the heating duration
-            heating_timer = threading.Timer(tcp_duration / 1000, stop_heating)
-            heating_timer.start()
+#         # Get the confirmation message from the Arduino that heating started
+#         message = tcp_heater.readline().decode('utf-8').rstrip() 
+#         if message == 'HEATING':
+#             print(message)
+#             elapsed_time_label.config(text='HEATING...', background='#ff9c6b')
+#             heating_gif.place(relx=0.36, rely=0.179, anchor=tk.NE)
+#             heating_gif.start()
+#             # Start the timer for the heating duration
+#             heating_timer = threading.Timer(tcp_duration / 1000, stop_heating)
+#             heating_timer.start()
 
-def stop_heating():
-    # Send the stop heating command to the Arduino
-    tcpWrite(0, 'C')
-    heating_gif.place_forget()
-    # Get the confirmation message from the Arduino that heating stopped
-    message = tcp_heater.readline().decode('utf-8').rstrip() 
-    if message == 'STOPPED':
-        print(message)
+# def stop_heating():
+#     # Send the stop heating command to the Arduino
+#     tcpWrite(0, 'C')
+#     heating_gif.place_forget()
+#     # Get the confirmation message from the Arduino that heating stopped
+#     message = tcp_heater.readline().decode('utf-8').rstrip() 
+#     if message == 'STOPPED':
+#         print(message)
         
-        elapsed_time_label.config(text='IDLE', background='#a7ddf2')
-        tk.messagebox.showinfo("TCP", 'Heating has finished!')
+#         elapsed_time_label.config(text='IDLE', background='#a7ddf2')
+#         tk.messagebox.showinfo("TCP", 'Heating has finished!')
 
 # Command for the actual button used to stop the heating manually
-def handle_manual_stop():
-    global heating_timer
+# def handle_manual_stop():
+#     global heating_timer
 
-    # Stop the heating abruptly if the thread timer is still running
-    if heating_timer and heating_timer.is_alive():
-        # Cancel the timer then send the stop code
-        heating_timer.cancel()
-        stop_heating()
-    else:
-        tk.messagebox.showinfo("TCP", 'TCP is not currently heating!')
+#     # Stop the heating abruptly if the thread timer is still running
+#     if heating_timer and heating_timer.is_alive():
+#         # Cancel the timer then send the stop code
+#         heating_timer.cancel()
+#         stop_heating()
+#     else:
+#         tk.messagebox.showinfo("TCP", 'TCP is not currently heating!')
       
 # ================ #
 #   DSP READING
@@ -1300,9 +1300,9 @@ def tcp_run():
     thread_tcp = Thread(target=read_tcp) 
     thread_tcp.start()
 
-def heating_run():
-    thread_heating = Thread(target=lambda: start_heating(tcp_duration))   
-    thread_heating.start()
+# def heating_run():
+#     thread_heating = Thread(target=lambda: start_heating(tcp_duration))   
+#     thread_heating.start()
 
 # ===================
 #       Frames
@@ -1634,16 +1634,16 @@ heat_text.grid(row=2, column=0, padx=3, pady=3)
 heat_dropdown = tk.OptionMenu(tcp_frame, heating_var, *heat_options, command=update_heatdur)
 heat_dropdown.grid(row=2, column=1, pady=3, sticky=W)
 
-start_tcp_heat = tk.Button(tcp_frame, text="Start Heating", background="#ff9c6b", command=heating_run)
-start_tcp_heat.grid(row=2, column=2)
+# start_tcp_heat = tk.Button(tcp_frame, text="Start Heating", background="#ff9c6b", command=heating_run)
+# start_tcp_heat.grid(row=2, column=2)
 
 log4 = tk.Label(tcp_frame, text="Logging to: ", font=("Arial", 10))
 log4.grid(row=3, column=0)
 curr_log4 = tk.Label(tcp_frame, text='N/A', font=("Arial", 14), background='#f05666', relief='groove')
 curr_log4.grid(row=3, column=1, sticky=W, pady=1)
 
-stop_tcp_heat = tk.Button(tcp_frame, text="Stop Heating", background="#a7ddf2", command=handle_manual_stop)
-stop_tcp_heat.grid(row=3, column=2)
+# stop_tcp_heat = tk.Button(tcp_frame, text="Stop Heating", background="#a7ddf2", command=handle_manual_stop)
+# stop_tcp_heat.grid(row=3, column=2)
 
 tcp_currheat = tk.Label(tcp_frame, text="Heating Status: ", font=("Arial Bold", 10))
 tcp_currheat.grid(row=4, column=0, pady=2)
@@ -1739,12 +1739,12 @@ def exit_handler():
     else:
         print("Linear Actuator already closed")
 
-    if tcp_heater.isOpen() == True:
-        tcp_heater.close()
-        print("TCP Heater Port Status: ", tcp_heater.isOpen())
-        print("TCP Heater port closed successfully!")
-    else:
-        print("TCP Heater already closed")
+    # if tcp_heater.isOpen() == True:
+    #     tcp_heater.close()
+    #     print("TCP Heater Port Status: ", tcp_heater.isOpen())
+    #     print("TCP Heater port closed successfully!")
+    # else:
+    #     print("TCP Heater already closed")
 
     if stepper.isOpen() == True:
         stepper.close()
