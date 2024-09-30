@@ -190,7 +190,7 @@ frame.grid_propagate(False)
 
 stepper_write_lock = threading.Lock()
 
-actuator = serial.Serial('COM5', baudrate=4800, timeout=1)
+actuator = serial.Serial('COM14', baudrate=4800, timeout=1)
 # tcp_heater = serial.Serial('COM4', baudrate=9600, timeout=1)
 stepper = serial.Serial(
     port='COM15',
@@ -215,15 +215,6 @@ torser_running = False
 
 tcp_duration = 0
 
-def restart_torque_port():
-    global stepper
-    try:
-        if stepper and stepper.is_open:
-            stepper.close()
-        stepper.open()
-        tk.messagebox.showinfo("Success", "Serial port restarted successfully.")
-    except serial.SerialException as e:
-        tk.messagebox.showerror("Error", f"Error restarting serial port: {e}")
 
 def switch_true(device):
     device.config(text='True', background='#15eb80')
@@ -286,7 +277,6 @@ def kill_ports():
         tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
-# vst_step_pos = 420
 vst_step_pos = 4020
 
 def go_to():
@@ -348,10 +338,10 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 todays_date = date.today().strftime("%m-%d-%Y")
 
 # Data output directories for each component
-cpt_dir = f'.\\data_output\\cpt\\{todays_date}'
-vst_dir = f'.\\data_output\\vst\\{todays_date}'
-dsp_dir = f'.\\data_output\\dsp\\{todays_date}'
-tcp_dir = f'.\\data_output\\tcp\\{todays_date}'
+cpt_dir = f'C:\\data_output\\cpt\\{todays_date}'
+vst_dir = f'C:\\data_output\\vst\\{todays_date}'
+dsp_dir = f'C:\\data_output\\dsp\\{todays_date}'
+tcp_dir = f'C:\\data_output\\tcp\\{todays_date}'
 
 strain_data = []
 entry_nums = []
@@ -441,13 +431,13 @@ def read_load_cell():
         switch_true(load_running)
         start_time = dt.datetime.now()
         
-        with open(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'a', newline='') as file:
+        with open(f'C:\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'a', newline='') as file:
 
             writer = csv.writer(file)
 
             # Check if this is the first run of the current log file
             if ran_num >= 1:
-                existing_data = pd.read_csv(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=',')
+                existing_data = pd.read_csv(f'C:\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=',')
                 last_timestamp = existing_data['Timestamp'].iloc[-1]
             # If not, last timestamp shouldn't be taken from the previous
             else:
@@ -535,12 +525,12 @@ def read_torque_sensor():
         switch_true(torque_running)
         start_time = dt.datetime.now()
         
-        with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
+        with open(f'C:\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'a', newline='') as file:
             writer = csv.writer(file)
 
             # Check if this is the first run of the current log file
             if vst_ran_num >= 1:
-                existing_data = pd.read_csv(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=',')
+                existing_data = pd.read_csv(f'C:\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=',')
                 last_timestamp = existing_data['Timestamp (seconds)'].iloc[-1]
             # If not, last timestamp shouldn't be taken from the previous
             else:
@@ -606,12 +596,12 @@ def read_tcp():
         switch_true(temp_running)
         start_time = dt.datetime.now()
         
-        with open(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'a', newline='') as file:
+        with open(f'C:\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'a', newline='') as file:
             writer = csv.writer(file)
 
             # Check if this is the first run of the current log file
             if tcp_ran_num >= 1:
-                existing_data = pd.read_csv(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', sep=',')
+                existing_data = pd.read_csv(f'C:\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', sep=',')
                 last_timestamp = existing_data['Timestamp (seconds)'].iloc[-1]
             # If not, last timestamp shouldn't be taken from the previous
             else:
@@ -769,12 +759,12 @@ def dsp_wait():
         # Check if the channel is done
         if status == 1:
             # Write to zone and phase angle files
-            with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_csv[0]}', 'a', newline='') as file:
+            with open(f'C:\\data_output\\dsp\\{todays_date}\\{dsp_csv[0]}', 'a', newline='') as file:
                 writer = csv.writer(file)
                 for i in range(len(frequencies)):
                     writer.writerow([frequencies[i], absolZ[i]])
                 file.close()
-            with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_pcsv[0]}', 'a', newline='') as file:
+            with open(f'C:\\data_output\\dsp\\{todays_date}\\{dsp_pcsv[0]}', 'a', newline='') as file:
                 writer = csv.writer(file)
                 for i in range(len(frequencies)):
                     writer.writerow([frequencies[i], phase[i]])
@@ -1019,7 +1009,7 @@ def animate_load_cell(i):
             avg_y2_load.clear()
             new_file_load = False  # Reset the flag
 
-        data = pd.read_csv(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=",")
+        data = pd.read_csv(f'C:\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', sep=",")
 
         y = data['Force [Offset]'] 
         y2 = data['Depth [cm]']                            
@@ -1051,7 +1041,7 @@ def animate_torque_sensor(i):
             avg_y_torque.clear()
             new_file_torque = False  # Reset the flag
 
-        data = pd.read_csv(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
+        data = pd.read_csv(f'C:\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
 
         x = data['Timestamp (seconds)'] 
         y = data['Torque [Pound-inches/Raw]']                             
@@ -1075,7 +1065,7 @@ def animate_torque_sensor(i):
 def animate_tcp(i):
     global tcp_running
     if tcp_csv and tcp_running is True:
-        data = pd.read_csv(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', sep=",")
+        data = pd.read_csv(f'C:\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', sep=",")
         x = data['Timestamp (seconds)'] 
         y = data['Temperature [Celsius]']                             
         
@@ -1137,7 +1127,7 @@ def get_csv():
         os.makedirs(cpt_dir)
     
     # Create the csv file and write the column titles
-    with open(f'.\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'w', newline='') as file:
+    with open(f'C:\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Timestamp", "Depth [cm]", "Force [Pounds/Raw]", "Force [Offset]"])
         file.close()
@@ -1165,7 +1155,7 @@ def get_torque_csv():
         os.makedirs(vst_dir)
     
     # Create the csv file and write the column titles
-    with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
+    with open(f'C:\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches/Raw]"])
         file.close()
@@ -1215,11 +1205,11 @@ def get_dsp_idf():
             os.makedirs(dsp_dir)
 
         # Create the csv file and write the column titles
-        with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_csv[0]}', 'w', newline='') as file:
+        with open(f'C:\\data_output\\dsp\\{todays_date}\\{dsp_csv[0]}', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["10log(frequency) /Hz", "10log|Z| /ohm"])
             file.close()
-        with open(f'.\\data_output\\dsp\\{todays_date}\\{dsp_pcsv[0]}', 'w', newline='') as file:
+        with open(f'C:\\data_output\\dsp\\{todays_date}\\{dsp_pcsv[0]}', 'w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["10log(frequency) /Hz", "phase /degrees"])
             file.close()
@@ -1246,7 +1236,7 @@ def get_tcp_csv():
         os.makedirs(tcp_dir)
     
     # Create the csv file and write the column titles
-    with open(f'.\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'w', newline='') as file:
+    with open(f'C:\\data_output\\tcp\\{todays_date}\\{tcp_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Timestamp (seconds)", "Temperature [Celsius]", "Temperature [Raw Reading]"])
         file.close()
@@ -1345,8 +1335,6 @@ torser_status.grid(row=7, column=1, sticky=NW)
 
 ser_kill = tk.Button(home_frame, text="Kill Ports", command=kill_ports)
 ser_kill.grid(row=8, column=0, padx=5, pady=5, sticky=NW)
-torser_restart = tk.Button(home_frame, text="Restart Torque Motor")
-torser_restart.grid(row=9, column=0, padx=5, pady=5, sticky=NW)
 
 cpt_var = tk.StringVar()
 vst_var = tk.StringVar()
@@ -1430,7 +1418,7 @@ def cpt_estop():
 act_nstop = tk.Button(cpt_frame, text="Actuator Stop", bg="#fcf5b6", command=lambda: digitalWrite(actuator,'s'))
 act_nstop.grid(row=3, column=2, sticky=W)
 
-jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'W7000'))
+jog_down = tk.Button(cpt_frame, text="Jog Down", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'W'))
 jog_up = tk.Button(cpt_frame, text="Jog Up", bg="#cfe1ff", command=lambda: digitalWrite(actuator, 'C'))
 jog_down.place(relx=0.86, rely=0.19)
 jog_up.place(relx=0.86, rely=0.153)
@@ -1446,7 +1434,7 @@ newt.grid(row=6, column=0, pady=2)
 curr_newt = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='#e0e0e0', relief='ridge')
 curr_newt.grid(row=6, column=1, sticky=W, pady=2)
 
-cpt_folder = tk.Button(cpt_frame, image=folders, command=lambda:open_folder('.\\data_output\\cpt'))
+cpt_folder = tk.Button(cpt_frame, image=folders, command=lambda:open_folder('C:\\data_output\\cpt'))
 cpt_folder.grid(row=6, column=2)
 
 ran_label = tk.Label(cpt_frame, text="Current run count: ", font=("Arial Bold", 10))
@@ -1509,7 +1497,7 @@ running2.grid(row=6, column=0, pady=2)
 torque_running = tk.Label(vst_frame, text=str(lc_running), font=("Arial", 14), background='#f05666', relief='groove')
 torque_running.grid(row=6, column=1, sticky=W, pady=2)
 
-vst_folder = tk.Button(vst_frame, image=folders, command=lambda:open_folder('.\\data_output\\vst'))
+vst_folder = tk.Button(vst_frame, image=folders, command=lambda:open_folder('C:\\data_output\\vst'))
 vst_folder.grid(row=6, column=2)
 
 ran_label2 = tk.Label(vst_frame, text="Current run count: ", font=("Arial Bold", 10))
@@ -1595,7 +1583,7 @@ dsp_scanstat.grid(row=9, column=1, sticky=W, pady=2)
 # scanning_gif.place(relx=0.36, rely=0.179, anchor=tk.NE)
 # scanning_gif.start()
 
-dsp_folder = tk.Button(dsp_frame, image=folders, command=lambda:open_folder('.\\data_output\\dsp'))
+dsp_folder = tk.Button(dsp_frame, image=folders, command=lambda:open_folder('C:\\data_output\\dsp'))
 dsp_folder.grid(row=10, column=2, pady=10)
 
 #endregion
@@ -1660,7 +1648,7 @@ temp_running.grid(row=5, column=1, sticky=W, pady=2)
 stop_tcp_button = tk.Button(tcp_frame, text="Stop Temperature Sensor", background="#ffcdc9", command=stop_tcp)
 stop_tcp_button.grid(row=5, column=2, padx=3, pady=3, sticky=W)
 
-tcp_folder = tk.Button(tcp_frame, image=folders, command=lambda:open_folder('.\\data_output\\tcp'))
+tcp_folder = tk.Button(tcp_frame, image=folders, command=lambda:open_folder('C:\\data_output\\tcp'))
 tcp_folder.grid(row=6, column=2)
 
 ran_label3 = tk.Label(tcp_frame, text="Current run count: ", font=("Arial Bold", 10))
@@ -1728,7 +1716,7 @@ ani4 = FuncAnimation(fig4, animate_dsp, interval=1000, cache_frame_data=False)
 ani5 = FuncAnimation(fig5, animate_dsp_phase, interval=1000, cache_frame_data=False)
 
 plt.show()
-# check_ports()
+check_ports()
 
 # Automatically closes serial ports as soon as the program is closed
 def exit_handler():

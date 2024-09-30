@@ -16,7 +16,7 @@ from tkinter import ttk
 #     print('Command sent:', command)
 
 
-ser = serial.Serial('COM17', baudrate=4800, timeout=1)
+ser = serial.Serial('COM14', baudrate=4800, timeout=1)
 
 def writeArd(message):
     ser.write(bytes(message, 'utf-8'))

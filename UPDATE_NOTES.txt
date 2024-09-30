@@ -559,3 +559,6 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
   FINALLY FIXED THE COM PORT ISSUES LESGOOOOO
    - turns out it was just the USB hub (probably couldn't handle both linear and rotation power wise)
    - also added a small delay on the arduino reading and turned down baudrate to 4800
+
+9-30-24
+  Updated data file output to C:\ so that pushes won't be cluttered with random csvs
