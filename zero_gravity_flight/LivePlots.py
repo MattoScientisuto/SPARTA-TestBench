@@ -4,10 +4,11 @@
 # Zero Gravity: Live Plots 
 
 # Created: September 12th, 2024
-# Last Updated: September 12th, 2024
+# Last Updated: October 7th, 2024
 # ============================================ #
 
-from DateTimeFetching import *
+import PathSetup
+from general_fetching_scripts.DateTimeFetching import *
 from SensorOps import *
 import SensorOps
 

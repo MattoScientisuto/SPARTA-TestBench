@@ -1,7 +1,7 @@
 # ============================================ #
 # Author: Matthew Duong (US 3223 Affiliate)
 # SPARTA 
-# Zero Gravity: General Date + Timestamp Fetcher
+# General Date + Timestamp Fetcher
 
 # Created: September 4th, 2024
 # Last Updated: September 4th, 2024

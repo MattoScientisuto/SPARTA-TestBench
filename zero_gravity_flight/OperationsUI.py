@@ -4,9 +4,11 @@
 # Zero Gravity: Operations Interface
 
 # Created: September 10th, 2024
-# Last Updated: September 23th, 2024
+# Last Updated: October 7th, 2024
 # ============================================ #
+import PathSetup
 
+from general_fetching_scripts.SPARTA_ASCII import *
 from LivePlots import *
 from RotateMotor import *
 

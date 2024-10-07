@@ -4,10 +4,10 @@
 # Zero Gravity: Sensors and Data Acquisition 
 
 # Created: September 3rd, 2024
-# Last Updated: September 5th, 2024
+# Last Updated: October 7th, 2024
 # ============================================ #
 
-from DateTimeFetching import *
+from general_fetching_scripts.DateTimeFetching import *
 from LinearMotor import *
 from RotateMotor import *
 

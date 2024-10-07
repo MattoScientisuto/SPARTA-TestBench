@@ -4,14 +4,19 @@
 # Zero Gravity: Linear Actuator Ports and Commands
 
 # Created: September 3rd, 2024
-# Last Updated: September 16th, 2024
+# Last Updated: October 7th, 2024
 # ============================================ #
-from DateTimeFetching import *
+
+import PathSetup
+
+from general_fetching_scripts.SerialPortFetching import *
+from general_fetching_scripts.DateTimeFetching import *
+
 import serial
 import time
 
 # Motor serial ports
-linear_actuator = serial.Serial('COM14', baudrate=4800, timeout=0, write_timeout=0)
+linear_actuator = serial.Serial(f'{linear_actuator_com}', baudrate=4800, timeout=0, write_timeout=0)
 
 actuator_duration = 8 #seconds, will change later to whatever the flight needs
 

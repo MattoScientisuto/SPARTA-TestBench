@@ -8,8 +8,11 @@
 # GUI Interface Runner
 
 # Created: June 13th, 2023
-# Last Updated: September 12th, 2024
+# Last Updated: October 7th, 2024
 # ============================================ #
+
+from general_fetching_scripts.SPARTA_ASCII import *
+from general_fetching_scripts.SerialPortFetching import linear_actuator_com, rotate_motor_com
 
 from tkinter import *
 from tkinter import filedialog
@@ -190,10 +193,10 @@ frame.grid_propagate(False)
 
 stepper_write_lock = threading.Lock()
 
-actuator = serial.Serial('COM14', baudrate=4800, timeout=1)
+actuator = serial.Serial(f'{linear_actuator_com}', baudrate=4800, timeout=0, write_timeout=0)
 # tcp_heater = serial.Serial('COM4', baudrate=9600, timeout=1)
 stepper = serial.Serial(
-    port='COM15',
+    port=f'{rotate_motor_com}',
     baudrate=38400,
     bytesize=serial.EIGHTBITS,  # Data bits
     parity=serial.PARITY_NONE,  # Parity

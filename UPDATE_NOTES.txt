@@ -562,3 +562,10 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
 9-30-24
   Updated data file output to C:\ so that pushes won't be cluttered with random csvs
+
+10-7-24
+  Serial ports for the linear actuator and rotation motor will now update dynamically for field and zero gravity
+   - No need to manually update COM port names in the code anymore
+
+  Added an ASCII banner at the beginning of each script for function
+   - Also makes it more clear at where the program starts

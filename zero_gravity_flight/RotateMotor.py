@@ -4,9 +4,10 @@
 # Zero Gravity: Rotation Motor Ports and Commands
 
 # Created: September 3rd, 2024
-# Last Updated: September 11th, 2024
+# Last Updated: October 7th, 2024
 # ============================================ #
-from DateTimeFetching import *
+from general_fetching_scripts.SerialPortFetching import *
+from general_fetching_scripts.DateTimeFetching import *
 
 import serial
 import time
@@ -16,7 +17,7 @@ step_position = 67 * (vst_seconds)
     
     
 stepper = serial.Serial(
-        port='COM15',
+        port=f'{rotate_motor_com}',
         baudrate=38400,
         bytesize=serial.EIGHTBITS,
         parity=serial.PARITY_NONE, 
