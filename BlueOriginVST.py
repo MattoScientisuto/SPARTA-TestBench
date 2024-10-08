@@ -4,8 +4,10 @@
 # Blue Origin DSP Sequence: Vane Shear Only
 
 # Created: February 16th, 2024
-# Last Updated: September 30th, 2024
+# Last Updated: October 8th, 2024
 # ============================================ #
+import zero_gravity_flight.PathSetup
+from general_fetching_scripts.SerialPortFetching import *
 
 import os
 import csv
@@ -23,7 +25,7 @@ sys.stdout = open("console_log_vstflight.txt", "a")
 
 # ==================================
 # Vane Shear Setup
-stepper = serial.Serial('COM3', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial(f'{rotate_motor_com}', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1600
 vst_duration = 30

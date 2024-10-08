@@ -569,3 +569,6 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   Added an ASCII banner at the beginning of each script for function
    - Also makes it more clear at where the program starts
+
+10-8-24
+  Added dynamic port fetching to Blue Origin VST
