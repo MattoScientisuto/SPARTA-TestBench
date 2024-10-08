@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: Ground Vane Shear
 
 # Created: March 21th, 2024
-# Last Updated: April 9th, 2024
+# Last Updated: September 30th, 2024
 # ============================================ #
 
 import os
@@ -70,6 +70,7 @@ def get_torque_csv():
         file.close()
 
 def rotate_vst():
+    stepper.write('@0+\r'.encode())
     stepper.write(f'@0N{vst_duration * 1500}\r'.encode())
     stepper.write('@0G\r'.encode())   
     stepper.write('@0F\r'.encode())   
