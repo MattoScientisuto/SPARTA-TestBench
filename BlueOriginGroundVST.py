@@ -117,6 +117,16 @@ def ground_vst():
             print('VST Run Completed!\n')
             sys.stdout.flush()
             file.close()
+
+            time.sleep(3)
+
+            stepper.write('@0P0\r'.encode())
+            stepper.write('@0G\r'.encode())
+            stepper.write('@0F\r'.encode())
+            print("Resetting position...")
+            
+            time.sleep(31)
+
             stepper.close()
             sys.stdout.close()
 

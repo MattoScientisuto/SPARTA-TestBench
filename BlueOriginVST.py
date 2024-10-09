@@ -127,11 +127,23 @@ def read_torque_sensor():
             file.close()
             run_counter+=1
 
-            if run_counter == 6:
+            if run_counter == 2:
+
+                time.sleep(3)
+
+                stepper.write('@0P0\r'.encode())
+                stepper.write('@0G\r'.encode())
+                stepper.write('@0F\r'.encode())
+                print("Resetting position...")
+                
+                time.sleep(31)
+
                 stepper.close()
                 sys.stdout.close()
                 sys.exit()
+                
             else:
+
                 time.sleep(3)
 
     go_vst()
