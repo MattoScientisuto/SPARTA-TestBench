@@ -28,7 +28,7 @@ from threading import Thread
 stepper = serial.Serial(f'{rotate_motor_com}', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1600
-vst_duration = 30
+vst_duration = 60
 run_counter = 0
 torque_csv = []
 
@@ -125,7 +125,7 @@ def ground_vst():
             stepper.write('@0F\r'.encode())
             print("Resetting position...")
             
-            time.sleep(31)
+            time.sleep(61)
 
             stepper.close()
             sys.stdout.close()
