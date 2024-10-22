@@ -4,7 +4,7 @@
 # Blue Origin DSP Sequence: Final Vane Shear
 
 # Created: March 21th, 2024
-# Last Updated: October 8th, 2024
+# Last Updated: October 22nd, 2024
 # ============================================ #
 import zero_gravity_flight.PathSetup
 from general_fetching_scripts.SerialPortFetching import *
@@ -25,10 +25,10 @@ sys.stdout = open("console_log_vstflight.txt", "a")
 
 # ==================================
 # Vane Shear Setup
-stepper = serial.Serial(f'{rotate_motor_com}', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
+stepper = serial.Serial(f'{rotate_motor_com2}', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1600
-vst_duration = 60
+vst_duration = 120
 run_counter = 0
 torque_csv = []
 
@@ -124,7 +124,7 @@ def final_landing_vst():
             stepper.write('@0F\r'.encode())
             print("Resetting position...")
                 
-            time.sleep(61)
+            time.sleep(121)
 
             stepper.close()
             sys.stdout.close()
