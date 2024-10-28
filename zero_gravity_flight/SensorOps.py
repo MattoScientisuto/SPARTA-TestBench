@@ -4,7 +4,7 @@
 # Zero Gravity: Sensors and Data Acquisition 
 
 # Created: September 3rd, 2024
-# Last Updated: October 7th, 2024
+# Last Updated: October 24th, 2024
 # ============================================ #
 
 from general_fetching_scripts.DateTimeFetching import *
@@ -87,7 +87,7 @@ def read_load_cell():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_force_bridge_two_point_lin_chan("cDAQ2Mod1/ai0", units=ForceUnits.POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+        ai_task.ai_channels.add_ai_force_bridge_two_point_lin_chan("cDAQ3Mod1/ai0", units=ForceUnits.POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.POUNDS)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
@@ -134,10 +134,6 @@ def read_load_cell():
 
         digitalWrite(linear_actuator, 's')
 
-        # Close port safely, prep for re-open and reset
-        # needs testing first
-        # linear_actuator.close()
-
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))
@@ -183,7 +179,7 @@ def get_vst_csv():
     # Create the csv file and write the column titles
     with open(f'C:\\zero_gravity_output\\data_output\\vst\\{get_datestamp()}\\{vst_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches/Raw]"])
+        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches/Raw]", "Torque [Pound-inches/AbsoluteVal]"])
         file.close()
 
 
@@ -200,7 +196,7 @@ def read_torque_sensor():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ2Mod1/ai1", units=TorqueUnits.INCH_POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ3Mod1/ai1", units=TorqueUnits.INCH_POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0, 
                                                                     physical_units=BridgePhysicalUnits.INCH_POUNDS)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
@@ -222,7 +218,7 @@ def read_torque_sensor():
             # If not, last timestamp shouldn't be taken from the previous
             else:
                 last_timestamp = 0
-                # clear_vertical_lines(vst_endlines)
+
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
@@ -240,11 +236,10 @@ def read_torque_sensor():
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, true_torque])
+                writer.writerow([continued_timestamp, torque, true_torque])
                 
             file.close()
 
-        # stepper.close()
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
         print("Total time elapsed: {:.3f} seconds".format(total_time))

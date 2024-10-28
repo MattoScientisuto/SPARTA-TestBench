@@ -4,7 +4,7 @@
 # Zero Gravity: Rotation Motor Ports and Commands
 
 # Created: September 3rd, 2024
-# Last Updated: October 7th, 2024
+# Last Updated: October 24th, 2024
 # ============================================ #
 from general_fetching_scripts.SerialPortFetching import *
 from general_fetching_scripts.DateTimeFetching import *
@@ -12,8 +12,8 @@ from general_fetching_scripts.DateTimeFetching import *
 import serial
 import time
 
-vst_seconds   = 20
-step_position = 67 * (vst_seconds)
+vst_seconds   = 30
+step_position = 1500 * (vst_seconds)
     
     
 stepper = serial.Serial(
@@ -29,12 +29,12 @@ stepper = serial.Serial(
 
 def speeds_setup():
 
-    stepper.write('@0B67\r'.encode())
-    time_print('Base speed set to 67')
-    stepper.write('@0M67\r'.encode())
-    time_print('Max speed set to 67')
-    stepper.write('@0J67\r'.encode())
-    time_print('Jog speed set to 67')
+    stepper.write('@0B500\r'.encode())
+    time_print('Base speed set to 500')
+    stepper.write('@0M1500\r'.encode())
+    time_print('Max speed set to 1500')
+    stepper.write('@0J1500\r'.encode())
+    time_print('Jog speed set to 1500')
     stepper.write('@0+\r'.encode())
     time_print('Direction set to clockwise+')
 
@@ -52,13 +52,13 @@ def rotate_forward():
 
 def rotate_reset():
 
-    # Reset at motor default speed, otherwise it'd take too long
-    stepper.write('@0B500\r'.encode())
-    time_print('Base speed set to 500')
-    stepper.write('@0M1500\r'.encode())
-    time_print('Max speed set to 500')
-    stepper.write('@0J1500\r'.encode())
-    time_print('Jog speed set to 500')
+    # Reset at quicker speed, otherwise it'd take too long
+    stepper.write('@0B5000\r'.encode())
+    time_print('Base speed set to 5000')
+    stepper.write('@0M13000\r'.encode())
+    time_print('Max speed set to 13000')
+    stepper.write('@013000\r'.encode())
+    time_print('Jog speed set to 13000')
     stepper.write('@0P0\r'.encode())
     time_print('Position set to HOME')
     stepper.write('@0G\r'.encode())
@@ -66,4 +66,4 @@ def rotate_reset():
 
 
     time_print('Resetting position...')
-    time.sleep(2)
+    time.sleep(5)

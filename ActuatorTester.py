@@ -6,6 +6,8 @@
 # Created: September 5th, 2023
 # Last Updated: December 11th, 2023
 # ============================================ #
+import zero_gravity_flight.PathSetup
+from general_fetching_scripts.SerialPortFetching import *
 
 import serial
 import tkinter as tk
@@ -16,7 +18,7 @@ from tkinter import ttk
 #     print('Command sent:', command)
 
 
-ser = serial.Serial('COM14', baudrate=4800, timeout=1)
+ser = serial.Serial(f'{linear_actuator_com_vaccuum}', baudrate=4800)
 
 def writeArd(message):
     ser.write(bytes(message, 'utf-8'))

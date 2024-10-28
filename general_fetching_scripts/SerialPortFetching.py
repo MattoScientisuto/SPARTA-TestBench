@@ -42,25 +42,36 @@ usb_linear_actuator = {
     'product_id': '0x43', 
     'serial_number': '34333323932351716191'
 }
+usb_linear_actuator_vaccuum = {
+    'vendor_id': '0x2341', 
+    'product_id': '0x43', 
+    'serial_number': '343303133313511121C0'
+}
+
 
 usb_rotate_motor = {
     'vendor_id': '0x403',  
     'product_id': '0x6001'
 }
-
 usb_rotate_motor2 = {
     'vendor_id': '0x403',  
     'product_id': '0x6001',
     'serial_number': '6'
 }
 
+
 # Find the COM port for each device
 linear_actuator_com = find_device(usb_linear_actuator['vendor_id'], usb_linear_actuator['product_id'], usb_linear_actuator.get('serial_number'))
+linear_actuator_com_vaccuum = find_device(usb_linear_actuator_vaccuum['vendor_id'], usb_linear_actuator_vaccuum['product_id'], usb_linear_actuator_vaccuum.get('serial_number'))
 rotate_motor_com = find_device(usb_rotate_motor['vendor_id'], usb_rotate_motor['product_id'], usb_rotate_motor.get('serial_number'))
 rotate_motor_com2 = find_device(usb_rotate_motor2['vendor_id'], usb_rotate_motor2['product_id'], usb_rotate_motor2.get('serial_number'))
 
 if linear_actuator_com:
     print(f"Linear Actuator Arduino is at: {linear_actuator_com}\n")
+else:
+    print("ERROR: Linear Actuator Arduino was not not found.")
+if linear_actuator_com_vaccuum:
+    print(f"Vacuum Linear Actuator Arduino is at: {linear_actuator_com_vaccuum}\n")
 else:
     print("ERROR: Linear Actuator Arduino was not not found.")
 
