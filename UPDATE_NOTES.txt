@@ -572,3 +572,10 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
 10-8-24
   Added dynamic port fetching to Blue Origin VST
+
+12-9-24
+  Added separate Vacuum script
+   - works pretty much the same way as the field bench interface
+   - only difference is that it searches for the vacuum Arduino and rotation motor idea
+
+  Calibrated Vacuum MLP-50 and RTS-200

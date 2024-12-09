@@ -12,7 +12,7 @@
 # ============================================ #
 
 from general_fetching_scripts.SPARTA_ASCII import *
-from general_fetching_scripts.SerialPortFetching import linear_actuator_com, rotate_motor_com
+from general_fetching_scripts.SerialPortFetching import linear_actuator_com_vaccuum, rotate_motor_com
 
 from tkinter import *
 from tkinter import filedialog
@@ -34,7 +34,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 import nidaqmx
-from nidaqmx.constants import RTDType, ExcitationSource, TemperatureUnits, ResistanceConfiguration
+from nidaqmx.constants import BridgePhysicalUnits, RTDType, ExcitationSource, TemperatureUnits, ResistanceConfiguration
 from nidaqmx.constants import AcquisitionType, TerminalConfiguration, TorqueUnits, BridgeConfiguration, BridgeElectricalUnits, AcquisitionType, ForceUnits
 
 from pyvium import Core
@@ -193,8 +193,7 @@ frame.grid_propagate(False)
 
 stepper_write_lock = threading.Lock()
 
-actuator = serial.Serial(f'{linear_actuator_com}', baudrate=4800, timeout=0, write_timeout=0)
-# tcp_heater = serial.Serial('COM4', baudrate=9600, timeout=1)
+actuator = serial.Serial(f'{linear_actuator_com_vaccuum}', baudrate=4800, timeout=0, write_timeout=0)
 stepper = serial.Serial(
     port=f'{rotate_motor_com}',
     baudrate=38400,
@@ -205,9 +204,9 @@ stepper = serial.Serial(
     write_timeout=0
 )
 
-stepper.write('@0B67\r'.encode())
-stepper.write('@0M67\r'.encode())
-stepper.write('@0J67\r'.encode())
+stepper.write('@0B500\r'.encode())
+stepper.write('@0M1500\r'.encode())
+stepper.write('@0J1500\r'.encode())
 stepper.write('@0+\r'.encode())
 
 
@@ -280,15 +279,15 @@ def kill_ports():
         tk.messagebox.showinfo("Error", "Torque Motor serial port already closed")
 
 # Write command for Stepper Motor
-vst_step_pos = 4020
+vst_step_pos = 45000
 
 def go_to():
     global stepper
 
     with stepper_write_lock:
-        stepper.write('@0B67\r'.encode())
-        stepper.write('@0M67\r'.encode())
-        stepper.write('@0J67\r'.encode())
+        stepper.write('@0B500\r'.encode())
+        stepper.write('@0M1500\r'.encode())
+        stepper.write('@0J1500\r'.encode())
         stepper.write('@0+\r'.encode())
         stepper.write(f'@0N{vst_step_pos}\r'.encode())
         stepper.write('@0G\r'.encode())  
@@ -307,9 +306,9 @@ def reset():
 
     with stepper_write_lock:
         # Reset at motor default speed, otherwise it'd take too long
-        stepper.write('@0B500\r'.encode())
-        stepper.write('@0M1500\r'.encode())
-        stepper.write('@0J1500\r'.encode())
+        stepper.write('@0B5000\r'.encode())
+        stepper.write('@0M13000\r'.encode())
+        stepper.write('@0J13000\r'.encode())
         stepper.write('@0P0\r'.encode())
         stepper.write('@0G\r'.encode())
         stepper.write('@0F\r'.encode())
@@ -372,7 +371,7 @@ total_time = 0
 sample_rate = 1655
 
 acquisition_duration = 0
-vst_duration = 60
+vst_duration = 30
     
 def log_update(device):
     if device is curr_log1:
@@ -415,7 +414,7 @@ def read_load_cell():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_force_bridge_two_point_lin_chan("cDAQ2Mod1/ai0", units=ForceUnits.NEWTONS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+        ai_task.ai_channels.add_ai_force_bridge_two_point_lin_chan("cDAQ3Mod1/ai0", units=ForceUnits.NEWTONS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
         ai_task.in_stream.input_buf_size = 2000
@@ -427,7 +426,7 @@ def read_load_cell():
         
         ai_task.start()
         
-        # digitalWrite(actuator, 'W')
+        digitalWrite(actuator, 'W')
 
         lc_running = True
         switch_true(load_running)
@@ -449,9 +448,10 @@ def read_load_cell():
             for i in range(cpt_samples):
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1   # Inversion
-                gain = (true_strain * 2.119815819554249) + 0.21327688284410093
-                offset = gain - 594
+                gain = (true_strain * 0.5333959360999231) - 0.12398817939086519
+                offset = gain - 3.1
                 strain_newtons = offset
+
                 cdepth = r_count / 1732     # About 1732 data points per centimeter at 12 Volts
 
                 now = dt.datetime.now()
@@ -463,7 +463,7 @@ def read_load_cell():
 
                 continued_timestamp = last_timestamp + rounded_seconds
 
-                strain_data.append(offset)
+                strain_data.append(strain_newtons)
                 r_count+=1
                 
                 # Write current value to CSV
@@ -477,7 +477,7 @@ def read_load_cell():
                 
             file.close()
             
-        # digitalWrite(actuator, 's')
+        digitalWrite(actuator, 's')
 
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
@@ -515,7 +515,7 @@ def read_torque_sensor():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ2Mod1/ai1", units=TorqueUnits.INCH_POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ3Mod1/ai1", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
         # ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.FINITE, samps_per_chan=10000)
@@ -541,7 +541,9 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = abs(torque)   # Torque should only go up
+                true_torque = torque # Torque should only go up
+                gain = (true_torque * 0.1905196304386342) - 0.030045785418259252 # This is more just for the live plot readability
+                offset = gain + 0.275
 
                 now = dt.datetime.now()
                 
@@ -555,7 +557,7 @@ def read_torque_sensor():
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, true_torque])
+                writer.writerow([continued_timestamp, true_torque, offset])
                 
                 # If E-STOP condition is flagged:
                 if vst_estop_flag:
@@ -835,7 +837,7 @@ def scan_op(method):
         dsp_wait()
         dsp_running = False
         
-        dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
+        dsp_output = os.path.join('C:\\', 'data_output', 'dsp', todays_date, dsp_idf[0])
         tk.messagebox.showinfo("DSP Scan Completed!", f'Successfully completed! Your .idf file has been saved as {dsp_idf[0]}')
         switch_false(dsp_runstatus)
         switch_idle(dsp_scanstat)
@@ -912,7 +914,7 @@ torque_sensor = fig2.add_subplot(111)
 torque_line, = torque_sensor.plot([], [], linestyle='solid', linewidth='2', color='#e37005')
 torque_sensor.set_title('Torque Sensor', weight='bold')  
 torque_sensor.set_xlabel('Time Elapsed (seconds)')
-torque_sensor.set_ylabel('Torque (Pound-inches)')
+torque_sensor.set_ylabel('Torque (Pound-ounces)')
 torque_sensor.grid()
 # torque_sensor.set_ylim(1,8)
 
@@ -981,7 +983,7 @@ fig5.text(0.01, 0.97, f"Plotted: {todays_date}", ha='left', va='top', fontsize=1
 #                 Animate Functions
 # ====================================================
 # Size of moving average buffer
-BUFFER_SIZE = 1500
+BUFFER_SIZE = 1
 # CPT Buffers
 y_buffer_load = deque(maxlen=BUFFER_SIZE)
 y2_buffer_load = deque(maxlen=BUFFER_SIZE)
@@ -1046,7 +1048,7 @@ def animate_torque_sensor(i):
         data = pd.read_csv(f'C:\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
 
         x = data['Timestamp (seconds)'] 
-        y = data['Torque [Pound-inches/Raw]']                             
+        y = data['Torque [Pound-ounces/Offsetted]']                             
         
         # Update buffers with new data points
         x_buffer_torque.extend(x)
@@ -1159,7 +1161,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'C:\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches/Raw]"])
+        writer.writerow(["Timestamp (seconds)", "Torque [Pound-ounces/Raw]", "Torque [Pound-ounces/Offsetted]"])
         file.close()
 
 # Get DSP IDF log name
@@ -1259,11 +1261,11 @@ def set_vst_dur():
         tk.messagebox.showinfo("Error", 'The maximum duration is 5591 seconds!')
     else:  
         # Time -> Steps conversion: 1500 steps per second
-        vst_step_pos = (67 * vst_duration)
+        vst_step_pos = (1500 * vst_duration)
         rot_dur.config(text='{:.2f}'.format(vst_duration))
         print("VST Duration set to:", vst_duration)
     print(vst_step_pos)
-
+0
 # ===========================
 # Thread Running Operations
 # ===========================

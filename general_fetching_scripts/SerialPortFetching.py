@@ -67,20 +67,20 @@ rotate_motor_com = find_device(usb_rotate_motor['vendor_id'], usb_rotate_motor['
 rotate_motor_com2 = find_device(usb_rotate_motor2['vendor_id'], usb_rotate_motor2['product_id'], usb_rotate_motor2.get('serial_number'))
 
 if linear_actuator_com:
-    print(f"Linear Actuator Arduino is at: {linear_actuator_com}\n")
+    print(f"Field Bench Linear Actuator Arduino is at: {linear_actuator_com}")
 else:
-    print("ERROR: Linear Actuator Arduino was not not found.")
+    print("Field Bench Linear Actuator Arduino was not not found.")
 if linear_actuator_com_vaccuum:
-    print(f"Vacuum Linear Actuator Arduino is at: {linear_actuator_com_vaccuum}\n")
+    print(f"Vacuum Linear Actuator Arduino is at: {linear_actuator_com_vaccuum}")
 else:
-    print("ERROR: Linear Actuator Arduino was not not found.")
+    print("Vacuum Linear Actuator Arduino was not not found.")
 
 if rotate_motor_com:
-    print(f"Rotation Motor is at: {rotate_motor_com}\n")
+    print(f"Rotation Motor is at: {rotate_motor_com}")
 else:
-    print("ERROR: Rotation Motor not found.")
+    print("Rotation Motor not found.")
 
 if rotate_motor_com2:
     print(f"Blue Origin Rotation Motor is at: {rotate_motor_com2}\n")
 else:
-    print("ERROR: Rotation Motor not found.")
+    print("ERROR: Rotation Motor not found.\n")
