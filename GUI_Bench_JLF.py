@@ -427,7 +427,7 @@ def read_load_cell():
         
         ai_task.start()
         
-        # digitalWrite(actuator, 'W')
+        digitalWrite(actuator, 'W')
 
         lc_running = True
         switch_true(load_running)
@@ -450,7 +450,7 @@ def read_load_cell():
                 strain = ai_task.read()     # Read current value
                 true_strain = strain * -1   # Inversion
                 gain = (true_strain * 2.119815819554249) + 0.21327688284410093
-                offset = gain - 594
+                offset = gain - 382
                 strain_newtons = offset
                 cdepth = r_count / 1732     # About 1732 data points per centimeter at 12 Volts
 
@@ -477,7 +477,7 @@ def read_load_cell():
                 
             file.close()
             
-        # digitalWrite(actuator, 's')
+        digitalWrite(actuator, 's')
 
         end_time = dt.datetime.now() 
         total_time = (end_time - start_time).total_seconds()
@@ -515,7 +515,7 @@ def read_torque_sensor():
         # Setup the NI cDAQ-9174 + DAQ 9237 module
         # Specify the DAQ port (find using NI-MAX)
         # Then choose the units + sample rate + acquisition type
-        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ2Mod1/ai1", units=TorqueUnits.INCH_POUNDS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
+        ai_task.ai_channels.add_ai_torque_bridge_two_point_lin_chan("cDAQ2Mod1/ai1", units=TorqueUnits.NEWTON_METERS, bridge_config=BridgeConfiguration.FULL_BRIDGE, 
                                                                     voltage_excit_source=ExcitationSource.INTERNAL, voltage_excit_val=10.0, nominal_bridge_resistance=350.0)
         ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.CONTINUOUS)
         # ai_task.timing.cfg_samp_clk_timing(rate=sample_rate,sample_mode=AcquisitionType.FINITE, samps_per_chan=10000)
@@ -542,6 +542,8 @@ def read_torque_sensor():
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
                 true_torque = abs(torque)   # Torque should only go up
+                gain = (true_torque * 2.4600085845912023) + 0.11180168309992292  # This is more just for the live plot readability
+                offset = gain 
 
                 now = dt.datetime.now()
                 
@@ -555,7 +557,7 @@ def read_torque_sensor():
                 
                 # Write current value to CSV
                 # Real-time so that the GUI plot can keep up
-                writer.writerow([continued_timestamp, true_torque])
+                writer.writerow([continued_timestamp, true_torque, offset])
                 
                 # If E-STOP condition is flagged:
                 if vst_estop_flag:
@@ -835,7 +837,7 @@ def scan_op(method):
         dsp_wait()
         dsp_running = False
         
-        dsp_output = os.path.join(current_directory, 'data_output', 'dsp', todays_date, dsp_idf[0])
+        dsp_output = os.path.join('C:\\', 'data_output', 'dsp', todays_date, dsp_idf[0])
         tk.messagebox.showinfo("DSP Scan Completed!", f'Successfully completed! Your .idf file has been saved as {dsp_idf[0]}')
         switch_false(dsp_runstatus)
         switch_idle(dsp_scanstat)
@@ -893,7 +895,7 @@ load_cell = fig1.add_subplot(111)
 # Labels Setup
 load_line, = load_cell.plot([], [], linestyle='solid', linewidth='2')
 load_cell.set_title('Load Cell', weight='bold')  
-load_cell.set_xlabel('Force (Pounds)')
+load_cell.set_xlabel('Force (Newtons)')
 load_cell.set_ylabel('Depth (cm)')
 load_cell.invert_yaxis()
 load_cell.grid()
@@ -912,7 +914,7 @@ torque_sensor = fig2.add_subplot(111)
 torque_line, = torque_sensor.plot([], [], linestyle='solid', linewidth='2', color='#e37005')
 torque_sensor.set_title('Torque Sensor', weight='bold')  
 torque_sensor.set_xlabel('Time Elapsed (seconds)')
-torque_sensor.set_ylabel('Torque (Pound-inches)')
+torque_sensor.set_ylabel('Torque (Newton-meters)')
 torque_sensor.grid()
 # torque_sensor.set_ylim(1,8)
 
@@ -1046,7 +1048,7 @@ def animate_torque_sensor(i):
         data = pd.read_csv(f'C:\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', sep=",")
 
         x = data['Timestamp (seconds)'] 
-        y = data['Torque [Pound-inches/Raw]']                             
+        y = data['Torque [Newton-meters/Offsetted]']                             
         
         # Update buffers with new data points
         x_buffer_torque.extend(x)
@@ -1131,7 +1133,7 @@ def get_csv():
     # Create the csv file and write the column titles
     with open(f'C:\\data_output\\cpt\\{todays_date}\\{csv_list[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp", "Depth [cm]", "Force [Pounds/Raw]", "Force [Offset]"])
+        writer.writerow(["Timestamp", "Depth [cm]", "Force [Newtons/Raw]", "Force [Offset]"])
         file.close()
 
 # Get Torque CSV log name
@@ -1159,7 +1161,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'C:\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque [Pound-inches/Raw]"])
+        writer.writerow(["Timestamp (seconds)", "Torque [Newton-meters/Raw]", "Torque [Newton-meters/Offsetted]"])
         file.close()
 
 # Get DSP IDF log name
@@ -1431,7 +1433,7 @@ act_estop.grid(row=4, column=2, sticky=W)
 act_reset = tk.Button(cpt_frame, text="Reset Actuator Position", command=lambda: digitalWrite(actuator, 'C'))
 act_reset.grid(row=5, column=2, sticky=tk.W)
 
-newt = tk.Label(cpt_frame, text="Greatest Force (Pounds): ", font=("Arial Bold", 10))
+newt = tk.Label(cpt_frame, text="Greatest Force (Newtons): ", font=("Arial Bold", 10))
 newt.grid(row=6, column=0, pady=2)
 curr_newt = tk.Label(cpt_frame, text='0.00', font=("Arial", 14), background='#e0e0e0', relief='ridge')
 curr_newt.grid(row=6, column=1, sticky=W, pady=2)

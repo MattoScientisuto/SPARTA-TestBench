@@ -579,3 +579,11 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
    - only difference is that it searches for the vacuum Arduino and rotation motor idea
 
   Calibrated Vacuum MLP-50 and RTS-200
+
+12-11-24
+  Calibrated Bench SSM-100 and TRT-200
+   - TRT-200 isn't very reliable at low ranges of torque (which we unfortunately have)
+   - Lesson learned, stick with the SSM-50 or MLP-50 and the RTS-200
+
+  Updated Blue Origin torque sensor calibration gain using the same settings as the Vacuum chamber
+   - May not be exact, but we can't afford to take the box apart anymore
