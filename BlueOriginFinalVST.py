@@ -71,6 +71,9 @@ def get_torque_csv():
         file.close()
 
 def rotate_vst():
+    stepper.write('@0B500\r'.encode())
+    stepper.write('@0M1500\r'.encode())
+    stepper.write('@0J1500\r'.encode())
     stepper.write('@0+\r'.encode())
     stepper.write(f'@0N{vst_duration * 1500}\r'.encode())
     stepper.write('@0G\r'.encode())   
@@ -119,12 +122,15 @@ def final_landing_vst():
 
             time.sleep(3)
 
+            stepper.write('@0B5000\r'.encode())
+            stepper.write('@0M13000\r'.encode())
+            stepper.write('@0J13000\r'.encode())
             stepper.write('@0P0\r'.encode())
             stepper.write('@0G\r'.encode())
             stepper.write('@0F\r'.encode())
             print("Resetting position...")
                 
-            time.sleep(31)
+            time.sleep(20)
 
             stepper.close()
             sys.stdout.close()

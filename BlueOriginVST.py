@@ -71,6 +71,9 @@ def get_torque_csv():
         file.close()
 
 def rotate_vst():
+    stepper.write('@0B500\r'.encode())
+    stepper.write('@0M1500\r'.encode())
+    stepper.write('@0J1500\r'.encode())
     stepper.write('@0+\r'.encode())
     stepper.write(f'@0N{vst_duration * 1500}\r'.encode())
     stepper.write('@0G\r'.encode())   
