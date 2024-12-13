@@ -28,7 +28,7 @@ sys.stdout = open("console_log_vstflight.txt", "a")
 stepper = serial.Serial(f'{rotate_motor_com2}', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1600
-vst_duration = 120
+vst_duration = 150
 run_counter = 0
 torque_csv = []
 
@@ -132,12 +132,15 @@ def read_torque_sensor():
 
                 time.sleep(3)
 
+                stepper.write('@0B5000\r'.encode())
+                stepper.write('@0M13000\r'.encode())
+                stepper.write('@0J13000\r'.encode())
                 stepper.write('@0P0\r'.encode())
                 stepper.write('@0G\r'.encode())
                 stepper.write('@0F\r'.encode())
                 print("Resetting position...")
                 
-                time.sleep(121)
+                time.sleep(20)
 
                 stepper.close()
                 sys.stdout.close()

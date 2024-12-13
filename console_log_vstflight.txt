@@ -322,4 +322,66 @@ Rotating forward...
 VST Start Timestamp: 2024-03-25 10:55:35.392702
 Total time elapsed: 29.782 seconds
 VST End Timestamp: 2024-03-25 10:56:05.174202
+VST Run Completed!=============================================================
+ START POINT OF LUNAR GRAVITY VST LOG: 12-13-2024 at 10:37:46
+=============================================================
+
+[12-13-2024, 10:37:46] VST batch successfully started!
+Torque CSV set to: VST_10-37-46_12-13-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-12-13 10:37:47.487309
+Total time elapsed: 119.057 seconds
+VST End Timestamp: 2024-12-13 10:39:46.544804
 VST Run Completed!
+
+Resetting position...
+=======================================================
+ START POINT OF LANDING VST LOG: 12-13-2024 at 10:45:07
+=======================================================
+
+[12-13-2024, 10:45:07] Landing VST batch successfully started!
+Torque CSV set to: VST_10-45-07_12-13-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-12-13 10:45:07.823955
+Total time elapsed: 119.052 seconds
+VST End Timestamp: 2024-12-13 10:47:06.876442
+VST Run Completed!
+
+=============================================================
+ START POINT OF LUNAR GRAVITY VST LOG: 12-13-2024 at 11:06:50
+=============================================================
+
+[12-13-2024, 11:06:50] VST batch successfully started!
+Torque CSV set to: VST_11-06-50_12-13-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-12-13 11:06:51.443230
+Total time elapsed: 119.045 seconds
+VST End Timestamp: 2024-12-13 11:08:50.487910
+VST Run Completed!
+
+Resetting position...
+=======================================================
+ START POINT OF LANDING VST LOG: 12-13-2024 at 11:14:11
+=======================================================
+
+[12-13-2024, 11:14:11] Landing VST batch successfully started!
+Torque CSV set to: VST_11-14-11_12-13-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-12-13 11:14:11.407510
+Total time elapsed: 119.059 seconds
+VST End Timestamp: 2024-12-13 11:16:10.466192
+VST Run Completed!
+
+=============================================================
+ START POINT OF LUNAR GRAVITY VST LOG: 12-13-2024 at 12:39:21
+=============================================================
+
+[12-13-2024, 12:39:21] VST batch successfully started!
+Torque CSV set to: VST_12-39-21_12-13-2024.csv
+Rotating forward...
+VST Start Timestamp: 2024-12-13 12:39:22.759323
+Total time elapsed: 119.046 seconds
+VST End Timestamp: 2024-12-13 12:41:21.804913
+VST Run Completed!
+
+Resetting position...

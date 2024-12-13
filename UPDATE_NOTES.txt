@@ -587,3 +587,16 @@ For the main manual Cone Penetrator page, running the load cell monitor will act
 
   Updated Blue Origin torque sensor calibration gain using the same settings as the Vacuum chamber
    - May not be exact, but we can't afford to take the box apart anymore
+
+12-13-24
+
+  Final Blue Origin logging and VST times adjusted
+
+  Added all operation manuals for Field, Vacuum, Blue Origin, and DSP plotting
+
+  This might be the last time I make any changes to this repository, it's been a loong ride.
+  I hope this all contributes at least something meaningful to any facet of future space exploration.
+  To whoever may be reading this, good luck and have fun trying to navigate my code lmao (if it's still in use that is)
+  
+  Peace out SPARTA, I'll see you in Texas in January :D
+  - Matthew Duong, December 13th, 2024
