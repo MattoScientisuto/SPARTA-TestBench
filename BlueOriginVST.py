@@ -67,7 +67,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque (Newton-meters) [Raw Reading]", "Torque (Newton-meters) [Absolute Value]", "Torque [Offset]"])
+        writer.writerow(["Timestamp (seconds)", "Torque (Newton-meters) [Raw Reading]", "Torque [Offset]"])
         file.close()
 
 def rotate_vst():
@@ -109,17 +109,15 @@ def read_torque_sensor():
 
             for i in range(vst_samples):
                 torque = ai_task.read()     # Read current value
-                true_torque = abs(torque)
+                true_torque = torque
                 gain = (true_torque * 0.1905196304386342) - 0.030045785418259252
 
                 now = dt.datetime.now()
-                # Calculate current time, starting from 0 seconds
-                # Then store in global timestamps list 
                 elapsed_time = now - start_time
                 seconds = elapsed_time.total_seconds()
                 rounded_seconds = round(seconds, 3)
                 
-                writer.writerow([rounded_seconds, torque, true_torque, gain])
+                writer.writerow([rounded_seconds, true_torque, gain])
 
             end_time = dt.datetime.now() 
             total_time = (end_time - start_time).total_seconds()

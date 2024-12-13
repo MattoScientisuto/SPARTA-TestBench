@@ -28,7 +28,7 @@ sys.stdout = open("console_log_vstflight.txt", "a")
 stepper = serial.Serial(f'{rotate_motor_com2}', baudrate=38400, bytesize=8, parity='N', stopbits=1, xonxoff=False)
     
 sample_rate = 1600
-vst_duration = 30
+vst_duration = 120
 run_counter = 0
 torque_csv = []
 
@@ -67,7 +67,7 @@ def get_torque_csv():
     # Create the csv file and write the column titles
     with open(f'.\\data_output\\vst\\{todays_date}\\{torque_csv[0]}', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(["Timestamp (seconds)", "Torque (Newton-meters) [Raw Reading]", "Torque (Newton-meters) [Absolute Value]", "Torque [Offset]"])
+        writer.writerow(["Timestamp (seconds)", "Torque (Newton-meters) [Raw Reading]", "Torque [Offset]"])
         file.close()
 
 def rotate_vst():
@@ -102,7 +102,7 @@ def final_landing_vst():
 
             for i in range(vst_samples):
                 torque = ai_task.read()
-                true_torque = abs(torque)
+                true_torque = torque
                 gain = (true_torque * 0.1905196304386342) - 0.030045785418259252
 
                 now = dt.datetime.now()
@@ -110,7 +110,7 @@ def final_landing_vst():
                 seconds = elapsed_time.total_seconds()
                 rounded_seconds = round(seconds, 3)
                 
-                writer.writerow([rounded_seconds, torque, true_torque, gain])
+                writer.writerow([rounded_seconds, true_torque, gain])
 
             end_time = dt.datetime.now() 
             total_time = (end_time - start_time).total_seconds()
